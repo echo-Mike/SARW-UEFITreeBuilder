@@ -5,6 +5,8 @@
 *.exe
 .vscode/
 Build/
+Input/
+*.gch
 
 # User-specific files
 *.suo
