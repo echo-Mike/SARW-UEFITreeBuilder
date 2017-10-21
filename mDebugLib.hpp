@@ -11,6 +11,7 @@
 *	PAIRED WITH: Debuglib.cpp
 **/
 
+//Create one debug.hpp file in your project with macro presets for this lib
 #include "debug.hpp"
 
 #ifdef DEBUG_LIB_FILE_LOG
