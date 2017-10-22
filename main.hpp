@@ -10,6 +10,7 @@
 //Project
 #include "mDebuglib.hpp"
 #include "fArgumentLib.hpp"
+#include "cPageLoader.hpp"
 
 namespace Project 
 {

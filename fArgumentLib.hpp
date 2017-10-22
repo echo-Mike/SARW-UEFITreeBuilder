@@ -33,24 +33,24 @@ namespace Arguments
         int data;
     };
 
-    /*
+    /**
     *   @brief Identifies null-terminated string 'arg' as option/
     *   @param[in]  arg Pointer to first char of examined null-terminated string.
     *   @return Pointer to first option char in 'arg' or nullptr if not an option/
-    */
+    **/
     char* isOption(char* arg) {
         auto size = std::strspn(arg, _optionPrefixes);
         return (size == 0) ? nullptr : arg + size;
     }
 
-    /*
+    /**
     *   @brief Attempts to find flag argument in argument list
     *   @param[in]  argc    Argument list length.
     *   @param[in]  argv    Argument list.
     *   @param[in:out]  opt Option to find.
     *   @param[in]  start   Position in argument list to start with.
     *   @return Noreturn
-    */
+    **/
     void findFlagArg(int argc, char* argv[], Option& opt, int start = 0) {
         opt.data = false;
         if (start >= argc) return;
@@ -68,14 +68,14 @@ namespace Arguments
         }
     }
 
-    /*
+    /**
     *   @brief Attempts to find value argument in argument list
     *   @param[in]  argc    Argument list length.
     *   @param[in]  argv    Argument list.
     *   @param[in:out]  opt Option to find.
     *   @param[in]  start   Position in argument list to start with.
     *   @return Noreturn
-    */
+    **/
     void findValueArg(int argc, char* argv[], Option& opt, int start = 0) {
         opt.data = -1;
         if (start >= argc - 1) return;
@@ -93,13 +93,13 @@ namespace Arguments
         }
     }
 
-    /*
+    /**
     *   @brief Main argumant parsing function.
     *   @param[in]  argc    Argument list length.
     *   @param[in]  argv    Argument list.
     *   @param[in:out]  optv Option list.
     *   @retunr Noreturn
-    */
+    **/
     void parseArgs(int argc, char* argv[], Option optv[]) {
         int _index = 0;
         while (optv[_index].type != ArgTypes::Null) 
