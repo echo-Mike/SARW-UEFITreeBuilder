@@ -59,7 +59,7 @@ namespace Arguments
             _opt = isOption(argv[_index]);
             if (_opt) {
                 if (std::strstr(_opt, opt.shortCommand) != NULL || 
-                    std::strstr(_opt, opt.longCommand) != NULL) 
+                    !std::strcmp(_opt, opt.longCommand)) 
                 {
                     opt.data = true;
                     return;
@@ -102,7 +102,8 @@ namespace Arguments
     */
     void parseArgs(int argc, char* argv[], Option optv[]) {
         int _index = 0;
-        while (optv[_index].type != ArgTypes::Null) {
+        while (optv[_index].type != ArgTypes::Null) 
+        {
             switch (optv[_index].type) {
                 case ArgTypes::Flag:
                     findFlagArg(argc, argv, optv[_index]);

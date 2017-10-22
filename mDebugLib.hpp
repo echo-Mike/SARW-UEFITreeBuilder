@@ -58,31 +58,31 @@
 
 #ifdef DEBUG
 	//Debug write macro
+	//Allow to output one value to debug stream without new line afterwards.
+	#define DEBUG_WRITE1(x) DEBUG_OUT << (x)
+	//Allow to output two values to debug stream without new line afterwards.
+	#define DEBUG_WRITE2(x,y) DEBUG_OUT << (x) << (y)
+	//Allow to output three values to debug stream without new line afterwards.
+	#define DEBUG_WRITE3(x,y,z) DEBUG_OUT << (x) << (y) << (z)
+	//Allow to output four values to debug stream without new line afterwards.
+	#define DEBUG_WRITE4(x,y,z,w) DEBUG_OUT << (x) << (y) << (z) << (w)
 	//Allow to output one value to debug stream with new line afterwards.
-	#define DWRITE1(x) DEBUG_OUT << (x) << DEBUG_LIB_NEXT_LINE
-	//Allow to output one value to debug stream with new line afterwards.
-	#define DEBUG_WRITE1(x) DWRITE1(x)
-	//Allow to output two values to debug stream with new line afterwards.
-	#define DWRITE2(x,y) DEBUG_OUT << (x) << (y) << DEBUG_LIB_NEXT_LINE
-	//Allow to output two values to debug stream with new line afterwards.
-	#define DEBUG_WRITE2(x,y) DWRITE2(x,y)
+	#define DEBUG_PRINT1(x) DEBUG_OUT << (x) << DEBUG_LIB_NEXT_LINE
+	//Allow to output two values to debug stream with new line afterwards
+	#define DEBUG_PRINT2(x,y) DEBUG_OUT << (x) << (y) << DEBUG_LIB_NEXT_LINE
 	//Allow to output three values to debug stream with new line afterwards.
-	#define DWRITE3(x,y,z) DEBUG_OUT << (x) << (y) << (z) << DEBUG_LIB_NEXT_LINE
-	//Allow to output three values to debug stream with new line afterwards.
-	#define DEBUG_WRITE3(x,y,z) DWRITE3(x,y,z)
+	#define DEBUG_PRINT3(x,y,z) DEBUG_OUT << (x) << (y) << (z) << DEBUG_LIB_NEXT_LINE
 	//Allow to output four values to debug stream with new line afterwards.
-	#define DWRITE4(x,y,z,w) DEBUG_OUT << (x) << (y) << (z) << (w) << DEBUG_LIB_NEXT_LINE
-	//Allow to output four values to debug stream with new line afterwards.
-	#define DEBUG_WRITE4(x,y,z,w) DWRITE4(x,y,z,w)
+	#define DEBUG_PRINT4(x,y,z,w) DEBUG_OUT << (x) << (y) << (z) << (w) << DEBUG_LIB_NEXT_LINE
 #else
-	#define DWRITE1(x) {}
 	#define DEBUG_WRITE1(x) {}
-	#define DWRITE2(x,y) {}
 	#define DEBUG_WRITE2(x,y) {}
-	#define DWRITE3(x,y,z) {}
 	#define DEBUG_WRITE3(x,y,z) {}
-	#define DWRITE4(x,y,z,w) {}
 	#define DEBUG_WRITE4(x,y,z,w) {}
+	#define DEBUG_PRINT1(x) {}
+	#define DEBUG_PRINT2(x,y) {}
+	#define DEBUG_PRINT3(x,y,z) {}
+	#define DEBUG_PRINT4(x,y,z,w) {}
 #endif
 
 //First line of new massege
