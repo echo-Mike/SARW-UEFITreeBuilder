@@ -56,44 +56,75 @@
 	#define DEBUG_LIB_NEXT_LINE "\n"
 #endif
 
-//Debug write macro
-//Allow to output one value to debug stream with new line afterwards.
-#define DWRITE1(x) DEBUG_OUT << (x) << DEBUG_LIB_NEXT_LINE
-//Allow to output one value to debug stream with new line afterwards.
-#define DEBUG_WRITE1(x) DWRITE1(x)
-//Allow to output two values to debug stream with new line afterwards.
-#define DWRITE2(x,y) DEBUG_OUT << (x) << (y) << DEBUG_LIB_NEXT_LINE
-//Allow to output two values to debug stream with new line afterwards.
-#define DEBUG_WRITE2(x,y) DWRITE2(x,y)
-//Allow to output three values to debug stream with new line afterwards.
-#define DWRITE3(x,y,z) DEBUG_OUT << (x) << (y) << (z) << DEBUG_LIB_NEXT_LINE
-//Allow to output three values to debug stream with new line afterwards.
-#define DEBUG_WRITE3(x,y,z) DWRITE3(x,y,z)
-//Allow to output four values to debug stream with new line afterwards.
-#define DWRITE4(x,y,z,w) DEBUG_OUT << (x) << (y) << (z) << (w) << DEBUG_LIB_NEXT_LINE
-//Allow to output four values to debug stream with new line afterwards.
-#define DEBUG_WRITE4(x,y,z,w) DWRITE4(x,y,z,w)
+#ifdef DEBUG
+	//Debug write macro
+	//Allow to output one value to debug stream with new line afterwards.
+	#define DWRITE1(x) DEBUG_OUT << (x) << DEBUG_LIB_NEXT_LINE
+	//Allow to output one value to debug stream with new line afterwards.
+	#define DEBUG_WRITE1(x) DWRITE1(x)
+	//Allow to output two values to debug stream with new line afterwards.
+	#define DWRITE2(x,y) DEBUG_OUT << (x) << (y) << DEBUG_LIB_NEXT_LINE
+	//Allow to output two values to debug stream with new line afterwards.
+	#define DEBUG_WRITE2(x,y) DWRITE2(x,y)
+	//Allow to output three values to debug stream with new line afterwards.
+	#define DWRITE3(x,y,z) DEBUG_OUT << (x) << (y) << (z) << DEBUG_LIB_NEXT_LINE
+	//Allow to output three values to debug stream with new line afterwards.
+	#define DEBUG_WRITE3(x,y,z) DWRITE3(x,y,z)
+	//Allow to output four values to debug stream with new line afterwards.
+	#define DWRITE4(x,y,z,w) DEBUG_OUT << (x) << (y) << (z) << (w) << DEBUG_LIB_NEXT_LINE
+	//Allow to output four values to debug stream with new line afterwards.
+	#define DEBUG_WRITE4(x,y,z,w) DWRITE4(x,y,z,w)
+#else
+	#define DWRITE1(x) {}
+	#define DEBUG_WRITE1(x) {}
+	#define DWRITE2(x,y) {}
+	#define DEBUG_WRITE2(x,y) {}
+	#define DWRITE3(x,y,z) {}
+	#define DEBUG_WRITE3(x,y,z) {}
+	#define DWRITE4(x,y,z,w) {}
+	#define DEBUG_WRITE4(x,y,z,w) {}
+#endif
 
-//First line
+//First line of new massege
 #ifndef DEBUG_NEW_MESSAGE
-	//First line of new massege
-	#ifdef DEBUG_LIB_LOG_THREAD_SAFETY
-		//Output lock guard for global mutex var name macro def : to avoid name conflict
-		#ifndef DEBUG_LIB_LOG_LOCK_GUARG_VAR_NAME
-			#define DEBUG_LIB_LOG_LOCK_GUARG_VAR_NAME __Debug_Lib_Msg_Scope_Lg;
-		#endif
-		#define DEBUG_NEW_MESSAGE(x) { \
-			std::lock_guard<std::mutex> DEBUG_LIB_LOG_LOCK_GUARG_VAR_NAME(DebugLib::DEBUG_LIB_LOG_MUTEX_VAR_NAME);\
-			DEBUG_OUT << (x) << DEBUG_LIB_NEXT_LINE;
+	#ifdef DEBUG
+		#ifdef DEBUG_LIB_LOG_THREAD_SAFETY
+			//Output lock guard for global mutex var name macro def : to avoid name conflict
+			#ifndef DEBUG_LIB_LOG_LOCK_GUARG_VAR_NAME
+				#define DEBUG_LIB_LOG_LOCK_GUARG_VAR_NAME __Debug_Lib_Msg_Scope_Lg;
+			#endif
+			#define DEBUG_NEW_MESSAGE(x) { \
+				std::lock_guard<std::mutex> DEBUG_LIB_LOG_LOCK_GUARG_VAR_NAME(DebugLib::DEBUG_LIB_LOG_MUTEX_VAR_NAME);\
+				DEBUG_OUT << (x) << DEBUG_LIB_NEXT_LINE;
+		#else
+			#define DEBUG_NEW_MESSAGE(x) { \
+				DEBUG_OUT << (x) << DEBUG_LIB_NEXT_LINE;
+		#endif	
 	#else
-		#define DEBUG_NEW_MESSAGE(x) { \
-			DEBUG_OUT << (x) << DEBUG_LIB_NEXT_LINE;
+		#define DEBUG_NEW_MESSAGE(x) { while(false) {
 	#endif
 #endif
 
 //End line and flush
 #ifndef DEBUG_END_MESSAGE
-	#define DEBUG_END_MESSAGE DEBUG_OUT << std::flush; }
+	#ifdef DEBUG
+		#define DEBUG_END_MESSAGE DEBUG_OUT << std::flush; }
+	#else
+		#define DEBUG_END_MESSAGE }}
+	#endif
+#endif
+
+//End message, flush and exit program with 'exitcode'
+#ifndef DEBUG_END_MESSAGE_AND_EXIT
+	#include <cstdlib>
+	#ifdef DEBUG 
+		#define DEBUG_END_MESSAGE_AND_EXIT(exitcode) \
+				DEBUG_OUT << std::flush; \
+				std::exit((exitcode)); }
+	#else
+		#define DEBUG_END_MESSAGE_AND_EXIT(exitcode) \
+			} std::exit((exitcode)); }
+	#endif
 #endif
 
 #endif

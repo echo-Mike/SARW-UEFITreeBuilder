@@ -9,6 +9,8 @@
 *		mailto:dev.echo.mike@gmail.com
 *		https://github.com/echo-Mike
 **/
+
+//STD
 #include <cstring>
 
 namespace Arguments 
@@ -50,10 +52,8 @@ namespace Arguments
     *   @return Noreturn
     */
     void findFlagArg(int argc, char* argv[], Option& opt, int start = 0) {
-        if (start >= argc) {
-            opt.data = false;
-            return;
-        }
+        opt.data = false;
+        if (start >= argc) return;
         char* _opt = nullptr;
         for (auto _index = start; _index < argc; _index++) {
             _opt = isOption(argv[_index]);
@@ -66,7 +66,6 @@ namespace Arguments
                 }
             }
         }
-        opt.data = false;
     }
 
     /*
@@ -78,15 +77,13 @@ namespace Arguments
     *   @return Noreturn
     */
     void findValueArg(int argc, char* argv[], Option& opt, int start = 0) {
-        if (start >= argc - 1) {
-            opt.data = -1;
-            return;
-        }
+        opt.data = -1;
+        if (start >= argc - 1) return;
         char* _opt = nullptr;
-        for (auto _index = start; _index < argc; _index++) {
+        for (auto _index = start; _index < argc - 1; _index++) {
             _opt = isOption(argv[_index]);
             if (_opt) {
-                if (!std::strcmp(_opt, opt.shortCommand)  || 
+                if (!std::strcmp(_opt, opt.shortCommand) || 
                     !std::strcmp(_opt, opt.longCommand)) 
                 {
                     opt.data = _index + 1;
@@ -94,7 +91,6 @@ namespace Arguments
                 }
             }
         }
-        opt.data = -1;
     }
 
     /*
