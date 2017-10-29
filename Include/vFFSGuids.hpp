@@ -4,6 +4,7 @@
 //UEFI
 extern "C" {
     #include "Base.h"
+    #include "Uefi.h"
     #include <Pi/PiFirmwareVolume.h>
 }
 
@@ -35,9 +36,6 @@ extern "C" {
 #define EFI_SONY_FILE_SYSTEM_GUID \
     { 0x4f494156, 0xaed6, 0x4d64, { 0xa5, 0x37, 0xb8, 0xa5, 0x55, 0x7b, 0xce, 0xec } }
 
-#define PROJECT_EFI_GUID_Size (sizeof(EFI_GUID))
-
-#define PROJECT_FVHEADER_GUID_OFFSET (sizeof(UINT8[16]))
 namespace Project 
 {
 
@@ -72,7 +70,7 @@ namespace Project
 
     int isValidEFFSGUID(EFI_FIRMWARE_VOLUME_HEADER* FVHeader) {
         for (std::size_t index = 0; index < 8; ++index)
-            if (!std::memcmp(reinterpret_cast<const char*>(FVHeader) + PROJECT_FVHEADER_GUID_OFFSET, EFFS_GUIDS[index].bytes, PROJECT_EFI_GUID_Size))
+            if (!std::memcmp(reinterpret_cast<const char*>(FVHeader) + offsetof(EFI_FIRMWARE_VOLUME_HEADER, FileSystemGuid), EFFS_GUIDS[index].bytes, sizeof(EFI_GUID)))
                 return index;
         return -1;
     }

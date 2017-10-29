@@ -16,6 +16,7 @@
 //Project
 #include "cPageLoader.hpp"
 #include "vFFSGuids.hpp"
+#include "cMemoryProxy.hpp"
 
 namespace Project 
 {
@@ -56,7 +57,7 @@ namespace Project
 
     using FVHeaderData = std::pair<
         std::size_t, //Header offset
-        FVHeaderPtr //Pointer to header structure
+        PiFirmwareVolumeProxy //Pointer to header structure
     >;
 
     using FVHeaderStorage = std::list<FVHeaderData>;
