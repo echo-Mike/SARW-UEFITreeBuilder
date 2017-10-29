@@ -1,4 +1,4 @@
-#pragma onece
+#pragma once
 #ifndef PAGE_LOADER_HPP__
 #define PAGE_LOADER_HPP__ "0.0.0@cPageLoader.hpp"
 /**
