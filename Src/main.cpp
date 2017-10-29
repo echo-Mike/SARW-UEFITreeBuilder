@@ -10,21 +10,22 @@ int main(int argc, char* argv[])
 {
 	//<Arguments reading>
 
-	Project::printArgs(argc, argv);
-	Arguments::parseArgs(argc, argv, opts);
+	{
+		Project::printArgs(argc, argv);
+		Arguments::parseArgs(argc, argv, opts);
 
-	if (opts[0].data == -1)
-		DEBUG_NEW_MESSAGE("ERROR::Main")
-			DEBUG_PRINT1("\tMessage: Argument pasing lib doesn't grub input file path from input arguments.");
-		DEBUG_END_MESSAGE_AND_EXIT(Project::ExitCodes::NO_INPUT_FILE_PATH)
+		if (opts[0].data == -1)
+			DEBUG_NEW_MESSAGE("ERROR::Main")
+				DEBUG_PRINT1("\tMessage: Argument pasing lib doesn't grub input file path from input arguments.");
+			DEBUG_END_MESSAGE_AND_EXIT(Project::ExitCodes::NO_INPUT_FILE_PATH)
 
-	arguments.inputFilePath = argv[opts[0].data];
+		arguments.inputFilePath = argv[opts[0].data];
+	}
 
 	//</Arguments reading>
 	char* storage = nullptr;
 	char* storageBeg = nullptr;
 	char* storageEnd = nullptr;
-	char* current = nullptr;
 	std::size_t fileSize = 0;
 	//<Input file reading>
 
@@ -63,54 +64,54 @@ int main(int argc, char* argv[])
 
 	//</Input file reading>
 	storageBeg = storage;
-	current = storageBeg;
 	storageEnd = storage + fileSize;
+	char FVHeaderSignature[] = "\x00\x00\x00\x00";
 	Project::FVHeaderStorage FVHeaders;
 	//<FV headers search>
 
-	char FVSignature[] = "\x00\x00\x00\x00";
-	//Not ugly but unsafe way: (livetime of union created by cast is undetermined)
-	std::memcpy(FVSignature, Project::cast_signature_32<EFI_FVH_SIGNATURE>().bytes, 4);
-	//The ugly but safe way:
-	//*(reinterpret_cast<unsigned int*>(FVSignature)) = EFI_FVH_SIGNATURE;
-	while ( (current = std::search(current, storageEnd, FVSignature, FVSignature + 4)) != storageEnd ) 
 	{
-		FVHeaders.emplace_back(
-			static_cast<std::size_t>(current - storageBeg), 
-			reinterpret_cast<Project::FVHeaderPtr>(current - FV_Signature_Offset)
-		);
-		++current;
-	}
+		char* current = storageBeg;
+		
+		//Not ugly but unsafe way: (livetime of union created by cast is undetermined)
+		std::memcpy(FVHeaderSignature, Project::cast_signature_32<EFI_FVH_SIGNATURE>().bytes, 4);
+		//The ugly but safe way:
+		//*(reinterpret_cast<unsigned int*>(FVHeaderSignature)) = EFI_FVH_SIGNATURE;
+		while ( (current = std::search(current, storageEnd, FVHeaderSignature, FVHeaderSignature + 4)) != storageEnd ) 
+		{
+			FVHeaders.emplace_back(
+				static_cast<std::size_t>(current - storageBeg), 
+				reinterpret_cast<Project::FVHeaderPtr>(current - FV_Signature_Offset)
+			);
+			++current;
+		}
 
-	DEBUG_PRINT1(FVHeaders.size());
-
-	FVHeaders.erase(
-		std::remove_if(
-			FVHeaders.begin(), 
-			FVHeaders.end(), 
-			[](const Project::FVHeaderData& value) -> bool 
-			{
-				//obtain pointer to possible FV header
-				auto headerPtr = value.second;
-				//Check first clue
-				if (headerPtr->HeaderLength < FV_Header_Size) return true;
-				//Check checksum clue
+		FVHeaders.erase(
+			std::remove_if(
+				FVHeaders.begin(), 
+				FVHeaders.end(), 
+				[](const Project::FVHeaderData& value) -> bool 
 				{
-					auto checkSumBuff = headerPtr->Checksum;
-					headerPtr->Checksum = 0;
-					std::uint16_t checkSum = Project::calculateChecksum16(headerPtr, FV_Header_Size);
-					headerPtr->Checksum = checkSumBuff;
-					if (checkSumBuff != checkSum) return true;
+					//obtain pointer to possible FV header
+					auto headerPtr = value.second;
+					//Check length clue
+					if (headerPtr->HeaderLength < FV_Header_Size) return true;
+					//Check checksum clue
+					{
+						auto checkSumBuff = headerPtr->Checksum;
+						headerPtr->Checksum = 0;
+						std::uint16_t checkSum = Project::calculateChecksum16(headerPtr, FV_Header_Size);
+						headerPtr->Checksum = checkSumBuff;
+						if (checkSumBuff != checkSum) return true;
+					}
+					//Check GUID match clue
+					if (Project::isValidEFFSGUID(headerPtr) == -1) return true;
+					return false;
 				}
-				//Check GUID match clue
-				if (Project::isValidEFFSGUID(headerPtr) == -1) return true;
-				return false;
-			}
-		),
-		FVHeaders.end()
-	);
-
-	DEBUG_PRINT1(FVHeaders.size());
+			),
+			FVHeaders.end()
+		);
+	}
+	
 	//</FV headers search>
 
 	EXITSTOP
