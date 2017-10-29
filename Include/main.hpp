@@ -15,6 +15,7 @@
 #include <ArgumentsLib/fArgumentLib.hpp>
 //Project
 #include "cPageLoader.hpp"
+#include "vFFSGuids.hpp"
 
 namespace Project 
 {
@@ -51,12 +52,22 @@ namespace Project
         std::uint64_t signature = Signature;
     };
 
-    using FVHeaderStorage = std::list<
-        std::pair<
-            std::size_t, //Header offset
-            EFI_FIRMWARE_VOLUME_HEADER* //Pointer to header structure
-        >
+    using FVHeaderPtr = EFI_FIRMWARE_VOLUME_HEADER*;
+
+    using FVHeaderData = std::pair<
+        std::size_t, //Header offset
+        FVHeaderPtr //Pointer to header structure
     >;
+
+    using FVHeaderStorage = std::list<FVHeaderData>;
+
+    std::uint16_t calculateChecksum16(const void* buffer, std::size_t length) {
+        std::uint16_t result = 0;
+        for (std::size_t index = 0; index < length / sizeof(std::uint16_t); ++index)
+            result += reinterpret_cast<const std::uint16_t*>(buffer)[index];
+        result = static_cast<std::uint16_t>(-result);
+		return result;
+    }
 }
 
 Arguments::Option opts[] = {

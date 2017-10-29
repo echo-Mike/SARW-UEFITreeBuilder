@@ -4,6 +4,8 @@
 
 #define FV_Signature_Offset (sizeof(UINT8[16]) + sizeof(EFI_GUID) + sizeof(UINT64))
 
+#define FV_Header_Size (sizeof(EFI_FIRMWARE_VOLUME_HEADER))
+
 int main(int argc, char* argv[]) 
 {
 	//<Arguments reading>
@@ -75,17 +77,40 @@ int main(int argc, char* argv[])
 	{
 		FVHeaders.emplace_back(
 			static_cast<std::size_t>(current - storageBeg), 
-			reinterpret_cast<EFI_FIRMWARE_VOLUME_HEADER*>(current - FV_Signature_Offset)
+			reinterpret_cast<Project::FVHeaderPtr>(current - FV_Signature_Offset)
 		);
 		++current;
 	}
 
 	DEBUG_PRINT1(FVHeaders.size());
-	
-	for(const auto& header : FVHeaders) {
 
-	}
+	FVHeaders.erase(
+		std::remove_if(
+			FVHeaders.begin(), 
+			FVHeaders.end(), 
+			[](const Project::FVHeaderData& value) -> bool 
+			{
+				//obtain pointer to possible FV header
+				auto headerPtr = value.second;
+				//Check first clue
+				if (headerPtr->HeaderLength < FV_Header_Size) return true;
+				//Check checksum clue
+				{
+					auto checkSumBuff = headerPtr->Checksum;
+					headerPtr->Checksum = 0;
+					std::uint16_t checkSum = Project::calculateChecksum16(headerPtr, FV_Header_Size);
+					headerPtr->Checksum = checkSumBuff;
+					if (checkSumBuff != checkSum) return true;
+				}
+				//Check GUID match clue
+				if (Project::isValidEFFSGUID(headerPtr) == -1) return true;
+				return false;
+			}
+		),
+		FVHeaders.end()
+	);
 
+	DEBUG_PRINT1(FVHeaders.size());
 	//</FV headers search>
 
 	EXITSTOP
