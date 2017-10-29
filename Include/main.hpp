@@ -7,9 +7,11 @@
 #include <cstring>
 //Precompiled
 #include "stdafx.h"
+//Snippets
+#include <DebugLib/mDebuglib.hpp>
+#include <ClassUtilsLib/mClassUtils.hpp>
+#include <ArgumentsLib/fArgumentLib.hpp>
 //Project
-#include "mDebuglib.hpp"
-#include "fArgumentLib.hpp"
 #include "cPageLoader.hpp"
 
 namespace Project 

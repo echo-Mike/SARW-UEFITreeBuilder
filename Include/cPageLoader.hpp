@@ -16,8 +16,8 @@
 #include <memory>
 #include <utility>
 #include <cstring>
-//OUR
-#include "mClassUtils.hpp"
+//SNIPPETS
+#include <ClassUtilsLib/mClassUtils.hpp>
 
 namespace Project {
 

@@ -8,6 +8,7 @@ Build/
 Input/
 *.gch
 Tests/Build/
+Old/
 
 # User-specific files
 *.suo
