@@ -1,6 +1,7 @@
 #pragma once
 //STD
 #include <cstring>
+#include <cstddef>
 //UEFI
 extern "C" {
     #include "Base.h"
@@ -40,7 +41,7 @@ namespace Project
 {
 
     union guid_cast {
-        using CharRepr = unsigned char[PROJECT_EFI_GUID_Size];
+        using CharRepr = unsigned char[sizeof(EFI_GUID)];
         CharRepr bytes;
         EFI_GUID guid;
         constexpr guid_cast(EFI_GUID Guid_) : guid(Guid_) {}

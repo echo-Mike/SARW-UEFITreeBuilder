@@ -44,7 +44,8 @@ namespace Project
     template <std::uint32_t Signature>
     union cast_signature_32 {
         unsigned char bytes[4];
-        std::uint32_t signature = Signature;
+        std::uint32_t signature;
+        constexpr cast_signature_32() noexcept : signature(Signature) {}
     };
 
     template <std::uint64_t Signature>
