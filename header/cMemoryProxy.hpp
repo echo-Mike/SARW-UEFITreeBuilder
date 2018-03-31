@@ -72,7 +72,7 @@ namespace Project {
         StructureType* structure = nullptr;
         std::size_t structureSize = sizeof(StructureType);
 
-        StructureProxy(const void* ptr_) : MemoryProxy() 
+        StructureProxy(const void* ptr_) //: MemoryProxy() 
         {
             structure = reinterpret_cast<StructureType*>(const_cast<void*>(ptr_));
             begin = const_cast<void*>(ptr_);
@@ -95,11 +95,11 @@ namespace Project {
 
     };
 
-    using PiFirmwareVolumeProxy             = StructureProxy<EFI_FIRMWARE_VOLUME_HEADER>;
-    using PiFirmwareVolumeExtensionHeaderProxy  = StructureProxy<EFI_FIRMWARE_VOLUME_EXT_HEADER>;
-    using PiFirmwareVolumeExtensionEntryProxy   = StructureProxy<EFI_FIRMWARE_VOLUME_EXT_ENTRY>;
+    using PiFirmwareVolumeProxy                         = StructureProxy<EFI_FIRMWARE_VOLUME_HEADER>;
+    using PiFirmwareVolumeExtensionHeaderProxy          = StructureProxy<EFI_FIRMWARE_VOLUME_EXT_HEADER>;
+    using PiFirmwareVolumeExtensionEntryProxy           = StructureProxy<EFI_FIRMWARE_VOLUME_EXT_ENTRY>;
     using PiFirmwareVolumeExtensionEntryOemTypeProxy    = StructureProxy<EFI_FIRMWARE_VOLUME_EXT_ENTRY_OEM_TYPE>;
-    using PiFirmwareVolumeExtensionEntryGuidTypeProxy    = StructureProxy<EFI_FIRMWARE_VOLUME_EXT_ENTRY_GUID_TYPE>;
+    using PiFirmwareVolumeExtensionEntryGuidTypeProxy   = StructureProxy<EFI_FIRMWARE_VOLUME_EXT_ENTRY_GUID_TYPE>;
 
     using PiFileProxy                       = StructureProxy<EFI_FFS_FILE_HEADER>;
     using PiExtendedFileProxy               = StructureProxy<EFI_FFS_FILE_HEADER2>;

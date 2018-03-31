@@ -13,6 +13,7 @@
 #include <DebugLib/mDebuglib.hpp>
 #include <ClassUtilsLib/mClassUtils.hpp>
 #include <ArgumentsLib/fArgumentLib.hpp>
+#include <PatternsLib/cPipeline.hpp>
 //Project
 #include "cPageLoader.hpp"
 #include "vFFSGuids.hpp"
