@@ -2,3 +2,6 @@
 	path = submodules/codesnippets
 	url = git@github.com:echo-Mike/CodeSnippets.git
 	branch = develop
+[submodule "submodules/uefi_headers"]
+	path = submodules/uefi_headers
+	url = https://github.com/kiznit/uefi-headers.git
