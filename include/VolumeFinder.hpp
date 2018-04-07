@@ -16,8 +16,7 @@ namespace Project
 
 		typedef std::vector< Pi::Volume::Header > VolumesVec_t;
 
-		struct VolumeFinder // : \\
-			public BaseFinder
+		struct VolumeFinder
 		{
 			static const signature_cast_32<EFI_FVH_SIGNATURE> VolumeSignature;
 

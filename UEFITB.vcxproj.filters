@@ -13,6 +13,21 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="Header Files\Finders">
+      <UniqueIdentifier>{9d5efbc2-decd-447b-8d16-395eece34e91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Parsers">
+      <UniqueIdentifier>{dca83d09-629b-4a13-87d8-404769e57d4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Objects">
+      <UniqueIdentifier>{9b821352-66ce-4ff6-b697-466923041935}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\General">
+      <UniqueIdentifier>{8720dd5a-2803-4066-9ab3-4222bf6d13d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Helpers">
+      <UniqueIdentifier>{e2edf9eb-6866-4dd8-86b5-f4bebc342d17}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
@@ -53,59 +68,74 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\debug.hpp">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="include\PiObjectRepresentation.hpp">
+      <Filter>Header Files\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="include\main.hpp">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="include\PiBaseObject.hpp">
+      <Filter>Header Files\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="include\vFFSGuids.hpp">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="include\PiFileObject.hpp">
+      <Filter>Header Files\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="include\General.hpp">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="include\PiSectionObject.hpp">
+      <Filter>Header Files\Objects</Filter>
     </ClInclude>
-    <ClInclude Include="include\cMemoryView.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\ProjectTypes.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\cStructureView.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\PiViews.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\ExitCodes.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\SignatureCasts.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\VolumeFinder.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\VolumeParser.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\FileFinder.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\FileParser.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\SectionFinder.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\SectionParser.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\BaseFinder.hpp">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="include\PiVolumeObject.hpp">
+      <Filter>Header Files\Objects</Filter>
     </ClInclude>
     <ClInclude Include="include\BaseParser.hpp">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\FileParser.hpp">
+      <Filter>Header Files\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SectionParser.hpp">
+      <Filter>Header Files\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VolumeParser.hpp">
+      <Filter>Header Files\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SectionFinder.hpp">
+      <Filter>Header Files\Finders</Filter>
+    </ClInclude>
+    <ClInclude Include="include\FileFinder.hpp">
+      <Filter>Header Files\Finders</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BaseFinder.hpp">
+      <Filter>Header Files\Finders</Filter>
+    </ClInclude>
+    <ClInclude Include="include\VolumeFinder.hpp">
+      <Filter>Header Files\Finders</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cMemoryView.hpp">
+      <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cStructureView.hpp">
+      <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\vFFSGuids.hpp">
+      <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PiViews.hpp">
+      <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SignatureCasts.hpp">
+      <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ProjectTypes.hpp">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="include\General.hpp">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ExitCodes.hpp">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="include\debug.hpp">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="include\main.hpp">
+      <Filter>Header Files\General</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

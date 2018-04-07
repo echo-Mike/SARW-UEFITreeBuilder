@@ -14,10 +14,14 @@ namespace Project
 		namespace Volume
 		{
 			typedef StructureView<EFI_FIRMWARE_VOLUME_HEADER> Header;
-			typedef StructureView<EFI_FIRMWARE_VOLUME_EXT_HEADER> ExtensionHeader;
-			typedef StructureView<EFI_FIRMWARE_VOLUME_EXT_ENTRY> ExtensionEntry;
-			typedef StructureView<EFI_FIRMWARE_VOLUME_EXT_ENTRY_OEM_TYPE> ExtensionEntryOemType;
-			typedef StructureView<EFI_FIRMWARE_VOLUME_EXT_ENTRY_GUID_TYPE> ExtensionEntryGuidType;
+
+			namespace Extension
+			{
+				typedef StructureView<EFI_FIRMWARE_VOLUME_EXT_HEADER> Header;
+				typedef StructureView<EFI_FIRMWARE_VOLUME_EXT_ENTRY> Entry;
+				typedef StructureView<EFI_FIRMWARE_VOLUME_EXT_ENTRY_OEM_TYPE> EntryOemType;
+				typedef StructureView<EFI_FIRMWARE_VOLUME_EXT_ENTRY_GUID_TYPE> EntryGuidType;
+			}
 		}
 
 		namespace File
@@ -32,6 +36,7 @@ namespace Project
 
 		namespace Section
 		{
+			typedef StructureView<EFI_COMMON_SECTION_HEADER> Header;
 			typedef StructureView<EFI_COMPATIBILITY16_SECTION> Compatibility16;
 			typedef StructureView<EFI_COMPRESSION_SECTION> Compression;
 			typedef StructureView<EFI_DISPOSABLE_SECTION> Disposable;
@@ -50,6 +55,7 @@ namespace Project
 			
 			namespace Extended
 			{
+				typedef StructureView<EFI_COMMON_SECTION_HEADER2> Header;
 				typedef StructureView<EFI_COMPATIBILITY16_SECTION2> Compatibility16;
 				typedef StructureView<EFI_COMPRESSION_SECTION2> Compression;
 				typedef StructureView<EFI_DISPOSABLE_SECTION2> Disposable;

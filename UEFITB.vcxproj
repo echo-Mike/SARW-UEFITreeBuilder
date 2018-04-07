@@ -138,7 +138,12 @@
     <ClInclude Include="include\FileParser.hpp" />
     <ClInclude Include="include\General.hpp" />
     <ClInclude Include="include\main.hpp" />
+    <ClInclude Include="include\PiBaseObject.hpp" />
+    <ClInclude Include="include\PiFileObject.hpp" />
+    <ClInclude Include="include\PiObjectRepresentation.hpp" />
+    <ClInclude Include="include\PiSectionObject.hpp" />
     <ClInclude Include="include\PiViews.hpp" />
+    <ClInclude Include="include\PiVolumeObject.hpp" />
     <ClInclude Include="include\ProjectTypes.hpp" />
     <ClInclude Include="include\SectionFinder.hpp" />
     <ClInclude Include="include\SectionParser.hpp" />
