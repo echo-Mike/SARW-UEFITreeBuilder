@@ -1,19 +1,17 @@
 #pragma once
 #ifndef MAIN_HPP__
 #define	MAIN_HPP__ "0.0.0@main.hpp"
-//STD
+
+/// STD
 #include <iostream>
 #include <fstream>
 #include <cstring>
 #include <algorithm>
 #include <list>
 
-//Snippets
-#include <DebugLib/mDebuglib.hpp>
-#include <ClassUtilsLib/mClassUtils.hpp>
-#include <ArgumentsLib/fArgumentLib.hpp>
-#include <PatternsLib/cPipeline.hpp>
-//Project
+/// PROJECT
+#include "General.hpp"
+
 #include "cPageLoader.hpp"
 #include "vFFSGuids.hpp"
 #include "cMemoryProxy.hpp"
