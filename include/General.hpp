@@ -20,5 +20,17 @@ extern "C"
 
 /// PROJECT
 #include "ProjectTypes.hpp"
+#include "ExitCodes.hpp"
+#include "SignatureCasts.hpp"
+
+namespace Project
+{
+	void printArgs(int argc, char* argv[]);
+
+	namespace Checksums
+	{
+		std::uint16_t calc16(Types::const_pointer_t ptr, Types::length_t length);
+	}
+}
 
 #endif

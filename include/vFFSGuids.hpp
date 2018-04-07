@@ -1,13 +1,9 @@
 #pragma once
-//STD
-#include <cstring>
-#include <cstddef>
-//UEFI
-extern "C" {
-    #include "Base.h"
-    #include "Uefi.h"
-    #include <Pi/PiFirmwareVolume.h>
-}
+#ifndef FFS_GUIDS_HPP__
+#define FFS_GUIDS_HPP__ "0.0.0@vFFSGuids.hpp"
+
+/// PROJECT
+#include "General.hpp"
 
 // 7A9354D9-0468-444A-81CE-0BF617D890DF
 #define EFI_FIRMWARE_FILE_SYSTEM_GUID \
@@ -37,42 +33,60 @@ extern "C" {
 #define EFI_SONY_FILE_SYSTEM_GUID \
     { 0x4f494156, 0xaed6, 0x4d64, { 0xa5, 0x37, 0xb8, 0xa5, 0x55, 0x7b, 0xce, 0xec } }
 
+// 00000000-0000-0000-0000-000000000000
+#define PROJ_UNKNOWN_GUID \
+	{ 0x00000000, 0x0000, 0x0000, { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } }
+
 namespace Project 
 {
+	
+	namespace FfsGuids
+	{
 
-    union guid_cast {
-        using CharRepr = unsigned char[sizeof(EFI_GUID)];
-        CharRepr bytes;
-        EFI_GUID guid;
-        constexpr guid_cast(EFI_GUID Guid_) : guid(Guid_) {}
-    };
+		namespace KnownFfsGuids
+		{
+			enum KnownFfsGuids_t : int
+			{
+				EFfsV1 = 0,
+				EFfsV2,
+				EFfsV3,
 
-    const guid_cast EFFS_GUIDS[] = {
-        guid_cast(EFI_FIRMWARE_FILE_SYSTEM2_GUID),
-        guid_cast(EFI_APPLE_BOOT_VOLUME_FILE_SYSTEM_GUID),
-        guid_cast(EFI_APPLE_BOOT_VOLUME_FILE_SYSTEM2_GUID),
-        guid_cast(EFI_INTEL_FILE_SYSTEM_GUID),
-        guid_cast(EFI_INTEL_FILE_SYSTEM2_GUID),
-        guid_cast(EFI_SONY_FILE_SYSTEM_GUID),
-        guid_cast(EFI_FIRMWARE_FILE_SYSTEM3_GUID),
-        guid_cast(EFI_FIRMWARE_FILE_SYSTEM_GUID)
-    };
+				AppleV1,
+				AppleV2,
 
-    const char* EFFS_GUIDS_NAMES[] = {
-        "EFI_FIRMWARE_FILE_SYSTEM2_GUID",
-        "EFI_APPLE_BOOT_VOLUME_FILE_SYSTEM_GUID",
-        "EFI_APPLE_BOOT_VOLUME_FILE_SYSTEM2_GUID",
-        "EFI_INTEL_FILE_SYSTEM_GUID",
-        "EFI_INTEL_FILE_SYSTEM2_GUID",
-        "EFI_SONY_FILE_SYSTEM_GUID",
-        "EFI_FIRMWARE_FILE_SYSTEM3_GUID",
-        "EFI_FIRMWARE_FILE_SYSTEM_GUID"
-    };
+				IntelV1,
+				IntelV2,
 
-    int isValidEFFSGUID(EFI_FIRMWARE_VOLUME_HEADER* FVHeader) {
-        for (std::size_t index = 0; index < 8; ++index)
-            if (!std::memcmp(reinterpret_cast<const char*>(FVHeader) + offsetof(EFI_FIRMWARE_VOLUME_HEADER, FileSystemGuid), EFFS_GUIDS[index].bytes, sizeof(EFI_GUID)))
-                return index;
-        return -1;
-    }
+				SonyV1,
+
+				Unknown = ~((int)0)
+			};
+		}
+
+		static const Types::length_t Guid_size = sizeof(EFI_GUID);
+
+		using GuidMemory_t = Types::memory_t[Guid_size];
+
+		union Guid
+		{
+			GuidMemory_t bytes;
+			EFI_GUID guid;
+			constexpr Guid(EFI_GUID Guid) : guid(Guid) {}
+		};
+
+		struct FfsGuid
+		{
+			KnownFfsGuids::KnownFfsGuids_t code;
+			const Guid value;
+			const char* name;
+		};
+
+		extern const FfsGuid EffsGuids[];
+
+		const FfsGuid& isValidFfsGuid(Types::const_pointer_t ptr);
+
+		const FfsGuid& getGuidByCode(KnownFfsGuids::KnownFfsGuids_t code);
+	}
 }
+
+#endif

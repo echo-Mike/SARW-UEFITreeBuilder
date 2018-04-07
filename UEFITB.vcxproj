@@ -109,15 +109,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\FFSGuids.cpp" />
+    <ClCompile Include="src\General.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="submodules\codesnippets\DebugLib\DebugLib.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\cMemoryProxy.hpp" />
-    <ClInclude Include="include\cPageLoader.hpp" />
+    <ClInclude Include="include\cMemoryView.hpp" />
+    <ClInclude Include="include\cStructureView.hpp" />
     <ClInclude Include="include\debug.hpp" />
+    <ClInclude Include="include\ExitCodes.hpp" />
     <ClInclude Include="include\General.hpp" />
     <ClInclude Include="include\main.hpp" />
+    <ClInclude Include="include\PiViews.hpp" />
+    <ClInclude Include="include\ProjectTypes.hpp" />
+    <ClInclude Include="include\SignatureCasts.hpp" />
     <ClInclude Include="include\vFFSGuids.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
