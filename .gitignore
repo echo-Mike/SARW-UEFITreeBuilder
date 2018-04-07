@@ -6,6 +6,7 @@
 .vscode/
 Build/
 Input/
+data/
 *.gch
 Tests/Build/
 Old/

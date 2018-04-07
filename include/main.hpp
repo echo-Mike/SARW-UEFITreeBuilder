@@ -7,8 +7,7 @@
 #include <cstring>
 #include <algorithm>
 #include <list>
-//Precompiled
-#include "stdafx.h"
+
 //Snippets
 #include <DebugLib/mDebuglib.hpp>
 #include <ClassUtilsLib/mClassUtils.hpp>

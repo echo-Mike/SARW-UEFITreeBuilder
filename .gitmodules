@@ -1,0 +1,4 @@
+[submodule "submodules/codesnippets"]
+	path = submodules/codesnippets
+	url = git@github.com:echo-Mike/CodeSnippets.git
+	branch = develop
