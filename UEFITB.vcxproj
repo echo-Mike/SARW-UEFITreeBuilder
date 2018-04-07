@@ -81,7 +81,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -108,23 +108,44 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\BaseFinder.cpp" />
+    <ClCompile Include="src\BaseParser.cpp" />
     <ClCompile Include="src\FFSGuids.cpp" />
+    <ClCompile Include="src\FileFinder.cpp" />
+    <ClCompile Include="src\FileParser.cpp" />
     <ClCompile Include="src\General.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\SectionFinder.cpp" />
+    <ClCompile Include="src\SectionParser.cpp" />
+    <ClCompile Include="src\VolumeFinder.cpp" />
+    <ClCompile Include="src\VolumeParser.cpp" />
     <ClCompile Include="submodules\codesnippets\DebugLib\DebugLib.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\BaseFinder.hpp" />
+    <ClInclude Include="include\BaseParser.hpp" />
     <ClInclude Include="include\cMemoryView.hpp" />
     <ClInclude Include="include\cStructureView.hpp" />
     <ClInclude Include="include\debug.hpp" />
     <ClInclude Include="include\ExitCodes.hpp" />
+    <ClInclude Include="include\FileFinder.hpp" />
+    <ClInclude Include="include\FileParser.hpp" />
     <ClInclude Include="include\General.hpp" />
     <ClInclude Include="include\main.hpp" />
     <ClInclude Include="include\PiViews.hpp" />
     <ClInclude Include="include\ProjectTypes.hpp" />
+    <ClInclude Include="include\SectionFinder.hpp" />
+    <ClInclude Include="include\SectionParser.hpp" />
     <ClInclude Include="include\SignatureCasts.hpp" />
     <ClInclude Include="include\vFFSGuids.hpp" />
+    <ClInclude Include="include\VolumeFinder.hpp" />
+    <ClInclude Include="include\VolumeParser.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

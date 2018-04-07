@@ -51,7 +51,7 @@ namespace Project
 
         void setLength(Types::length_t length) { end = begin != Types::const_pointer_t() ? begin + length : begin; }
 
-        operator const std::uint8_t*() const { return begin; }
+        operator Types::const_pointer_t() const { return begin; }
         operator const char*() const { return reinterpret_cast<const char*>(begin); }
         operator const void*() const { return reinterpret_cast<const void*>(begin); }
         operator const unsigned char*() const { return reinterpret_cast<const unsigned char*>(begin); }

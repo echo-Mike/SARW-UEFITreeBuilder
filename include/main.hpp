@@ -15,14 +15,6 @@
 namespace Project 
 {
 
-    using FVHeaderPtr = EFI_FIRMWARE_VOLUME_HEADER*;
-
-    using FVHeaderData = std::pair<
-        std::size_t, //Header offset
-        PiFirmwareVolumeProxy //Pointer to header structure
-    >;
-
-    using FVHeaderStorage = std::list<FVHeaderData>;
 }
 
 Arguments::Option opts[] = {
