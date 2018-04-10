@@ -20,6 +20,8 @@ namespace Project
 		typedef const memory_t* const_pointer_t;
 
 		typedef std::size_t length_t;
+
+		typedef std::size_t hash_t;
 	}
 }
 

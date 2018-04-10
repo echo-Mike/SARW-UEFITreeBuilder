@@ -5,6 +5,9 @@
 /// SNIPPETS
 #include <ClassUtilsLib/mClassUtils.hpp>
 
+/// JSON
+#include <nlohmann/json.hpp>
+
 /// PROJECT
 #include "General.hpp"
 
@@ -71,5 +74,46 @@ namespace Project
 		Types::const_pointer_t end;   //!< Pass-the-end pointer of viewed data
 
     };
+
+	struct OffsetView
+	{
+		OffsetView(Types::const_pointer_t dataPtr, const MemoryView& mv) :
+			offset(0), length(0), valid(false)
+		{	// Check that pointers are valid
+			if (dataPtr == Types::const_pointer_t() || !mv.checkPointers())
+				return; 
+			if (dataPtr < mv.begin)
+				return;
+			offset = mv.begin - dataPtr;
+			length = mv.getLength();
+		}
+
+		DefaultCopyableAndMovable(OffsetView)
+		
+		~OffsetView() = default;
+
+		static MemoryView transform(Types::const_pointer_t dataPtr, const OffsetView& ov)
+		{
+			MemoryView result;
+			if (!ov.valid || dataPtr == Types::const_pointer_t())
+				return result;
+			result.begin = dataPtr + ov.offset;
+			result.setLength(ov.length);
+			return result;
+		}
+
+		MemoryView transform(Types::const_pointer_t dataPtr) { return transform(dataPtr, *this); }
+
+		Types::length_t offset;
+		Types::length_t length;
+		bool valid;
+	};
+
+	void to_json(nlohmann::json& j, const OffsetView& obj) 
+	{ 
+		j["offset"] = obj.offset;
+		j["length"] = obj.length;
+		j["valid"] = obj.valid;
+	}
 }
 #endif

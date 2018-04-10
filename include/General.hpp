@@ -5,6 +5,7 @@
 /// STD
 #include <cstdlib>
 #include <cstddef>
+#include <string>
 
 /// SNIPPETS
 #include <DebugLib/mDebugLib.hpp>
@@ -30,6 +31,8 @@ namespace Project
 	namespace Checksums
 	{
 		std::uint16_t calc16(Types::const_pointer_t ptr, Types::length_t length);
+
+		Types::hash_t hash(Types::const_pointer_t ptr, Types::length_t length);
 	}
 }
 

@@ -41,14 +41,17 @@ namespace Project
 				std::remove_if(
 					headers.begin(),
 					headers.end(),
-					[](const FVHeaderData& value) -> bool
+					[&buffer](const FVHeaderData& value) -> bool
 					{
 						// Obtain pointer to possible FV header
 						auto headerPtr = value.second;
 						// 1) Check length clue
 						if (headerPtr->HeaderLength < Pi::Volume::Header::structure_size) 
 							return true;
-						// 2) Check checksum clue
+						// 2) Check volume length sanity clue
+						if (headerPtr->FvLength > buffer.getLength())
+							return true;
+						// 3) Check checksum clue
 						{
 							Pi::Volume::Header::value_type header_copy = *headerPtr;
 							// Zero current checksum
@@ -62,7 +65,7 @@ namespace Project
 								return true;
 							}
 						}
-						// 3) Check GUID match clue
+						// 4) Check GUID match clue
 						if ( FfsGuids::isValidFfsGuid(reinterpret_cast<Types::const_pointer_t>(&headerPtr->FileSystemGuid)).code == FfsGuids::KnownFfsGuids::Unknown )
 							return true;
 						return false;

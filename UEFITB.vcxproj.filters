@@ -28,43 +28,61 @@
     <Filter Include="Header Files\Helpers">
       <UniqueIdentifier>{e2edf9eb-6866-4dd8-86b5-f4bebc342d17}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Finders">
+      <UniqueIdentifier>{1ae053ce-763d-405d-8f8f-90bc1d8dd613}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\General">
+      <UniqueIdentifier>{0952806c-c095-44c6-8cf1-35c4f605b625}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Helpers">
+      <UniqueIdentifier>{6ab6aea4-1c49-49e1-88b2-324a6f43f931}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Parsers">
+      <UniqueIdentifier>{6ce76246-b3b7-4184-9e4e-93517c4de033}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Objects">
+      <UniqueIdentifier>{6d792d04-94e0-4ab9-b325-135c044ba166}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="submodules\codesnippets\DebugLib\DebugLib.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FFSGuids.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\General.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\VolumeFinder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\BaseFinder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\BaseParser.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Finders</Filter>
     </ClCompile>
     <ClCompile Include="src\FileFinder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\FileParser.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Finders</Filter>
     </ClCompile>
     <ClCompile Include="src\SectionFinder.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Finders</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VolumeFinder.cpp">
+      <Filter>Source Files\Finders</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BaseParser.cpp">
+      <Filter>Source Files\Parsers</Filter>
     </ClCompile>
     <ClCompile Include="src\SectionParser.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Parsers</Filter>
     </ClCompile>
     <ClCompile Include="src\VolumeParser.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FileParser.cpp">
+      <Filter>Source Files\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\codesnippets\DebugLib\DebugLib.cpp">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
+    <ClCompile Include="src\General.cpp">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
+    <ClCompile Include="src\FFSGuids.cpp">
+      <Filter>Source Files\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PiObject.cpp">
+      <Filter>Source Files\Objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

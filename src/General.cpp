@@ -29,5 +29,11 @@ namespace Project
 			}
 			return static_cast<std::uint16_t>(-result);
 		}
+
+		Types::hash_t hash(Types::const_pointer_t ptr, Types::length_t length)
+		{	// For C++17 std::string_view must be used
+			std::hash<std::string> h;
+			return h(std::string(reinterpret_cast<const char*>(ptr), length));
+		}
 	}
 }

@@ -5,3 +5,6 @@
 [submodule "submodules/uefi_headers"]
 	path = submodules/uefi_headers
 	url = https://github.com/kiznit/uefi-headers.git
+[submodule "submodules/json"]
+	path = submodules/json
+	url = https://github.com/nlohmann/json.git

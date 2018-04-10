@@ -6,17 +6,22 @@
 
 /// PROJECT
 #include "General.hpp"
-#include "PiBaseObject.hpp"
+#include "PiFileObject.hpp"
 
 namespace Project
 {
 	namespace PiObject
 	{
 
+		typedef std::vector< File > FileObjectsVec_t;
+
 		struct Volume :
 			public BaseObject
 		{
 
+			void toJson(nlohmann::json& j) const;
+
+			FileObjectsVec_t files;
 		};
 
 	}
