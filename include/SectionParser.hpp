@@ -14,12 +14,12 @@ namespace Project
 	namespace Parsers
 	{
 
-		struct FileParser
+		struct SectionParser
 		{
 
-			PiObject::Section operator()(const Pi::Section::Header& volumeView, const MemoryView& buffer);
+			PiObject::Section operator()(const Pi::Section::Header& sectionView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t empty);
 
-			PiObject::Section operator()(const Pi::Section::Extended::Header& volumeView, const MemoryView& buffer);
+			PiObject::Section operator()(const Pi::Section::Extended::Header& sectionView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t empty);
 		};
 
 	}

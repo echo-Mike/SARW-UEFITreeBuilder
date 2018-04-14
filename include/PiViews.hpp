@@ -15,6 +15,8 @@ namespace Project
 		{
 			typedef StructureView<EFI_FIRMWARE_VOLUME_HEADER> Header;
 
+			typedef StructureView<EFI_FV_BLOCK_MAP_ENTRY> BlockMap;
+
 			namespace Extension
 			{
 				typedef StructureView<EFI_FIRMWARE_VOLUME_EXT_HEADER> Header;
@@ -37,8 +39,8 @@ namespace Project
 
 		namespace Section
 		{
-			struct SectionTag { virtual ~SectionTag() {} };
-			struct SectionExtTag { virtual ~SectionExtTag() {} };
+			struct SectionTag {};
+			struct SectionExtTag {};
 
 			typedef StructureView<EFI_COMMON_SECTION_HEADER> Header;
 			

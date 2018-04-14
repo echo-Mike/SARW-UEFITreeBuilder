@@ -27,12 +27,17 @@ namespace Project
 		{
 			for (int index = 0; index < sizeof(EffsGuids) / sizeof(FfsGuid) - 2; ++index)
 			{
-				if (!std::memcmp( ptr, EffsGuids[index].value.bytes, Guid_size))
+				if (!std::memcmp( ptr, EffsGuids[index].value.bytes, Guid_size ))
 				{
 					return EffsGuids[index];
 				}
 			}
 			return EffsGuids[sizeof(EffsGuids) / sizeof(FfsGuid) - 1];
+		}
+
+		bool isSameGuid(const EFI_GUID* lhs, const EFI_GUID* rhs)
+		{
+			return !std::memcmp(lhs, rhs, Guid_size);
 		}
 
 		const FfsGuid& getGuidByCode(KnownFfsGuids::KnownFfsGuids_t code)

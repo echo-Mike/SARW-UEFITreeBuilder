@@ -17,9 +17,9 @@ namespace Project
 		struct FileParser
 		{
 
-			PiObject::File operator()(const Pi::File::Header& volumeView, const MemoryView& buffer);
+			PiObject::File operator()(const Pi::File::Header& fileView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t empty);
 
-			PiObject::File operator()(const Pi::File::Extended::Header& volumeView, const MemoryView& buffer);
+			PiObject::File operator()(const Pi::File::Extended::Header& fileView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t empty);
 		};
 
 	}

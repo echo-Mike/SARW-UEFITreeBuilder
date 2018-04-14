@@ -16,7 +16,10 @@ namespace Project
 			NoInputFilePath,
 			CantOpenInputFile,
 			InvalidFileSize,
-			FileSizeAndReadCountDontMatch
+			FileSizeAndReadCountDontMatch,
+			ParseErrorVolume = 100,
+			ParseErrorFile = 200,
+			ParseErrorSection = 300
 		};
 	}
 }

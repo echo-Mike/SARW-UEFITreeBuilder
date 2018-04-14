@@ -17,7 +17,7 @@ namespace Project
 		struct VolumeParser
 		{
 
-			PiObject::Volume operator()(const Pi::Volume::Header& volumeView, const MemoryView& buffer);
+			PiObject::Volume operator()(const Pi::Volume::Header& volumeView, const MemoryView& buffer, const MemoryView& baseBuffer);
 
 		};
 

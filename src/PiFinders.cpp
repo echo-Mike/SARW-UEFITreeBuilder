@@ -3,7 +3,7 @@
 #include <utility>
 
 /// PROJECT
-#include "VolumeFinder.hpp"
+#include "PiFinders.hpp"
 #include "vFFSGuids.hpp"
 
 namespace Project
@@ -66,7 +66,7 @@ namespace Project
 							}
 						}
 						// 4) Check GUID match clue
-						if ( FfsGuids::isValidFfsGuid(reinterpret_cast<Types::const_pointer_t>(&headerPtr->FileSystemGuid)).code == FfsGuids::KnownFfsGuids::Unknown )
+						if ( FfsGuids::isValidFfsGuid(&headerPtr->FileSystemGuid).code == FfsGuids::KnownFfsGuids::Unknown )
 							return true;
 						return false;
 					}
@@ -91,22 +91,37 @@ namespace Project
 				[&result](const FVHeaderData& a) { result.emplace_back(a.second); }
 			);
 
-#ifdef DEBUG
-
-			std::for_each(
-				result.begin(),
-				result.end(),
-				[](const Pi::Volume::Header& header) 
+			DEBUG_INFO_MESSAGE
+				DEBUG_PRINT("\tMessage: ", result.size() ," firmware volumes found.");
+				int counter = 0;
+				for (const auto& header : result) 
 				{
-					DEBUG_INFO_MESSAGE
-						DEBUG_PRINT("\tMessage: Firmware volume found");
-						DEBUG_PRINT("\tGUID: ", FfsGuids::isValidFfsGuid(reinterpret_cast<Types::const_pointer_t>(&header->FileSystemGuid)).name);
-					DEBUG_END_MESSAGE
+					DEBUG_PRINT("\t\t", counter, ") GUID: ", FfsGuids::isValidFfsGuid(&header->FileSystemGuid).name);
+					++counter;
 				}
-			);
-#endif
+			DEBUG_END_MESSAGE
+
 			return result;
 		}
 
+		FilesVec_t FileFinder::operator()(const MemoryView& buffer)
+		{
+
+		}
+
+		ExtFilesVec_t FileFinder::operator()(const MemoryView& buffer, bool)
+		{
+
+		}
+
+		SectionsVec_t SectionFinder::operator()(const MemoryView& buffer)
+		{
+
+		}
+
+		ExtSectionsVec_t SectionFinder::operator()(const MemoryView& buffer, bool)
+		{
+
+		}
 	}
 }

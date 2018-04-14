@@ -22,6 +22,10 @@ namespace Project
 		typedef std::size_t length_t;
 
 		typedef std::size_t hash_t;
+
+		typedef signed long long index_t;
+
+		typedef length_t count_t;
 	}
 }
 

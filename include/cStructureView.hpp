@@ -14,14 +14,36 @@
 
 namespace Project
 {
-	template < typename StructureT, typename BaseTagT = void>
+	namespace helper
+	{
+		struct AbstractInheritance
+		{
+			virtual AbstractInheritance* copy() const = 0;
+
+			virtual AbstractInheritance* move() = 0;
+
+			virtual ~AbstractInheritance() {}
+		};
+
+		template < typename T >
+		struct InheritanceFilter :
+			public AbstractInheritance,
+			public T
+		{};
+	}
+
+	typedef helper::AbstractInheritance* AbstInhPtr_t;
+
+	template < typename StructureT, typename BaseTagT = void >
 	struct StructureView :
-		public MemoryView, 
-		public BaseTagT
+		public MemoryView,
+		public helper::InheritanceFilter< BaseTagT >
 	{
 		typedef MemoryView Base;
 
 		typedef BaseTagT BaseTag;
+		
+		typedef helper::InheritanceFilter< BaseTagT > AbstractBase;
 
 		typedef std::decay<StructureT>::type value_type;
 
@@ -31,6 +53,8 @@ namespace Project
 
 		static const std::size_t structure_size = sizeof(value_type);
 
+		StructureView() : MemoryView() {}
+
 		explicit StructureView(Types::const_pointer_t ptr) : MemoryView(ptr, ptr + structure_size) {}
 
 		explicit StructureView(const MemoryView& other) : MemoryView(other) {}
@@ -39,7 +63,16 @@ namespace Project
 
 		~StructureView() = default;
 
-		StructureView& operator=(const MemoryView& other) { Base::operator=(other); }
+		StructureView& operator=(const MemoryView& other) { return Base::operator=(other); }
+
+		StructureView& operator=(Types::const_pointer_t ptr) 
+		{
+			if (ptr != Types::const_pointer_t()) {
+				begin = ptr;
+				setLength(structure_size);
+			}
+			return *this; 
+		}
 
 		bool hasView() const { return begin != Types::const_pointer_t(); }
 
@@ -48,6 +81,10 @@ namespace Project
 		const_pointer_t get() const { return this->operator->(); }
 
 		operator const_pointer_t() const { return get(); }
+
+		AbstractBase* copy() const { return new StructureView(*this); }
+
+		AbstractBase* move() { return new StructureView(std::move(*this)); }
 	};
 
 	template < typename StructureT >
@@ -64,6 +101,8 @@ namespace Project
 
 		static const std::size_t structure_size = sizeof(value_type);
 
+		StructureView() : MemoryView() {}
+
 		explicit StructureView(Types::const_pointer_t ptr) : MemoryView(ptr, ptr + structure_size) {}
 
 		explicit StructureView(const MemoryView& other) : MemoryView(other) {}
@@ -74,6 +113,15 @@ namespace Project
 
 		StructureView& operator=(const MemoryView& other) { Base::operator=(other);	}
 
+		StructureView& operator=(Types::const_pointer_t ptr)
+		{
+			if (ptr != Types::const_pointer_t()) {
+				begin = ptr;
+				setLength(structure_size);
+			}
+			return *this;
+		}
+
 		bool hasView() const { return begin != Types::const_pointer_t(); }
 
 		const_pointer_t operator->() const { return begin; }
@@ -81,7 +129,6 @@ namespace Project
 		const_pointer_t get() const { return this->operator->(); }
 
         operator const_pointer_t() const { return get(); }
-
     };
 }
 

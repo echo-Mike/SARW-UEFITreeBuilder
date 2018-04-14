@@ -36,4 +36,21 @@ namespace Project
 	}
 }
 
+#define ALIGN_(Value, Type, powOf2) ( ( (Value) + (Type)(powOf2 - 1) ) & ~( (Type)(powOf2 - 1) ) )
+#define ALIGN2(Value, Type) ALIGN_(Value, Type, 2)
+#define ALIGN4(Value, Type) ALIGN_(Value, Type, 4)
+#define ALIGN8(Value, Type) ALIGN_(Value, Type, 8)
+#define ALIGN16(Value, Type) ALIGN_(Value, Type, 16)
+#define ALIGN32(Value, Type) ALIGN_(Value, Type, 32)
+#define ALIGN64(Value, Type) ALIGN_(Value, Type, 64)
+#define ALIGN128(Value, Type) ALIGN_(Value, Type, 128)
+#define ALIGN256(Value, Type) ALIGN_(Value, Type, 256)
+#define ALIGN512(Value, Type) ALIGN_(Value, Type, 512)
+#define ALIGN1024(Value, Type) ALIGN_(Value, Type, 1024)
+
+#define UnifyPtrCast(Ptr) (reinterpret_cast<::Project::Types::const_pointer_t>((Ptr)))
+
+#define ALIGNPTR_(BasePtr, Ptr, powOf2) ( UnifyPtrCast((BasePtr)) + ALIGN_( ( UnifyPtrCast((Ptr)) - UnifyPtrCast((BasePtr)) ), std::size_t, powOf2 ) )
+#define ALIGN_PTR4(BasePtr, Ptr) ALIGNPTR_(BasePtr, Ptr, 4)
+#define ALIGN_PTR8(BasePtr, Ptr) ALIGNPTR_(BasePtr, Ptr, 8)
 #endif

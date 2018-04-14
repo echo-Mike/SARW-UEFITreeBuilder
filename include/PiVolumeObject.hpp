@@ -18,9 +18,23 @@ namespace Project
 		struct Volume :
 			public BaseObject
 		{
+			typedef BaseObject Base;
+
+			Volume( const Pi::Volume::Header& volHeader, 
+					const MemoryView& baseBuffer, const MemoryView& myBuffer) :
+					Base(baseBuffer, myBuffer), header(volHeader)
+			{
+				fullHeader.begin = header.begin;
+			}
 
 			void toJson(nlohmann::json& j) const;
-
+			
+			Pi::Volume::Header header;
+			MemoryView fullHeader;
+			struct {
+				Pi::Volume::Extension::Header header;
+				MemoryView memory;
+			} extHeader;
 			FileObjectsVec_t files;
 		};
 

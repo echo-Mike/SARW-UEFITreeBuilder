@@ -37,7 +37,7 @@
 #define PROJ_UNKNOWN_GUID \
 	{ 0x00000000, 0x0000, 0x0000, { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } }
 
-namespace Project 
+namespace Project
 {
 	
 	namespace FfsGuids
@@ -84,6 +84,10 @@ namespace Project
 		extern const FfsGuid EffsGuids[];
 
 		const FfsGuid& isValidFfsGuid(Types::const_pointer_t ptr);
+
+		const FfsGuid& isValidFfsGuid(const EFI_GUID* ptr) { return isValidFfsGuid(reinterpret_cast<Types::const_pointer_t>(ptr)); }
+
+		bool isSameGuid(const EFI_GUID* lhs, const EFI_GUID* rhs);
 
 		const FfsGuid& getGuidByCode(KnownFfsGuids::KnownFfsGuids_t code);
 	}

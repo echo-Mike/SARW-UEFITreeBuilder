@@ -18,7 +18,33 @@ namespace Project
 	namespace PiObject
 	{
 
-		typedef std::vector< MemoryView > FreeSpaceVec_t;
+		struct FreeSpace :
+			public MemoryView
+		{
+			typedef MemoryView Base;
+
+			FreeSpace(  Types::memory_t empty,
+						Types::const_pointer_t begin_ = nullptr,
+						Types::const_pointer_t end_ = nullptr ) : 
+				Base(begin_, end_) 
+			{
+				checkCorruption(empty);
+			}
+
+			DefaultCopyableAndMovable(FreeSpace)
+			
+			~FreeSpace() = default;
+
+			bool checkCorruption(Types::memory_t empty);
+
+			bool isCorrupt() const { return corruptFlag; }
+		private:
+			bool corruptFlag;
+		};
+
+		typedef std::vector< FreeSpace > FreeSpaceVec_t;
+
+		//void to_json(nlohmann::json& j, const FreeSpace& obj);
 
 		struct BaseObject
 		{

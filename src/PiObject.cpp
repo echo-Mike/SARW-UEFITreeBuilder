@@ -7,6 +7,25 @@ namespace Project
 {
 	namespace PiObject
 	{
+
+		bool FreeSpace::checkCorruption(Types::memory_t empty)
+		{
+			corruptFlag = (end != std::find_if_not(
+				begin, 
+				end, 
+				[empty](const Types::memory_t v) -> bool
+				{ 
+					return v == empty; 
+				}
+			));
+			return corruptFlag;
+		}
+
+		//void to_json(nlohmann::json& j, const FreeSpace& obj)
+		//{
+
+		//}
+
 		void BaseObject::toJson(nlohmann::json& j) const
 		{
 			j["uid"] = uid;
@@ -25,5 +44,6 @@ namespace Project
 		{
 			uid = Checksums::hash(buffer, buffer.getLength());
 		}
+
 	}
 }
