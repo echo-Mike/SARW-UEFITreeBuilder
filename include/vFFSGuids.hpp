@@ -1,6 +1,8 @@
 #pragma once
 #ifndef FFS_GUIDS_HPP__
 #define FFS_GUIDS_HPP__ "0.0.0@vFFSGuids.hpp"
+/// STD
+#include <iostream>
 
 /// PROJECT
 #include "General.hpp"
@@ -92,5 +94,7 @@ namespace Project
 		const FfsGuid& getGuidByCode(KnownFfsGuids::KnownFfsGuids_t code);
 	}
 }
+
+std::ostream& operator<<(std::ostream& out, const EFI_GUID& guid);
 
 #endif

@@ -26,67 +26,62 @@ namespace Project
 						(static_cast<Types::length_t>(header->Size[1]) << 8) +
 						 static_cast<Types::length_t>(header->Size[0]);
 			}
+
+			Types::length_t getSize(const EFI_FFS_FILE_HEADER2* header)
+			{
+				return header->ExtendedSize;
+			}
+
+			Types::length_t getSize2(Types::const_pointer_t header)
+			{
+				return reinterpret_cast<const EFI_FFS_FILE_HEADER2*>(header)->ExtendedSize;
+			}
 		}
 	}
 
 	namespace Parsers
 	{
 
-		namespace helper
+		namespace VolumeParserNs
 		{
+
 			static const EFI_FV_BLOCK_MAP_ENTRY lastEntry = { 0, 0 };
-		}
 
-		static void processFileHeaders(PiObject::Volume& volume, const Finders::FilesVec_t& fileHeaders, const MemoryView& buffer)
-		{
-			Types::memory_t empty = volume.header->Attributes & EFI_FVB2_ERASE_POLARITY ? '\xFF' : '\x00';
-			Parsers::FileParser fileParser;
-			MemoryView fileMemory(buffer.begin, buffer.begin);
+			static void processFileHeaders(PiObject::Volume& volume, const Finders::FilesVec_t& fileHeaders, const MemoryView& buffer)
+			{
+				Types::memory_t empty = volume.header->Attributes & EFI_FVB2_ERASE_POLARITY ? '\xFF' : '\x00';
+				Parsers::FileParser fileParser;
+				MemoryView fileMemory(buffer.begin, buffer.begin);
 
-			// Call parser for every file header entry
-			for (const auto& fileHeader : fileHeaders)
-			{	// Check that previous file fill all space before current
-				if (fileMemory.end != fileHeader.begin) {
-					volume.freeSpace.emplace_back(empty, fileMemory.end, fileHeader.begin);
-				}
-
-				if (fileHeader->Attributes & FFS_ATTRIB_LARGE_FILE) {
-					Pi::File::Extended::Header header(fileHeader.begin);
-					fileMemory.begin = header.begin;
-					fileMemory.end = header.begin + header->ExtendedSize;
-
-					if (buffer.isOutside(fileMemory.end - 1))
-					{
-						DEBUG_ERROR_MESSAGE
-							DEBUG_PRINT("\tMessage: File exceeds volume boundary.");
-						DEBUG_END_MESSAGE_AND_EXIT(ExitCodes::ParseErrorVolume)
+				// Call parser for every file header entry
+				for (const auto& fileHeader : fileHeaders)
+				{	// Check that previous file fill all space before current
+					if (fileMemory.end != fileHeader.begin) {
+						volume.freeSpace.emplace_back(empty, fileMemory.end, fileHeader.begin);
 					}
 
-					volume.files.emplace_back( fileParser(header, fileMemory, volume.memory, empty) );
-
-				} else {
 					fileMemory.begin = fileHeader.begin;
-					fileMemory.end = fileHeader.begin + Pi::File::getSize(fileHeader);
+					fileMemory.end = fileHeader.begin + ( fileHeader->Attributes & FFS_ATTRIB_LARGE_FILE ? Pi::File::getSize2(fileHeader) : Pi::File::getSize(fileHeader) );
 
 					if (buffer.isOutside(fileMemory.end - 1))
-					{
 						DEBUG_ERROR_MESSAGE
 							DEBUG_PRINT("\tMessage: File exceeds volume boundary.");
 						DEBUG_END_MESSAGE_AND_EXIT(ExitCodes::ParseErrorVolume)
-					}
 
-					volume.files.emplace_back( fileParser(fileHeader, fileMemory, volume.memory, empty) );
+					volume.files.emplace_back(fileParser(fileHeader, fileMemory, volume.memory, empty));
 				}
-			}
 			
-			// Check for space after last file
-			if (fileMemory.end != buffer.end) {
-				volume.freeSpace.emplace_back(empty, fileMemory.end, buffer.end);
+				// Check for space after last file
+				if (fileMemory.end != buffer.end) {
+					volume.freeSpace.emplace_back(empty, fileMemory.end, buffer.end);
+				}
 			}
 		}
 
 		PiObject::Volume VolumeParser::operator()(const Pi::Volume::Header& volumeView, const MemoryView& buffer, const MemoryView& baseBuffer)
 		{
+			using namespace VolumeParserNs;
+
 			PiObject::Volume volume(volumeView, baseBuffer, buffer);
 			Finders::FilesVec_t fileViews;
 
@@ -97,7 +92,7 @@ namespace Project
 				Types::count_t blockEntryCount = 0;
 				const EFI_FV_BLOCK_MAP_ENTRY* blocks = volume.header->BlockMap;
 
-				while (std::memcmp(blocks, &helper::lastEntry, Pi::Volume::BlockMap::structure_size)) {
+				while (std::memcmp(blocks, &lastEntry, Pi::Volume::BlockMap::structure_size)) {
 					++blockEntryCount;
 					// Next will work only if alignment for EFI_FV_BLOCK_MAP_ENTRY is not weird
 					++blocks;
@@ -136,25 +131,26 @@ namespace Project
 			// Find Pi file headers for all areas of interests based on their count
 			{
 				MemoryView volumeBody;
+				Finders::FileFinder fileFinder;
 
 				switch (searchAreaCount)
 				{
 					case 0 : // No extended header found
 						volumeBody.begin = ALIGN_PTR8(volume.fullHeader.begin, volume.fullHeader.end);
 						volumeBody.setEnd(volume.memory.end);
-						fileViews = Finders::FileFinder()(volumeBody, empty);
+						fileViews = fileFinder(volumeBody, empty);
 						break;
 					case 1 : // Extended header is right after block map or space between is insignificant
 						volumeBody.begin = ALIGN_PTR8(volume.fullHeader.begin, volume.extHeader.memory.end);
 						volumeBody.setEnd(volume.memory.end);
-						fileViews = Finders::FileFinder()(volumeBody, empty);
+						fileViews = fileFinder(volumeBody, empty);
 						break;
 					case 2 : // Both areas: between block map and extended header and after extended header are significant
 						volumeBody.begin = ALIGN_PTR8(volume.fullHeader.begin, volume.fullHeader.end);
 						volumeBody.setEnd(volume.extHeader.header.begin);
 
 						// Find all files in first area
-						fileViews = Finders::FileFinder()(volumeBody, empty);
+						fileViews = fileFinder(volumeBody, empty);
 						if (fileViews.empty()) { // No files found: add area to empty space
 							volume.freeSpace.emplace_back(empty, volume.fullHeader.end, volume.extHeader.header.begin);
 						} else { // Some files found: process them to file objects and free space 
@@ -165,7 +161,7 @@ namespace Project
 						volumeBody.begin = ALIGN_PTR8(volume.fullHeader.begin, volume.extHeader.memory.end);
 						volumeBody.setEnd(volume.memory.end);
 						// Find files in second area
-						fileViews = Finders::FileFinder()(volumeBody, empty);
+						fileViews = fileFinder(volumeBody, empty);
 						break;
 					default:
 						DEBUG_ERROR_MESSAGE
@@ -189,14 +185,61 @@ namespace Project
 			return volume;
 		}
 
-		PiObject::File FileParser::operator()(const Pi::File::Header& fileView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t empty)
+		namespace FileParserNs
 		{
 
+			static PiObject::File fileByHeader(const Pi::File::Header& fileView, const MemoryView& buffer, const MemoryView& baseBuffer)
+			{
+				if (fileView->Attributes & FFS_ATTRIB_LARGE_FILE) {
+					return PiObject::File(Pi::File::Extended::Header(fileView.begin), baseBuffer, buffer);
+				}
+				return PiObject::File(fileView, baseBuffer, buffer);
+			}
+
+			static void processSectionHeaders(PiObject::File& file, const Finders::SectionsVec_t& sectionHeaders, const MemoryView& buffer)
+			{
+
+			}
 		}
 
-		PiObject::File FileParser::operator()(const Pi::File::Extended::Header& fileView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t empty)
+		PiObject::File FileParser::operator()(const Pi::File::Header& fileView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t empty)
 		{
+			using namespace FileParserNs;
 
+			auto file = fileByHeader(fileView, buffer, baseBuffer);
+			Finders::SectionsVec_t sections;
+
+			// Find all PI section headers in body of file
+			{
+				MemoryView fileBody;
+				Finders::SectionFinder sectionFinder;
+
+				if (file.header.headerType == PiObject::helper::FileHeader::Extended) {
+					fileBody.begin = file.header.extended.end;
+					fileBody.setEnd(buffer.end);
+				} else {
+					fileBody.begin = file.header.header.end;
+					fileBody.setEnd(buffer.end);
+				}
+
+				if (fileBody.getLength() == 0) {
+					DEBUG_INFO_MESSAGE
+						DEBUG_PRINT("\tMessage: File without body found.");
+						if (file.header.headerType == PiObject::helper::FileHeader::Extended) {
+							DEBUG_PRINT("\tGUID: ", file.header.extended->Name);
+						} else {
+							DEBUG_PRINT("\tGUID: ", file.header.header->Name);
+						}
+					DEBUG_END_MESSAGE
+				} else {
+					sections = sectionFinder(fileBody, empty);
+				}
+
+				if (true)
+				{
+					processSectionHeaders(file, sections, fileBody);
+				}
+			}
 		}
 
 		PiObject::Section SectionParser::operator()(const Pi::Section::Header& sectionView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t empty)

@@ -69,10 +69,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\codesnippets;$(IncludePath)</IncludePath>
+    <IncludePath>E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\uefi_headers\Include\X64;E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\uefi_headers\Include;E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\codesnippets;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\codesnippets;$(IncludePath)</IncludePath>
+    <IncludePath>E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\uefi_headers\Include\X64;E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\uefi_headers\Include;E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\codesnippets;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

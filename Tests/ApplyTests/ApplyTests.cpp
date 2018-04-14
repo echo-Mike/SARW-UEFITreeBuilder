@@ -1,111 +1,51 @@
-#include <ClassUtilsLib\mClassUtils.hpp>
-#include <utility>
-namespace One
+#include <iostream>
+#include <iomanip>
+
+extern "C"
 {
+#include <Base.h>
+#include <PiPei.h>
+#include <PiDxe.h>
+#include <Uefi.h>
+}
 
-	struct Type1 {};
+// 7A9354D9-0468-444A-81CE-0BF617D890DF
+#define EFI_FIRMWARE_FILE_SYSTEM_GUID \
+    { 0x7a9354d9, 0x0468, 0x444a, { 0x81, 0xce, 0x0b, 0xf6, 0x17, 0xd8, 0x90, 0xdf } }
 
-	struct Tag0 {};
-	struct Tag1 {};
+// 00000000-0000-0000-0000-000000000000
+#define PROJ_UNKNOWN_GUID \
+	{ 0x00000000, 0x0000, 0x0000, { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } }
 
-	namespace Helper
-	{
-		struct AbstractInheritance
-		{
-			virtual AbstractInheritance* copy() const = 0;
+// AAAABBBB-CCCC-DDDD-EEEE-FFFF00001111
+#define PROJ_SUPER_GUID \
+	{ 0xAAAABBBB, 0xCCCC, 0xDDDD, { 0xEE, 0xEE, 0xFF, 0xFF, 0x00, 0x00, 0x11, 0x11 } }
 
-			virtual AbstractInheritance* move() = 0;
-
-			virtual ~AbstractInheritance() {}
-		};
-
-		template < typename T >
-		struct InheritanceFilter :
-			public AbstractInheritance,
-			public T
-		{};
-	}
-
-	typedef Helper::AbstractInheritance* AbstInhPtr_t;
-
-	namespace Two
-	{
-		template < typename T, typename TagT = void >
-		struct Tester :
-			public Type1,
-			public Helper::InheritanceFilter< TagT >
-		{
-			typedef Type1 Base;
-			typedef Helper::InheritanceFilter< TagT > AbstractBase;
-
-			AbstractBase* copy() const { return new Tester(*this); }
-
-			AbstractBase* move() { return new Tester(std::move(*this)); }
-		};
-
-		template < typename T >
-		struct Tester< T, void > :
-			public Type1
-		{};
-	}
-
-	namespace Three
-	{
-		struct Wrapper
-		{
-
-			enum { Simple, Extended } headerType;
-
-			Wrapper(Helper::InheritanceFilter< Tag0 >* ptr) : headerType(Simple), m_ptr(ptr) {}
-
-			Wrapper(Helper::InheritanceFilter< Tag1 >* ptr) : headerType(Extended), m_ptr(ptr) {}
-
-			AbstInhPtr_t m_ptr;
-		};
-	}
-
-	namespace Four
-	{
-		struct Type0 {};
-		struct Type1 {};
-		struct Type2 {};
-		struct Type3 {};
-		struct Type4 {};
-		struct Type5 {};
-		struct Type6 {};
-		struct Type7 {};
-		struct Type8 {};
-		struct Type9 {};
-	}
-
-	namespace Five
-	{
-		typedef Two::Tester<Four::Type0, Tag0> Group0Type0;
-		typedef Two::Tester<Four::Type1, Tag0> Group0Type1;
-		typedef Two::Tester<Four::Type2, Tag0> Group0Type2;
-		typedef Two::Tester<Four::Type3, Tag0> Group0Type3;
-		typedef Two::Tester<Four::Type4, Tag0> Group0Type4;
-
-		typedef Two::Tester<Four::Type5, Tag1> Group1Type0;
-		typedef Two::Tester<Four::Type6, Tag1> Group1Type1;
-		typedef Two::Tester<Four::Type7, Tag1> Group1Type2;
-		typedef Two::Tester<Four::Type8, Tag1> Group1Type3;
-		typedef Two::Tester<Four::Type9, Tag1> Group1Type4;
-	}
+std::ostream& operator<<(std::ostream& out, const EFI_GUID& guid)
+{
+	out << std::hex << std::uppercase << std::setfill('0') << std::setw(8) << guid.Data1 << '-';
+	out << std::setw(4) << guid.Data2 << '-';
+	out << std::setw(4) << guid.Data3 << '-';
+	out << std::setw(4) << ((static_cast<std::uint16_t>(guid.Data4[0]) << 8) + guid.Data4[1]) << '-';
+	std::size_t last =  (static_cast<std::size_t>(guid.Data4[2]) << 40) |
+						(static_cast<std::size_t>(guid.Data4[3]) << 32) |
+						(static_cast<std::size_t>(guid.Data4[4]) << 24) |
+						(static_cast<std::size_t>(guid.Data4[5]) << 16) |
+						(static_cast<std::size_t>(guid.Data4[6]) <<  8) |
+						 static_cast<std::size_t>(guid.Data4[7]);
+	out << std::setw(12) << last;
+	return out;
 }
 
 int main(void)
 {
-	using namespace One;
+	EFI_GUID a = EFI_FIRMWARE_FILE_SYSTEM_GUID;
+	EFI_GUID b = PROJ_UNKNOWN_GUID;
+	EFI_GUID c = PROJ_SUPER_GUID;
 
-	Five::Group0Type0* instance_0 = new Five::Group0Type0;
-	Five::Group1Type0* instance_1 = new Five::Group1Type0;
-
-	Three::Wrapper instance_2 = instance_0;
-	Three::Wrapper instance_3 = instance_1;
-
-	delete instance_0;
-	delete instance_1;
+	std::cout << a << '\n';
+	std::cout << b << '\n';
+	std::cout << c << '\n';
 
 	return 1;
 }

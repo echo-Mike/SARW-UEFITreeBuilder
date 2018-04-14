@@ -237,7 +237,10 @@ namespace Project
 
 				{	// 4) Check size
 					if ( !(h->Attributes & FFS_ATTRIB_LARGE_FILE) ) {
-						if (Pi::File::getSize(h) < Pi::File::Header::structure_size) {
+						auto fileSize = Pi::File::getSize(h);
+						if (fileSize < Pi::File::Header::structure_size ||
+							fileSize > buffer.getLength() - (UnifyPtrCast(h) - buffer.begin) ) 
+						{
 							return false;
 						}
 					}
@@ -260,13 +263,8 @@ namespace Project
 				if (isProperHeader(header))
 				{	// File found: save it, advance to size of file and align to 8 bytes boundary
 					result.emplace_back( header );
-					std::size_t toAdvance = Pi::File::getSize(header);
-					// Check that file may be an extended one 
-					if (header->Attributes & FFS_ATTRIB_LARGE_FILE) 
-					{
-						auto extHeader = reinterpret_cast<const EFI_FFS_FILE_HEADER2*>(header);
-						toAdvance = extHeader->ExtendedSize;
-					}
+					// Obtain file size based on it's type
+					std::size_t toAdvance = header->Attributes & FFS_ATTRIB_LARGE_FILE ? Pi::File::getSize2(UnifyPtrCast(header)) : Pi::File::getSize(header);
 					// Advance ptr to specified size
 					header = ADVANCE_PTR_(header, const EFI_FFS_FILE_HEADER*, toAdvance);
 					// Align it to 8 byte boundary from beginning of buffer

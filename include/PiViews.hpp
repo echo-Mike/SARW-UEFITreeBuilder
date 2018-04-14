@@ -33,6 +33,8 @@ namespace Project
 
 			Types::length_t getSize(const Pi::File::Header& header);
 			Types::length_t getSize(const EFI_FFS_FILE_HEADER* header);
+			Types::length_t getSize(const EFI_FFS_FILE_HEADER2* header);
+			Types::length_t getSize2(Types::const_pointer_t header);
 
 			namespace Extended
 			{

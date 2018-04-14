@@ -1,5 +1,6 @@
 /// STD
 #include <cstring>
+#include <iomanip>
 
 /// PROJECT
 #include "vFFSGuids.hpp"
@@ -75,4 +76,20 @@ namespace Project
 			}
 		}
 	}
+}
+
+std::ostream& operator<<(std::ostream& out, const EFI_GUID& guid)
+{
+	out << std::hex << std::uppercase << std::setfill('0') << std::setw(8) << guid.Data1 << '-';
+	out << std::setw(4) << guid.Data2 << '-';
+	out << std::setw(4) << guid.Data3 << '-';
+	out << std::setw(4) << ((static_cast<std::uint16_t>(guid.Data4[0]) << 8) + guid.Data4[1]) << '-';
+	std::size_t last =  (static_cast<std::size_t>(guid.Data4[2]) << 40) |
+						(static_cast<std::size_t>(guid.Data4[3]) << 32) |
+						(static_cast<std::size_t>(guid.Data4[4]) << 24) |
+						(static_cast<std::size_t>(guid.Data4[5]) << 16) |
+						(static_cast<std::size_t>(guid.Data4[6]) <<  8) |
+						 static_cast<std::size_t>(guid.Data4[7]);
+	out << std::setw(12) << last;
+	return out;
 }
