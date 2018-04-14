@@ -30,7 +30,10 @@ namespace Project
 
 	namespace Checksums
 	{
+
 		std::uint16_t calc16(Types::const_pointer_t ptr, Types::length_t length);
+
+		std::uint8_t calc8(Types::const_pointer_t ptr, Types::length_t length);
 
 		Types::hash_t hash(Types::const_pointer_t ptr, Types::length_t length);
 	}
@@ -53,4 +56,12 @@ namespace Project
 #define ALIGNPTR_(BasePtr, Ptr, powOf2) ( UnifyPtrCast((BasePtr)) + ALIGN_( ( UnifyPtrCast((Ptr)) - UnifyPtrCast((BasePtr)) ), std::size_t, powOf2 ) )
 #define ALIGN_PTR4(BasePtr, Ptr) ALIGNPTR_(BasePtr, Ptr, 4)
 #define ALIGN_PTR8(BasePtr, Ptr) ALIGNPTR_(BasePtr, Ptr, 8)
+
+#define ALIGN_PTR_T_(BasePtr, Ptr, Type, powOf2) reinterpret_cast<Type>( ALIGNPTR_( (BasePtr), (Ptr), (powOf2) ) )
+#define ALIGN_PTR_T4(BasePtr, Ptr, Type) ALIGN_PTR_T_(BasePtr, Ptr, Type, 4)
+#define ALIGN_PTR_T8(BasePtr, Ptr, Type) ALIGN_PTR_T_(BasePtr, Ptr, Type, 8)
+
+#define ADVANCE_PTR_(Ptr, Type, Count) reinterpret_cast<Type>( UnifyPtrCast((Ptr)) + (Count) )
+#define ADVANCE_PTR4(Ptr, Type) ADVANCE_PTR_((Ptr), Type, 4)
+#define ADVANCE_PTR8(Ptr, Type) ADVANCE_PTR_((Ptr), Type, 8)
 #endif

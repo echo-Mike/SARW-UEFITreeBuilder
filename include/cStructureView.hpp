@@ -57,6 +57,8 @@ namespace Project
 
 		explicit StructureView(Types::const_pointer_t ptr) : MemoryView(ptr, ptr + structure_size) {}
 
+		explicit StructureView(const_pointer_t ptr) : MemoryView(UnifyPtrCast(ptr), UnifyPtrCast(ptr) + structure_size) {}
+
 		explicit StructureView(const MemoryView& other) : MemoryView(other) {}
 
 		DefaultCopyableAndMovable(StructureView)
@@ -104,6 +106,8 @@ namespace Project
 		StructureView() : MemoryView() {}
 
 		explicit StructureView(Types::const_pointer_t ptr) : MemoryView(ptr, ptr + structure_size) {}
+
+		explicit StructureView(const_pointer_t ptr) : MemoryView(UnifyPtrCast(ptr), UnifyPtrCast(ptr) + structure_size) {}
 
 		explicit StructureView(const MemoryView& other) : MemoryView(other) {}
 

@@ -15,14 +15,11 @@ namespace Project
 	{
 
 		typedef std::vector< Pi::Section::Header > SectionsVec_t;
-		typedef std::vector< Pi::Section::Extended::Header > ExtSectionsVec_t;
 
 		struct SectionFinder
 		{
 
-			SectionsVec_t operator()(const MemoryView& buffer);
-
-			ExtSectionsVec_t operator()(const MemoryView& buffer, bool);
+			SectionsVec_t operator()(const MemoryView& buffer, Types::memory_t empty);
 		};
 
 	}

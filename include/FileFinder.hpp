@@ -15,14 +15,11 @@ namespace Project
 	{
 
 		typedef std::vector< Pi::File::Header > FilesVec_t;
-		typedef std::vector< Pi::File::Extended::Header > ExtFilesVec_t;
 
 		struct FileFinder
 		{
 
-			FilesVec_t operator()(const MemoryView& buffer);
-
-			ExtFilesVec_t operator()(const MemoryView& buffer, bool);
+			FilesVec_t operator()(const MemoryView& buffer, Types::memory_t empty);
 		};
 
 	}

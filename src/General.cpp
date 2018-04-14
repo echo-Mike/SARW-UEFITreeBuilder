@@ -30,6 +30,17 @@ namespace Project
 			return static_cast<std::uint16_t>(-result);
 		}
 
+		std::uint8_t calc8(Types::const_pointer_t ptr, Types::length_t length)
+		{
+			std::uint8_t result = 0;
+			auto data = reinterpret_cast<const std::uint8_t*>(ptr);
+			for (std::size_t index = 0; index < length; ++index)
+			{
+				result += data[index];
+			}
+			return static_cast<std::uint8_t>(0x100 - result);
+		}
+
 		Types::hash_t hash(Types::const_pointer_t ptr, Types::length_t length)
 		{	// For C++17 std::string_view must be used
 			std::hash<std::string> h;

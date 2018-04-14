@@ -7,19 +7,34 @@
 
 namespace Project
 {
+
+	namespace Pi 
+	{
+		namespace File
+		{
+
+			Types::length_t getSize(const Pi::File::Header& header)
+			{
+				return  (static_cast<Types::length_t>(header->Size[2]) << 16) +
+						(static_cast<Types::length_t>(header->Size[1]) << 8) +
+						 static_cast<Types::length_t>(header->Size[0]);
+			}
+
+			Types::length_t getSize(const EFI_FFS_FILE_HEADER* header)
+			{
+				return  (static_cast<Types::length_t>(header->Size[2]) << 16) +
+						(static_cast<Types::length_t>(header->Size[1]) << 8) +
+						 static_cast<Types::length_t>(header->Size[0]);
+			}
+		}
+	}
+
 	namespace Parsers
 	{
 
 		namespace helper
 		{
 			static const EFI_FV_BLOCK_MAP_ENTRY lastEntry = { 0, 0 };
-		}
-
-		static Types::length_t getFileSize(const Pi::File::Header& header)
-		{
-			return  ( static_cast<Types::length_t>(header->Size[2]) << 16 ) +
-					( static_cast<Types::length_t>(header->Size[1]) <<  8 ) +
-					  static_cast<Types::length_t>(header->Size[0]);
 		}
 
 		static void processFileHeaders(PiObject::Volume& volume, const Finders::FilesVec_t& fileHeaders, const MemoryView& buffer)
@@ -51,7 +66,7 @@ namespace Project
 
 				} else {
 					fileMemory.begin = fileHeader.begin;
-					fileMemory.end = fileHeader.begin + getFileSize(fileHeader);
+					fileMemory.end = fileHeader.begin + Pi::File::getSize(fileHeader);
 
 					if (buffer.isOutside(fileMemory.end - 1))
 					{
@@ -127,19 +142,19 @@ namespace Project
 					case 0 : // No extended header found
 						volumeBody.begin = ALIGN_PTR8(volume.fullHeader.begin, volume.fullHeader.end);
 						volumeBody.setEnd(volume.memory.end);
-						fileViews = Finders::FileFinder()(volumeBody);
+						fileViews = Finders::FileFinder()(volumeBody, empty);
 						break;
 					case 1 : // Extended header is right after block map or space between is insignificant
 						volumeBody.begin = ALIGN_PTR8(volume.fullHeader.begin, volume.extHeader.memory.end);
 						volumeBody.setEnd(volume.memory.end);
-						fileViews = Finders::FileFinder()(volumeBody);
+						fileViews = Finders::FileFinder()(volumeBody, empty);
 						break;
 					case 2 : // Both areas: between block map and extended header and after extended header are significant
 						volumeBody.begin = ALIGN_PTR8(volume.fullHeader.begin, volume.fullHeader.end);
 						volumeBody.setEnd(volume.extHeader.header.begin);
 
 						// Find all files in first area
-						fileViews = Finders::FileFinder()(volumeBody);
+						fileViews = Finders::FileFinder()(volumeBody, empty);
 						if (fileViews.empty()) { // No files found: add area to empty space
 							volume.freeSpace.emplace_back(empty, volume.fullHeader.end, volume.extHeader.header.begin);
 						} else { // Some files found: process them to file objects and free space 
@@ -150,7 +165,7 @@ namespace Project
 						volumeBody.begin = ALIGN_PTR8(volume.fullHeader.begin, volume.extHeader.memory.end);
 						volumeBody.setEnd(volume.memory.end);
 						// Find files in second area
-						fileViews = Finders::FileFinder()(volumeBody);
+						fileViews = Finders::FileFinder()(volumeBody, empty);
 						break;
 					default:
 						DEBUG_ERROR_MESSAGE
