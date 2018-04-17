@@ -100,10 +100,14 @@ namespace Project
 
 				const char* fileTypeToCStr(Types::memory_t type);
 
-				std::string fileTypeToStr(Types::memory_t type) { return fileTypeToCStr(type); }
+				inline std::string fileTypeToStr(Types::memory_t type) { return fileTypeToCStr(type); }
+
 			}
+
 		}
+
 	}
+
 }
 
 #endif

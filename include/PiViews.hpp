@@ -13,32 +13,39 @@ namespace Project
 
 		namespace Volume
 		{
+
 			typedef StructureView<EFI_FIRMWARE_VOLUME_HEADER> Header;
 
 			typedef StructureView<EFI_FV_BLOCK_MAP_ENTRY> BlockMap;
 
 			namespace Extension
 			{
+
 				typedef StructureView<EFI_FIRMWARE_VOLUME_EXT_HEADER> Header;
 				typedef StructureView<EFI_FIRMWARE_VOLUME_EXT_ENTRY> Entry;
 				typedef StructureView<EFI_FIRMWARE_VOLUME_EXT_ENTRY_OEM_TYPE> EntryOemType;
 				typedef StructureView<EFI_FIRMWARE_VOLUME_EXT_ENTRY_GUID_TYPE> EntryGuidType;
 			}
+
 		}
 
 		namespace File
 		{
+
 			typedef StructureView<EFI_FFS_FILE_HEADER> Header;
 			typedef StructureView<EFI_FFS_INTEGRITY_CHECK> IntgrCheck;
 
 			namespace Extended
 			{
+
 				typedef StructureView<EFI_FFS_FILE_HEADER2> Header;
 			}
+
 		}
 
 		namespace Section
 		{
+
 			struct SectionTag {};
 			struct SectionExtTag {};
 
@@ -81,8 +88,11 @@ namespace Project
 				typedef StructureView<EFI_USER_INTERFACE_SECTION2, SectionExtTag> UserInterface;
 				typedef StructureView<EFI_VERSION_SECTION2, SectionExtTag> Version;
 			}
+
 		}
+
 	}
+
 }
 
 #endif

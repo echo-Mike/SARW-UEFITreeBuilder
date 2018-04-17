@@ -39,12 +39,14 @@ namespace Project
 					Raw,
 					SmmDepex,
 					UserInterface,
-					Version
+					Version,
+					PostcodeSct,
+					PostcodeInsyde
 				} sectionType;
 
 				Pi::Section::Header header;
 
-				SectionHeader(HeaderType htype, Types::const_pointer_t ptr, SectionType stype = Raw) : headerType(htype), sectionType(stype), header(ptr) {}
+				SectionHeader(const Pi::Section::Header& hdr, HeaderType htype = Simple, SectionType stype = Raw) : headerType(htype), sectionType(stype), header(hdr) {}
 
 				DefaultCopyableAndMovable(SectionHeader)
 
@@ -52,8 +54,9 @@ namespace Project
 
 				bool isExtended() const { return headerType == Extended; }
 
-				void toJson(nlohmann::json& j) const;
 			};
+
+			void to_json(nlohmann::json& j, const SectionHeader& obj);
 		}
 
 		struct Section :
@@ -61,10 +64,9 @@ namespace Project
 		{
 			typedef BaseObject Base;
 
-			Section( helper::SectionHeader::HeaderType htype, 
-				Types::const_pointer_t ptr,
+			Section(	const Pi::Section::Header& hdr,
 				const MemoryView& baseBuffer, const MemoryView& myBuffer) :
-				Base(baseBuffer, myBuffer), header(htype, ptr)
+				Base(baseBuffer, myBuffer), header(hdr)
 			{
 				setUid(myBuffer);
 			}

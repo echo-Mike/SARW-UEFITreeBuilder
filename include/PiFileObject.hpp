@@ -38,8 +38,9 @@ namespace Project
 					return isExtended() ? reinterpret_cast<Pi::File::Header::const_pointer_t>(extended.begin) : header.get();
 				}
 
-				void toJson(nlohmann::json& j) const;
 			};
+
+			void to_json(nlohmann::json& j, const FileHeader& obj);
 		}
 
 		struct File :

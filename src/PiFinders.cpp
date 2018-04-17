@@ -8,6 +8,7 @@
 #include "PiFinders.hpp"
 #include "vFFSGuids.hpp"
 #include "PiFileUtils.hpp"
+#include "PiSectionUtils.hpp"
 
 namespace Project
 {
@@ -192,8 +193,8 @@ namespace Project
 				}
 
 				{	// 6) Check repeated GUID
-					if (!guidCollection.count(h->Name)) {
-						return FileHeaderStatus::Repeated;;
+					if (h->Type != EFI_FV_FILETYPE_FFS_PAD && !guidCollection.count(h->Name)) {
+						return FileHeaderStatus::Repeated;
 					}
 				}
 
@@ -251,16 +252,55 @@ namespace Project
 			return result;
 		}
 
-		namespace SectionFinderNs
+		SectionsVec_t SectionFinder::operator()(const MemoryView& buffer)
 		{
-
-		}
-
-		SectionsVec_t SectionFinder::operator()(const MemoryView& buffer, Types::memory_t empty)
-		{
-			using namespace SectionFinderNs;
-
 			SectionsVec_t result;
+			// buffer.begin is aligned to 4 byte from FV beginning
+			auto header = reinterpret_cast<const EFI_COMMON_SECTION_HEADER*>(buffer.begin);
+
+			// Proper section header rule set
+			auto isProperHeader = [&](const EFI_COMMON_SECTION_HEADER* h) -> bool
+			{
+				// 1) Check section type
+				{
+					if (!Pi::Section::Utils::isSectionType(h->Type)) {
+						return false;
+					}
+				}
+
+				// 2) Check section size
+				{
+					Types::length_t sectionSize = Pi::Section::Utils::getSizeAuto(h), 
+									struct_size = Pi::Section::Utils::getFullSize(h);
+					if (sectionSize < struct_size ||
+						sectionSize > buffer.getLength() - (UnifyPtrCast(h) - buffer.begin))
+					{
+						return false;
+					}
+				}
+
+				return true;
+			};
+
+			// Check and advance loop
+			while (UnifyPtrCast(header) + Pi::Section::Header::structure_size < buffer.end)
+			{
+				if (isProperHeader(header))
+				{	// File found: save it, advance to size of section and align to 4 byte boundary
+					result.emplace_back(header);
+					// Obtain section size based on it's type
+					std::size_t toAdvance = Pi::Section::Utils::getSizeAuto(header);
+					// Advance ptr to specified size
+					header = ADVANCE_PTR_(header, const EFI_COMMON_SECTION_HEADER*, toAdvance);
+					// Align it to 4 byte boundary from beginning of buffer
+					header = ALIGN_PTR_T4(buffer.begin, header, const EFI_COMMON_SECTION_HEADER*);
+				} else {
+					// Section not found: advance to 4 bytes
+					header = ADVANCE_PTR4(header, const EFI_COMMON_SECTION_HEADER*);
+				}
+			}
+			
+			return result;
 		}
 
 	}

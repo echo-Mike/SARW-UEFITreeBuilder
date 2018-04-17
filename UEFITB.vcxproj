@@ -121,6 +121,7 @@
     <ClCompile Include="src\PiFinders.cpp" />
     <ClCompile Include="src\PiObject.cpp" />
     <ClCompile Include="src\PiParsers.cpp" />
+    <ClCompile Include="src\PiSectionUtils.cpp" />
     <ClCompile Include="submodules\codesnippets\DebugLib\DebugLib.cpp" />
   </ItemGroup>
   <ItemGroup>

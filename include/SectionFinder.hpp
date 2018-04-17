@@ -19,7 +19,7 @@ namespace Project
 		struct SectionFinder
 		{
 
-			SectionsVec_t operator()(const MemoryView& buffer, Types::memory_t empty);
+			SectionsVec_t operator()(const MemoryView& buffer);
 		};
 
 	}

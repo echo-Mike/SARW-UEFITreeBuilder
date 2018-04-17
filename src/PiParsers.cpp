@@ -216,6 +216,8 @@ namespace Project
 					fileBody.begin = file.header.header.end;
 					fileBody.setEnd(buffer.end);
 				}
+				// fileView.begin is aligned by 8 to FV header -> we can align by 4 from it <=> align by 4 from FV header
+				fileBody.begin = ALIGN_PTR4(fileView.begin, fileBody.begin);
 
 				if (fileBody.getLength() == 0) {
 					DEBUG_INFO_MESSAGE
@@ -223,7 +225,7 @@ namespace Project
 						DEBUG_PRINT("\tGUID: ", file.header.asSimpleHeader()->Name);
 					DEBUG_END_MESSAGE
 				} else {
-					sections = sectionFinder(fileBody, empty);
+					sections = sectionFinder(fileBody);
 					if (sections.empty()) 
 					{	// File must be one of non-sectioned type
 						auto fileType = static_cast<Types::memory_t>(file.header.asSimpleHeader()->Type);
@@ -245,8 +247,52 @@ namespace Project
 			return file;
 		}
 
+		namespace SectionParserNs
+		{
+
+			static PiObject::Section sectionByHeader(const Pi::Section::Header& sectionView, const MemoryView& buffer, const MemoryView& baseBuffer)
+			{
+				using namespace PiObject::helper;
+				PiObject::Section result(sectionView, buffer, baseBuffer);
+				// Set section header type
+				result.header.headerType = Pi::Section::Utils::getSize(sectionView) == PROJ_SECTION_MAX_SIZE ? SectionHeader::Extended : SectionHeader::Simple;
+				// Set section type
+				switch (sectionView->Type)
+				{
+					case EFI_SECTION_COMPRESSION: result.header.sectionType = SectionHeader::Compression; break;
+					case EFI_SECTION_GUID_DEFINED: result.header.sectionType = SectionHeader::GuidDefined; break;
+					case EFI_SECTION_DISPOSABLE: result.header.sectionType = SectionHeader::Disposable; break;
+					case EFI_SECTION_PE32: result.header.sectionType = SectionHeader::Pe32; break;
+					case EFI_SECTION_PIC: result.header.sectionType = SectionHeader::Pic; break;
+					case EFI_SECTION_TE: result.header.sectionType = SectionHeader::Te; break;
+					case EFI_SECTION_DXE_DEPEX: result.header.sectionType = SectionHeader::DxeDepex; break;
+					case EFI_SECTION_VERSION: result.header.sectionType = SectionHeader::Version; break;
+					case EFI_SECTION_USER_INTERFACE: result.header.sectionType = SectionHeader::UserInterface; break;
+					case EFI_SECTION_COMPATIBILITY16: result.header.sectionType = SectionHeader::Compatibility16; break;
+					case EFI_SECTION_FIRMWARE_VOLUME_IMAGE: result.header.sectionType = SectionHeader::FirmwareVolumeImage; break;
+					case EFI_SECTION_FREEFORM_SUBTYPE_GUID: result.header.sectionType = SectionHeader::FreeformSubtypeGuid; break;
+					case EFI_SECTION_RAW: result.header.sectionType = SectionHeader::Raw; break;
+					case EFI_SECTION_PEI_DEPEX: result.header.sectionType = SectionHeader::PeiDepex; break;
+					case EFI_SECTION_SMM_DEPEX: result.header.sectionType = SectionHeader::SmmDepex; break;
+					case SCT_SECTION_POSTCODE: result.header.sectionType = SectionHeader::PostcodeSct; break;
+					case INSYDE_SECTION_POSTCODE: result.header.sectionType = SectionHeader::PostcodeInsyde; break;
+					default:  result.header.sectionType = SectionHeader::Raw; break;
+				}
+
+				return result;
+			}
+
+		}
+
 		PiObject::Section SectionParser::operator()(const Pi::Section::Header& sectionView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t empty)
 		{
+			using namespace SectionParserNs;
+
+			auto section = sectionByHeader(sectionView, buffer, baseBuffer);
+			Finders::SectionsVec_t sections;
+
+
+			return section;
 
 		}
 

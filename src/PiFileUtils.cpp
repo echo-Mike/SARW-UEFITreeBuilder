@@ -9,6 +9,8 @@
 #define PROJ_FILE_TYPE_TO_STR(MACRO_) { MACRO_, #MACRO_ }
 #define PROJ_FILE_TYPE_TO_STR2(MACRO_, Str) { MACRO_, #MACRO_ ## Str }
 
+#define NOT_EFI_FV_FILETYPE (EFI_FV_FILETYPE_OEM_MIN - 1)
+
 namespace Project
 {
 	namespace Pi 
@@ -93,12 +95,11 @@ namespace Project
 						PROJ_FILE_TYPE_TO_STR(EFI_FV_FILETYPE_FFS_MIN),
 						PROJ_FILE_TYPE_TO_STR2(EFI_FV_FILETYPE_FFS_MIN, " + %X "),
 						PROJ_FILE_TYPE_TO_STR(EFI_FV_FILETYPE_FFS_MAX),
-						PROJ_FILE_TYPE_TO_STR(EFI_FV_FILETYPE_FFS_PAD)
+						PROJ_FILE_TYPE_TO_STR(EFI_FV_FILETYPE_FFS_PAD),
+						PROJ_FILE_TYPE_TO_STR(NOT_EFI_FV_FILETYPE)
 					};
 
 					static char filenameBuffer[128];
-
-					static char empty[] = "";
 
 					std::size_t fileNamePosition(Types::memory_t type)
 					{
@@ -146,6 +147,8 @@ namespace Project
 								return 21;
 							case EFI_FV_FILETYPE_FFS_MAX:
 								return 23;
+							case NOT_EFI_FV_FILETYPE:
+								return sizeof(FileNames) / sizeof(FileMacroPlusName) - 1;
 							default:
 								return sizeof(FileNames) / sizeof(FileMacroPlusName);
 								break;
@@ -183,7 +186,7 @@ namespace Project
 				{
 					using namespace Helper;
 					if (type == EFI_FV_FILETYPE_FFS_PAD) {
-						return FileNames[sizeof(FileNames) / sizeof(FileMacroPlusName) - 1].name;
+						return FileNames[sizeof(FileNames) / sizeof(FileMacroPlusName) - 2].name;
 					}
 					auto end = GET_END_PTR(FileNames, FileMacroPlusName);
 					auto pos = fileNamePosition(type);
@@ -211,7 +214,7 @@ namespace Project
 							std::snprintf(filenameBuffer, sizeof(filenameBuffer) / sizeof(char), FileNames[pos].name, type - EFI_FV_FILETYPE_FFS_MIN);
 							return filenameBuffer;
 						} else {
-							return empty;
+							return FileNames[fileNamePosition(NOT_EFI_FV_FILETYPE)].name;
 						}
 					}
 				}
@@ -220,6 +223,8 @@ namespace Project
 		}
 	}
 }
+
+#undef NOT_EFI_FV_FILETYPE
 
 #undef PROJ_FILE_TYPE_TO_STR2
 #undef PROJ_FILE_TYPE_TO_STR
