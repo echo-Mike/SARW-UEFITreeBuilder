@@ -42,38 +42,17 @@ namespace Project
 					Version
 				} sectionType;
 
-				std::unique_ptr< ::Project::helper::AbstractInheritance > view;
+				Pi::Section::Header header;
 
-				SectionHeader(HeaderType htype, SectionType stype) : headerType(htype), sectionType(stype), view(nullptr) {}
+				SectionHeader(HeaderType htype, Types::const_pointer_t ptr, SectionType stype = Raw) : headerType(htype), sectionType(stype), header(ptr) {}
 
-				SectionHeader(SectionType type, ::Project::helper::InheritanceFilter<Pi::Section::SectionTag>* ptr) : headerType(Simple), sectionType(type), view(ptr) {}
-				
-				SectionHeader(SectionType type, ::Project::helper::InheritanceFilter<Pi::Section::SectionExtTag>* ptr) : headerType(Extended), sectionType(type), view(ptr) {}
-
-				SectionHeader(const SectionHeader& other) :
-					headerType(other.headerType),
-					sectionType(other.sectionType),
-					view(nullptr)
-				{
-					view.reset(other.get()->copy());
-				}
-
-				SectionHeader& operator=(const SectionHeader& other)
-				{
-					if (this == &other) {
-						return *this;
-					}
-					headerType = other.headerType;
-					sectionType = other.sectionType;
-					view.reset(other.get()->copy());
-					return *this;
-				}
-
-				DefaultMovable(SectionHeader)
+				DefaultCopyableAndMovable(SectionHeader)
 
 				~SectionHeader() = default;
 
-				::Project::helper::AbstractInheritance* get() const { return view.get(); }
+				bool isExtended() const { return headerType == Extended; }
+
+				void toJson(nlohmann::json& j) const;
 			};
 		}
 
@@ -82,18 +61,10 @@ namespace Project
 		{
 			typedef BaseObject Base;
 
-			Section( helper::SectionHeader::SectionType type, 
-				::Project::helper::InheritanceFilter<Pi::Section::SectionTag>* ptr,
+			Section( helper::SectionHeader::HeaderType htype, 
+				Types::const_pointer_t ptr,
 				const MemoryView& baseBuffer, const MemoryView& myBuffer) :
-				Base(baseBuffer, myBuffer), header(type, ptr)
-			{
-				setUid(myBuffer);
-			}
-
-			Section( helper::SectionHeader::SectionType type, 
-				::Project::helper::InheritanceFilter<Pi::Section::SectionExtTag>* ptr,
-				const MemoryView& baseBuffer, const MemoryView& myBuffer) :
-				Base(baseBuffer, myBuffer), header(type, ptr)
+				Base(baseBuffer, myBuffer), header(htype, ptr)
 			{
 				setUid(myBuffer);
 			}

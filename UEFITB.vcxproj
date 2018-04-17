@@ -117,12 +117,14 @@
     <ClCompile Include="src\FFSGuids.cpp" />
     <ClCompile Include="src\General.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\PiFileUtils.cpp" />
     <ClCompile Include="src\PiFinders.cpp" />
     <ClCompile Include="src\PiObject.cpp" />
     <ClCompile Include="src\PiParsers.cpp" />
     <ClCompile Include="submodules\codesnippets\DebugLib\DebugLib.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\PiFileUtils.hpp" />
     <ClInclude Include="include\PiFinders.hpp" />
     <ClInclude Include="include\PiParsers.hpp" />
     <ClInclude Include="include\cMemoryView.hpp" />
@@ -137,6 +139,7 @@
     <ClInclude Include="include\PiFileObject.hpp" />
     <ClInclude Include="include\PiObjectRepresentation.hpp" />
     <ClInclude Include="include\PiSectionObject.hpp" />
+    <ClInclude Include="include\PiSectionUtils.hpp" />
     <ClInclude Include="include\PiViews.hpp" />
     <ClInclude Include="include\PiVolumeObject.hpp" />
     <ClInclude Include="include\ProjectTypes.hpp" />

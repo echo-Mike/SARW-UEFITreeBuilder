@@ -3,6 +3,8 @@
 #define FFS_GUIDS_HPP__ "0.0.0@vFFSGuids.hpp"
 /// STD
 #include <iostream>
+#include <cstring>
+#include <algorithm>
 
 /// PROJECT
 #include "General.hpp"
@@ -96,5 +98,11 @@ namespace Project
 }
 
 std::ostream& operator<<(std::ostream& out, const EFI_GUID& guid);
+
+bool operator!=(const EFI_GUID& lhs, const EFI_GUID& rhs) noexcept { return std::memcmp(&lhs, &rhs, sizeof(EFI_GUID)); }
+
+bool operator==(const EFI_GUID& lhs, const EFI_GUID& rhs) noexcept { return !operator!=(lhs, rhs); }
+
+bool operator<(const EFI_GUID& lhs, const EFI_GUID& rhs) noexcept { return std::lexicographical_compare(UnifyPtrCast(&lhs), UnifyPtrCast(&lhs) + sizeof(EFI_GUID), UnifyPtrCast(&rhs), UnifyPtrCast(&rhs) + sizeof(EFI_GUID)); }
 
 #endif

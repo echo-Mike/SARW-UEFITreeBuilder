@@ -31,11 +31,6 @@ namespace Project
 			typedef StructureView<EFI_FFS_FILE_HEADER> Header;
 			typedef StructureView<EFI_FFS_INTEGRITY_CHECK> IntgrCheck;
 
-			Types::length_t getSize(const Pi::File::Header& header);
-			Types::length_t getSize(const EFI_FFS_FILE_HEADER* header);
-			Types::length_t getSize(const EFI_FFS_FILE_HEADER2* header);
-			Types::length_t getSize2(Types::const_pointer_t header);
-
 			namespace Extended
 			{
 				typedef StructureView<EFI_FFS_FILE_HEADER2> Header;

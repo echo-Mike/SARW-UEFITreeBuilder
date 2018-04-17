@@ -57,6 +57,9 @@
     <ClCompile Include="src\PiObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\PiFileUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\PiObjectRepresentation.hpp">
@@ -127,6 +130,12 @@
     </ClInclude>
     <ClInclude Include="include\PiFinders.hpp">
       <Filter>Header Files\Finders</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PiFileUtils.hpp">
+      <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PiSectionUtils.hpp">
+      <Filter>Header Files\Helpers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

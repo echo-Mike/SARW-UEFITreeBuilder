@@ -30,6 +30,15 @@ namespace Project
 				DefaultCopyableAndMovable(FileHeader)
 
 				~FileHeader() = default;
+
+				bool isExtended() const { return headerType == Extended; }
+
+				Pi::File::Header::const_pointer_t asSimpleHeader() const
+				{
+					return isExtended() ? reinterpret_cast<Pi::File::Header::const_pointer_t>(extended.begin) : header.get();
+				}
+
+				void toJson(nlohmann::json& j) const;
 			};
 		}
 

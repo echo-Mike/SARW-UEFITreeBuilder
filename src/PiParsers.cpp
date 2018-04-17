@@ -1,43 +1,15 @@
 /// STD
 #include <cstring>
+
 /// PROJECT
 #include "vFFSGuids.hpp"
 #include "PiFinders.hpp"
 #include "PiParsers.hpp"
+#include "PiFileUtils.hpp"
+#include "PiSectionUtils.hpp"
 
 namespace Project
 {
-
-	namespace Pi 
-	{
-		namespace File
-		{
-
-			Types::length_t getSize(const Pi::File::Header& header)
-			{
-				return  (static_cast<Types::length_t>(header->Size[2]) << 16) +
-						(static_cast<Types::length_t>(header->Size[1]) << 8) +
-						 static_cast<Types::length_t>(header->Size[0]);
-			}
-
-			Types::length_t getSize(const EFI_FFS_FILE_HEADER* header)
-			{
-				return  (static_cast<Types::length_t>(header->Size[2]) << 16) +
-						(static_cast<Types::length_t>(header->Size[1]) << 8) +
-						 static_cast<Types::length_t>(header->Size[0]);
-			}
-
-			Types::length_t getSize(const EFI_FFS_FILE_HEADER2* header)
-			{
-				return header->ExtendedSize;
-			}
-
-			Types::length_t getSize2(Types::const_pointer_t header)
-			{
-				return reinterpret_cast<const EFI_FFS_FILE_HEADER2*>(header)->ExtendedSize;
-			}
-		}
-	}
 
 	namespace Parsers
 	{
@@ -61,7 +33,7 @@ namespace Project
 					}
 
 					fileMemory.begin = fileHeader.begin;
-					fileMemory.end = fileHeader.begin + ( fileHeader->Attributes & FFS_ATTRIB_LARGE_FILE ? Pi::File::getSize2(fileHeader) : Pi::File::getSize(fileHeader) );
+					fileMemory.end = fileHeader.begin + Pi::File::Utils::getSizeAuto(fileHeader.get());
 
 					if (buffer.isOutside(fileMemory.end - 1))
 						DEBUG_ERROR_MESSAGE
@@ -187,7 +159,6 @@ namespace Project
 
 		namespace FileParserNs
 		{
-
 			static PiObject::File fileByHeader(const Pi::File::Header& fileView, const MemoryView& buffer, const MemoryView& baseBuffer)
 			{
 				if (fileView->Attributes & FFS_ATTRIB_LARGE_FILE) {
@@ -196,9 +167,33 @@ namespace Project
 				return PiObject::File(fileView, baseBuffer, buffer);
 			}
 
-			static void processSectionHeaders(PiObject::File& file, const Finders::SectionsVec_t& sectionHeaders, const MemoryView& buffer)
+			static void processSectionHeaders(PiObject::File& file, const Finders::SectionsVec_t& sectionHeaders, const MemoryView& buffer, Types::memory_t empty)
 			{
+				Parsers::SectionParser sectionParser;
+				MemoryView sectionMemory(buffer.begin, buffer.begin);
 
+				// Call parser for every section header entry
+				for (const auto& sectionHdr : sectionHeaders)
+				{	// Check that previous section fill all space before current
+					if (sectionMemory.end != sectionMemory.begin) {
+						file.freeSpace.emplace_back(empty, sectionMemory.end, sectionMemory.begin);
+					}
+
+					sectionMemory.begin = sectionHdr.begin;
+					sectionMemory.end = sectionHdr.begin + Pi::Section::Utils::getSizeAuto(sectionHdr.get());
+
+					if (buffer.isOutside(sectionMemory.end - 1))
+						DEBUG_ERROR_MESSAGE
+							DEBUG_PRINT("\tMessage: Section exceeds file boundary.");
+						DEBUG_END_MESSAGE_AND_EXIT(ExitCodes::ParseErrorFile)
+
+					file.sections.emplace_back(sectionParser(sectionHdr, sectionMemory, file.memory, empty));
+				}
+			
+				// Check for space after last section
+				if (sectionMemory.end != buffer.end) {
+					file.freeSpace.emplace_back(empty, sectionMemory.end, buffer.end);
+				}
 			}
 		}
 
@@ -214,7 +209,7 @@ namespace Project
 				MemoryView fileBody;
 				Finders::SectionFinder sectionFinder;
 
-				if (file.header.headerType == PiObject::helper::FileHeader::Extended) {
+				if (file.header.isExtended()) {
 					fileBody.begin = file.header.extended.end;
 					fileBody.setEnd(buffer.end);
 				} else {
@@ -225,29 +220,32 @@ namespace Project
 				if (fileBody.getLength() == 0) {
 					DEBUG_INFO_MESSAGE
 						DEBUG_PRINT("\tMessage: File without body found.");
-						if (file.header.headerType == PiObject::helper::FileHeader::Extended) {
-							DEBUG_PRINT("\tGUID: ", file.header.extended->Name);
-						} else {
-							DEBUG_PRINT("\tGUID: ", file.header.header->Name);
-						}
+						DEBUG_PRINT("\tGUID: ", file.header.asSimpleHeader()->Name);
 					DEBUG_END_MESSAGE
 				} else {
 					sections = sectionFinder(fileBody, empty);
-				}
-
-				if (true)
-				{
-					processSectionHeaders(file, sections, fileBody);
+					if (sections.empty()) 
+					{	// File must be one of non-sectioned type
+						auto fileType = static_cast<Types::memory_t>(file.header.asSimpleHeader()->Type);
+						// Check that file is not a sectioned type
+						if ( Pi::File::Utils::isSectionedFileType(fileType) )
+						{	// It is sectioned type by UEFI PI : report a warning
+							DEBUG_WARNING_MESSAGE
+								DEBUG_PRINT("\tMessage: No section found in sectioned file type.");
+								DEBUG_PRINT("\tGUID: ", file.header.asSimpleHeader()->Name);
+								DEBUG_PRINT("\tFile type: ", Pi::File::Utils::fileTypeToCStr(fileType));
+							DEBUG_END_MESSAGE
+						}
+					} else {
+						processSectionHeaders(file, sections, fileBody, empty);
+					}
 				}
 			}
+
+			return file;
 		}
 
 		PiObject::Section SectionParser::operator()(const Pi::Section::Header& sectionView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t empty)
-		{
-
-		}
-
-		PiObject::Section SectionParser::operator()(const Pi::Section::Extended::Header& sectionView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t empty)
 		{
 
 		}
