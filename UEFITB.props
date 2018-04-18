@@ -6,6 +6,7 @@
     <UefiHeadersHome>./submodules/uefi_headers</UefiHeadersHome>
 	<ProcessorBindHome>$(UefiHeadersHome)/Include/X64</ProcessorBindHome>
 	<JsonHome>./submodules/json</JsonHome>
+	<CompressionHome>./submodules/Compression</CompressionHome>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />

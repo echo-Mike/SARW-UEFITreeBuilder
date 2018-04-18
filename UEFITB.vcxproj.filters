@@ -34,6 +34,24 @@
     <Filter Include="Source Files\Helpers">
       <UniqueIdentifier>{6ab6aea4-1c49-49e1-88b2-324a6f43f931}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Compression">
+      <UniqueIdentifier>{f383f320-f9f9-4f20-931a-16789d4f92d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Compression">
+      <UniqueIdentifier>{6224dfc0-3ae3-45a1-8b61-31f9ab4c8d2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Compression\LZMA">
+      <UniqueIdentifier>{38aa77cd-57b3-478d-ab07-19c3a8960e65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Compression\Tiano">
+      <UniqueIdentifier>{ce6179ff-f42f-479c-97a7-dc7fdbddaecf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Compression\LZMA">
+      <UniqueIdentifier>{b5938368-fab2-4eba-8f09-bbac30ade814}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Compression\Tiano">
+      <UniqueIdentifier>{2cba128d-8231-4d7f-8d0f-dd385137814e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="submodules\codesnippets\DebugLib\DebugLib.cpp">
@@ -62,6 +80,30 @@
     </ClCompile>
     <ClCompile Include="src\PiSectionUtils.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CompressionModule.cpp">
+      <Filter>Source Files\Compression</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DecompressionModule.cpp">
+      <Filter>Source Files\Compression</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LZMACompModule.cpp">
+      <Filter>Source Files\Compression\LZMA</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LZMADecompModule.cpp">
+      <Filter>Source Files\Compression\LZMA</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Edk2CompModule.cpp">
+      <Filter>Source Files\Compression\Tiano</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Edk2DecompModule.cpp">
+      <Filter>Source Files\Compression\Tiano</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EdkCompModule.cpp">
+      <Filter>Source Files\Compression\Tiano</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EdkDecompModule.cpp">
+      <Filter>Source Files\Compression\Tiano</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -139,6 +181,30 @@
     </ClInclude>
     <ClInclude Include="include\PiSectionUtils.hpp">
       <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CompressionModule.hpp">
+      <Filter>Header Files\Compression</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DecompressionModule.hpp">
+      <Filter>Header Files\Compression</Filter>
+    </ClInclude>
+    <ClInclude Include="include\LZMACompModule.hpp">
+      <Filter>Header Files\Compression\LZMA</Filter>
+    </ClInclude>
+    <ClInclude Include="include\LZMADecompModule.hpp">
+      <Filter>Header Files\Compression\LZMA</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Edk2CompModule.hpp">
+      <Filter>Header Files\Compression\Tiano</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Edk2DecompModule.hpp">
+      <Filter>Header Files\Compression\Tiano</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EdkCompModule.hpp">
+      <Filter>Header Files\Compression\Tiano</Filter>
+    </ClInclude>
+    <ClInclude Include="include\EdkDecompModule.hpp">
+      <Filter>Header Files\Compression\Tiano</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

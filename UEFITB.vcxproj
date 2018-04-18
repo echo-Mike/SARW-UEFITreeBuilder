@@ -67,14 +67,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)include;$(UefiHeadersHome)/Include;$(CodeSnippetsHome);$(ProcessorBindHome);$(JsonHome)/include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)include;$(UefiHeadersHome)/Include;$(CodeSnippetsHome);$(ProcessorBindHome);$(JsonHome)/include;$(CompressionHome);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)include;$(UefiHeadersHome)/Include;$(CodeSnippetsHome);$(ProcessorBindHome);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)include;$(UefiHeadersHome)/Include;$(CodeSnippetsHome);$(ProcessorBindHome);$(JsonHome)/include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)include;$(UefiHeadersHome)/Include;$(CodeSnippetsHome);$(ProcessorBindHome);$(JsonHome)/include;$(CompressionHome);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)include;$(UefiHeadersHome)/Include;$(CodeSnippetsHome);$(ProcessorBindHome);$(IncludePath)</IncludePath>
@@ -114,8 +114,16 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\CompressionModule.cpp" />
+    <ClCompile Include="src\DecompressionModule.cpp" />
+    <ClCompile Include="src\Edk2CompModule.cpp" />
+    <ClCompile Include="src\Edk2DecompModule.cpp" />
+    <ClCompile Include="src\EdkCompModule.cpp" />
+    <ClCompile Include="src\EdkDecompModule.cpp" />
     <ClCompile Include="src\FFSGuids.cpp" />
     <ClCompile Include="src\General.cpp" />
+    <ClCompile Include="src\LZMACompModule.cpp" />
+    <ClCompile Include="src\LZMADecompModule.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\PiFileUtils.cpp" />
     <ClCompile Include="src\PiFinders.cpp" />
@@ -125,6 +133,14 @@
     <ClCompile Include="submodules\codesnippets\DebugLib\DebugLib.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\CompressionModule.hpp" />
+    <ClInclude Include="include\DecompressionModule.hpp" />
+    <ClInclude Include="include\Edk2CompModule.hpp" />
+    <ClInclude Include="include\Edk2DecompModule.hpp" />
+    <ClInclude Include="include\EdkCompModule.hpp" />
+    <ClInclude Include="include\EdkDecompModule.hpp" />
+    <ClInclude Include="include\LZMACompModule.hpp" />
+    <ClInclude Include="include\LZMADecompModule.hpp" />
     <ClInclude Include="include\PiFileUtils.hpp" />
     <ClInclude Include="include\PiFinders.hpp" />
     <ClInclude Include="include\PiParsers.hpp" />
