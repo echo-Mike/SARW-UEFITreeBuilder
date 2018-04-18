@@ -6,13 +6,7 @@
 #include <memory>
 
 /// UEFI HEADERS
-extern "C"
-{
-#include <Base.h>
-#include <PiPei.h>
-#include <PiDxe.h>
-#include <Uefi.h>
-}
+#include "UefiHeaders.h"
 
 /// SNIPPETS
 #include <DebugLib/mDebugLib.hpp>
@@ -41,7 +35,9 @@ namespace Project
 			{
 				Unknown,
 				TianoEdk,
+				TianoEfi,
 				TianoEdk2,
+				TianoEfi2,
 				Lzma,
 				Lzma2,
 				Lzma86
@@ -99,6 +95,32 @@ namespace Project
 
 		};
 
+		struct TianoEfiDecompresser :
+			public BaseDecompresser
+		{
+
+			typedef BaseDecompresser Base;
+
+			TianoEfiDecompresser() : Base(Decompresser::TianoEfi) {}
+
+			DefaultCopyableAndMovable(TianoEfiDecompresser)
+
+			~TianoEfiDecompresser() {};
+
+			EFI_STATUS GetInfo(
+				Types::void_ptr_t Source,
+				Types::length_t SrcSize,
+				Types::length_t& DstSize
+			);
+
+			EFI_STATUS Decompress(
+				Types::void_ptr_t Source,
+				Types::length_t SrcSize,
+				Types::unique_buffer_t& Destination
+			);
+
+		};
+
 		struct TianoEdk2Decompresser :
 			public BaseDecompresser
 		{
@@ -110,6 +132,32 @@ namespace Project
 			DefaultCopyableAndMovable(TianoEdk2Decompresser)
 
 			~TianoEdk2Decompresser() {};
+
+			EFI_STATUS GetInfo(
+				Types::void_ptr_t Source,
+				Types::length_t SrcSize,
+				Types::length_t& DstSize
+			);
+
+			EFI_STATUS Decompress(
+				Types::void_ptr_t Source,
+				Types::length_t SrcSize,
+				Types::unique_buffer_t& Destination
+			);
+
+		};
+
+		struct TianoEfi2Decompresser :
+			public BaseDecompresser
+		{
+
+			typedef BaseDecompresser Base;
+
+			TianoEfi2Decompresser() : Base(Decompresser::TianoEfi2) {}
+
+			DefaultCopyableAndMovable(TianoEfi2Decompresser)
+
+			~TianoEfi2Decompresser() {};
 
 			EFI_STATUS GetInfo(
 				Types::void_ptr_t Source,

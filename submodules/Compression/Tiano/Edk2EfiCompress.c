@@ -15,8 +15,13 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 **/
 
-#include "Compress.h"
-
+/// STD
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+/// PROJECT
+#include "UefiHeaders.h"
+#include "Tiano/Edk2Compress.h"
 
 //
 // Macro Definitions

@@ -16,11 +16,10 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #ifndef _COMPRESS_H_
 #define _COMPRESS_H_
 
-#include <string.h>
-#include <stdlib.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#include "CommonLib.h"
-#include <Common/UefiBaseTypes.h>
 /*++
 
 Routine Description:
@@ -84,5 +83,9 @@ EFI_STATUS
   IN      UINT8   *DstBuffer,
   IN OUT  UINT32  *DstSize
   );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

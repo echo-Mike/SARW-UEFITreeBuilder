@@ -23,10 +23,12 @@ Abstract:
 
 --*/
 
+/// STD
 #include <stdlib.h>
 #include <string.h>
-#include "TianoCommon.h"
-#include "Compress.h"
+/// PROJECT
+#include "UefiHeaders.h"
+#include "Tiano/EdkCompress.h"
 
 
 //

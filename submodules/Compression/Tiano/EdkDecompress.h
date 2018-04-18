@@ -23,6 +23,10 @@ Abstract:
 #ifndef _DECOMPRESS_H_
 #define _DECOMPRESS_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 EFI_STATUS
 EFIAPI
 EfiGetInfo (
@@ -170,5 +174,9 @@ EFI_STATUS
   IN OUT  VOID    *Scratch,
   IN      UINT32  ScratchSize
   );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

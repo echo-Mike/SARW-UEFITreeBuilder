@@ -23,6 +23,10 @@ Abstract:
 #ifndef _COMPRESS_H_
 #define _COMPRESS_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*++
 
 Routine Description:
@@ -84,5 +88,9 @@ EFI_STATUS
   IN      UINT8   *DstBuffer,
   IN OUT  UINT32  *DstSize
   );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

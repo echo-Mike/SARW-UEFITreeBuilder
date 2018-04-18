@@ -11,11 +11,13 @@ namespace Project
 		{
 			switch (type)
 			{
-				case Project::Decompression::Decompresser::TianoEdk		:	return std::make_unique<TianoEdkDecompressor>();
-				case Project::Decompression::Decompresser::TianoEdk2	:	return std::make_unique<TianoEdk2Decompressor>();
-				case Project::Decompression::Decompresser::Lzma			:	return std::make_unique<LzmaDecompressor>();
-				case Project::Decompression::Decompresser::Lzma2		:	return std::make_unique<Lzma2Decompressor>();
-				case Project::Decompression::Decompresser::Lzma86		:	return std::make_unique<Lzma86Decompressor>();
+				case Project::Decompression::Decompresser::TianoEdk		:	return std::make_unique<TianoEdkDecompresser>();
+				case Project::Decompression::Decompresser::TianoEfi		:	return std::make_unique<TianoEfiDecompresser>();
+				case Project::Decompression::Decompresser::TianoEdk2	:	return std::make_unique<TianoEdk2Decompresser>();
+				case Project::Decompression::Decompresser::TianoEfi2	:	return std::make_unique<TianoEfi2Decompresser>();
+				case Project::Decompression::Decompresser::Lzma			:	return std::make_unique<LzmaDecompresser>();
+				case Project::Decompression::Decompresser::Lzma2		:	return std::make_unique<Lzma2Decompresser>();
+				case Project::Decompression::Decompresser::Lzma86		:	return std::make_unique<Lzma86Decompresser>();
 				case Project::Decompression::Decompresser::Unknown		:
 				default	: {
 					DEBUG_ERROR_MESSAGE

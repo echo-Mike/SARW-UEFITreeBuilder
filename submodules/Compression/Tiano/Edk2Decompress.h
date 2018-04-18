@@ -15,7 +15,9 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 #ifndef _EFI_DECOMPRESS_H
 #define _EFI_DECOMPRESS_H
 
-#include <Common/UefiBaseTypes.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 EFI_STATUS
 EfiGetInfo (
@@ -157,9 +159,13 @@ EFI_STATUS
 Extract (
   IN      VOID    *Source,
   IN      UINT32  SrcSize,
-     OUT  VOID    **Destination,
-     OUT  UINT32  *DstSize,
+  OUT     VOID    **Destination,
+  OUT     UINT32  *DstSize,
   IN      UINTN   Algorithm
   );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

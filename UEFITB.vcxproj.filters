@@ -40,12 +40,6 @@
     <Filter Include="Source Files\Compression">
       <UniqueIdentifier>{6224dfc0-3ae3-45a1-8b61-31f9ab4c8d2d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Compression\LZMA">
-      <UniqueIdentifier>{38aa77cd-57b3-478d-ab07-19c3a8960e65}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Compression\Tiano">
-      <UniqueIdentifier>{ce6179ff-f42f-479c-97a7-dc7fdbddaecf}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Compression\LZMA">
       <UniqueIdentifier>{b5938368-fab2-4eba-8f09-bbac30ade814}</UniqueIdentifier>
     </Filter>
@@ -93,16 +87,34 @@
     <ClCompile Include="src\LZMADecompModule.cpp">
       <Filter>Source Files\Compression\LZMA</Filter>
     </ClCompile>
+    <ClCompile Include="src\EdkCompModule.cpp">
+      <Filter>Source Files\Compression\Tiano</Filter>
+    </ClCompile>
+    <ClCompile Include="src\EdkDecompModule.cpp">
+      <Filter>Source Files\Compression\Tiano</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Compression\Tiano\EdkDecompress.c">
+      <Filter>Source Files\Compression\Tiano</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Compression\Tiano\EdkEfiCompress.c">
+      <Filter>Source Files\Compression\Tiano</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Compression\Tiano\EdkTianoCompress.c">
+      <Filter>Source Files\Compression\Tiano</Filter>
+    </ClCompile>
     <ClCompile Include="src\Edk2CompModule.cpp">
       <Filter>Source Files\Compression\Tiano</Filter>
     </ClCompile>
     <ClCompile Include="src\Edk2DecompModule.cpp">
       <Filter>Source Files\Compression\Tiano</Filter>
     </ClCompile>
-    <ClCompile Include="src\EdkCompModule.cpp">
+    <ClCompile Include="submodules\Compression\Tiano\Edk2Decompress.c">
       <Filter>Source Files\Compression\Tiano</Filter>
     </ClCompile>
-    <ClCompile Include="src\EdkDecompModule.cpp">
+    <ClCompile Include="submodules\Compression\Tiano\Edk2EfiCompress.c">
+      <Filter>Source Files\Compression\Tiano</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Compression\Tiano\Edk2TianoCompress.c">
       <Filter>Source Files\Compression\Tiano</Filter>
     </ClCompile>
   </ItemGroup>
@@ -185,20 +197,11 @@
     <ClInclude Include="include\CompressionModule.hpp">
       <Filter>Header Files\Compression</Filter>
     </ClInclude>
-    <ClInclude Include="include\LZMACompModule.hpp">
-      <Filter>Header Files\Compression\LZMA</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Edk2CompModule.hpp">
-      <Filter>Header Files\Compression\Tiano</Filter>
-    </ClInclude>
-    <ClInclude Include="include\EdkCompModule.hpp">
-      <Filter>Header Files\Compression\Tiano</Filter>
-    </ClInclude>
-    <ClInclude Include="include\BaseCompressor.hpp">
-      <Filter>Header Files\Compression</Filter>
-    </ClInclude>
     <ClInclude Include="include\DecompressionModule.hpp">
       <Filter>Header Files\Compression</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UefiHeaders.h">
+      <Filter>Header Files\Helpers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

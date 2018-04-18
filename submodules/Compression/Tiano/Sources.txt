@@ -1,0 +1,2 @@
+EDK  : edk2/EdkCompatibilityPkg/Sample/Tools/Source/Common
+EDK2 : edk2/BaseTools/Source/C/Common

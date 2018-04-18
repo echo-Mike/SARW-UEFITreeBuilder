@@ -11,13 +11,7 @@
 #include <DebugLib/mDebugLib.hpp>
 
 /// UEFI HEADERS
-extern "C" 
-{
-	#include <Base.h>
-	#include <PiPei.h>
-	#include <PiDxe.h>
-	#include <Uefi.h>
-}
+#include "UefiHeaders.h"
 
 /// PROJECT
 #include "ProjectTypes.hpp"

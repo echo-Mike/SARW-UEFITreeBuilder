@@ -131,14 +131,16 @@
     <ClCompile Include="src\PiParsers.cpp" />
     <ClCompile Include="src\PiSectionUtils.cpp" />
     <ClCompile Include="submodules\codesnippets\DebugLib\DebugLib.cpp" />
+    <ClCompile Include="submodules\Compression\Tiano\Edk2Decompress.c" />
+    <ClCompile Include="submodules\Compression\Tiano\Edk2EfiCompress.c" />
+    <ClCompile Include="submodules\Compression\Tiano\Edk2TianoCompress.c" />
+    <ClCompile Include="submodules\Compression\Tiano\EdkDecompress.c" />
+    <ClCompile Include="submodules\Compression\Tiano\EdkEfiCompress.c" />
+    <ClCompile Include="submodules\Compression\Tiano\EdkTianoCompress.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\BaseCompressor.hpp" />
     <ClInclude Include="include\DecompressionModule.hpp" />
     <ClInclude Include="include\CompressionModule.hpp" />
-    <ClInclude Include="include\Edk2CompModule.hpp" />
-    <ClInclude Include="include\EdkCompModule.hpp" />
-    <ClInclude Include="include\LZMACompModule.hpp" />
     <ClInclude Include="include\PiFileUtils.hpp" />
     <ClInclude Include="include\PiFinders.hpp" />
     <ClInclude Include="include\PiParsers.hpp" />
@@ -161,6 +163,7 @@
     <ClInclude Include="include\SectionFinder.hpp" />
     <ClInclude Include="include\SectionParser.hpp" />
     <ClInclude Include="include\SignatureCasts.hpp" />
+    <ClInclude Include="include\UefiHeaders.h" />
     <ClInclude Include="include\vFFSGuids.hpp" />
     <ClInclude Include="include\VolumeFinder.hpp" />
     <ClInclude Include="include\VolumeParser.hpp" />

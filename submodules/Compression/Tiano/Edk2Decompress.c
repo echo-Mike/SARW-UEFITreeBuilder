@@ -1,26 +1,26 @@
-/*++
+/** @file
+Decompressor. Algorithm Ported from OPSD code (Decomp.asm) for Efi and Tiano 
+compress algorithm.
 
-Copyright (c) 2004 - 2006, Intel Corporation. All rights reserved.<BR>
-This program and the accompanying materials                          
-are licensed and made available under the terms and conditions of the BSD License         
-which accompanies this distribution.  The full text of the license may be found at        
-http://opensource.org/licenses/bsd-license.php                                            
-                                                                                          
-THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,                     
-WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.             
+Copyright (c) 2004 - 2017, Intel Corporation. All rights reserved.<BR>
+This program and the accompanying materials
+are licensed and made available under the terms and conditions of the BSD License
+which accompanies this distribution.  The full text of the license may be found at
+http://opensource.org/licenses/bsd-license.php
 
-Module Name:
+THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
-  Decompress.c
-
-Abstract:
-
-  Decompressor. Algorithm Ported from OPSD code (Decomp.asm)
-  
 --*/
 
-#include "TianoCommon.h"
-
+/// STD
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+/// PROJECT
+#include "UefiHeaders.h"
+#include "Tiano/Edk2Decompress.h"
 
 //
 // Decompression algorithm begins here
@@ -29,7 +29,6 @@ Abstract:
 #define MAXMATCH  256
 #define THRESHOLD 3
 #define CODE_BIT  16
-#define UINT8_MAX 0xff
 #define BAD_TABLE - 1
 
 //
@@ -37,10 +36,11 @@ Abstract:
 //
 #define NC      (0xff + MAXMATCH + 2 - THRESHOLD)
 #define CBIT    9
+#define EFIPBIT 4
 #define MAXPBIT 5
 #define TBIT    5
-#define MAXNP   ((1U << MAXPBIT) - 1)
-#define NT      (CODE_BIT + 3)
+#define MAXNP ((1U << MAXPBIT) - 1)
+#define NT    (CODE_BIT + 3)
 #if NT > MAXNP
 #define NPT NT
 #else
@@ -68,14 +68,9 @@ typedef struct {
   UINT8   mPTLen[NPT];
   UINT16  mCTable[4096];
   UINT16  mPTTable[256];
-
-  //
-  // The length of the field 'Position Set Code Length Array Size' in Block Header.
-  // For EFI 1.1 de/compression algorithm, mPBit = 4
-  // For Tiano de/compression algorithm, mPBit = 5
-  //
-  UINT8   mPBit;
 } SCRATCH_DATA;
+
+STATIC UINT16 mPbit = EFIPBIT;
 
 STATIC
 VOID
@@ -92,17 +87,17 @@ Routine Description:
 Arguments:
 
   Sd        - The global scratch data
-  NumOfBits  - The number of bits to shift and read.
+  NumOfBit  - The number of bits to shift and read.
 
 Returns: (VOID)
 
 --*/
 {
-  Sd->mBitBuf = (UINT32) (Sd->mBitBuf << NumOfBits);
+  Sd->mBitBuf = (UINT32) (((UINT64)Sd->mBitBuf) << NumOfBits);
 
   while (NumOfBits > Sd->mBitCount) {
 
-    Sd->mBitBuf |= (UINT32) (Sd->mSubBitBuf << (NumOfBits = (UINT16) (NumOfBits - Sd->mBitCount)));
+    Sd->mBitBuf |= (UINT32) (((UINT64)Sd->mSubBitBuf) << (NumOfBits = (UINT16) (NumOfBits - Sd->mBitCount)));
 
     if (Sd->mCompSize > 0) {
       //
@@ -137,8 +132,8 @@ GetBits (
 
 Routine Description:
 
-  Get NumOfBits of bits out from mBitBuf. Fill mBitBuf with subsequent 
-  NumOfBits of bits from source. Returns NumOfBits of bits that are 
+  Get NumOfBits of bits out from mBitBuf. Fill mBitBuf with subsequent
+  NumOfBits of bits from source. Returns NumOfBits of bits that are
   popped out.
 
 Arguments:
@@ -183,9 +178,9 @@ Arguments:
   BitLen    - Code length array
   TableBits - The width of the mapping table
   Table     - The table
-  
+
 Returns:
-  
+
   0         - OK.
   BAD_TABLE - The table is corrupted.
 
@@ -231,7 +226,8 @@ Returns:
   }
 
   while (Index <= 16) {
-    Weight[Index++] = (UINT16) (1U << (16 - Index));
+    Weight[Index] = (UINT16) (1U << (16 - Index));
+    Index++;
   }
 
   Index = (UINT16) (Start[TableBits + 1] >> JuBits);
@@ -249,7 +245,7 @@ Returns:
   for (Char = 0; Char < NumOfChar; Char++) {
 
     Len = BitLen[Char];
-    if (Len == 0) {
+    if (Len == 0 || Len >= 17) {
       continue;
     }
 
@@ -368,7 +364,7 @@ Arguments:
   Sd        - The global scratch data
   nn        - Number of symbols
   nbit      - Number of bits needed to represent nn
-  Special   - The special symbol that needs to be taken care of 
+  Special   - The special symbol that needs to be taken care of
 
 Returns:
 
@@ -381,6 +377,8 @@ Returns:
   UINT16  CharC;
   UINT16  Index;
   UINT32  Mask;
+
+  assert (nn <= NPT);
 
   Number = (UINT16) GetBits (Sd, nbit);
 
@@ -400,7 +398,7 @@ Returns:
 
   Index = 0;
 
-  while (Index < Number) {
+  while (Index < Number && Index < NPT) {
 
     CharC = (UINT16) (Sd->mBitBuf >> (BITBUFSIZ - 3));
 
@@ -418,13 +416,15 @@ Returns:
 
     if (Index == Special) {
       CharC = (UINT16) GetBits (Sd, 2);
-      while ((INT16) (--CharC) >= 0) {
+      CharC--;
+      while ((INT16) (CharC) >= 0 && Index < NPT) {
         Sd->mPTLen[Index++] = 0;
+        CharC--;
       }
     }
   }
 
-  while (Index < nn) {
+  while (Index < nn && Index < NPT) {
     Sd->mPTLen[Index++] = 0;
   }
 
@@ -505,8 +505,10 @@ Returns: (VOID)
         CharC = (UINT16) (GetBits (Sd, CBIT) + 20);
       }
 
-      while ((INT16) (--CharC) >= 0) {
+      CharC--;
+      while ((INT16) (CharC) >= 0) {
         Sd->mCLen[Index++] = 0;
+        CharC--;
       }
 
     } else {
@@ -561,7 +563,7 @@ Returns:
 
     ReadCLen (Sd);
 
-    Sd->mBadTableFlag = ReadPTLen (Sd, MAXNP, Sd->mPBit, (UINT16) (-1));
+    Sd->mBadTableFlag = ReadPTLen (Sd, MAXNP, mPbit, (UINT16) (-1));
     if (Sd->mBadTableFlag != 0) {
       return 0;
     }
@@ -628,10 +630,9 @@ Returns: (VOID)
       //
       // Process an Original character
       //
+      Sd->mDstBase[Sd->mOutBuf++] = (UINT8) CharC;
       if (Sd->mOutBuf >= Sd->mOrigSize) {
         return ;
-      } else {
-        Sd->mDstBase[Sd->mOutBuf++] = (UINT8) CharC;
       }
 
     } else {
@@ -670,7 +671,7 @@ GetInfo (
 
 Routine Description:
 
-  The internal implementation of *_DECOMPRESS_PROTOCOL.GetInfo().
+  The implementation of EFI_DECOMPRESS_PROTOCOL.GetInfo().
 
 Arguments:
 
@@ -706,14 +707,13 @@ Decompress (
   IN OUT  VOID    *Destination,
   IN      UINT32  DstSize,
   IN OUT  VOID    *Scratch,
-  IN      UINT32  ScratchSize,
-  IN      UINT8   Version
+  IN      UINT32  ScratchSize
   )
 /*++
 
 Routine Description:
 
-  The internal implementation of *_DECOMPRESS_PROTOCOL.Decompress().
+  The implementation Efi and Tiano Decompress().
 
 Arguments:
 
@@ -723,9 +723,6 @@ Arguments:
   DstSize     - The size of destination buffer.
   Scratch     - The buffer used internally by the decompress routine. This  buffer is needed to store intermediate data.
   ScratchSize - The size of scratch buffer.
-  Version     - The version of de/compression algorithm.
-                Version 1 for EFI 1.1 de/compression algorithm.
-                Version 2 for Tiano de/compression algorithm.
 
 Returns:
 
@@ -759,13 +756,6 @@ Returns:
   CompSize  = Src[0] + (Src[1] << 8) + (Src[2] << 16) + (Src[3] << 24);
   OrigSize  = Src[4] + (Src[5] << 8) + (Src[6] << 16) + (Src[7] << 24);
 
-  //
-  // If compressed file size is 0, return
-  //
-  if (OrigSize == 0) {
-    return Status;
-  }
-
   if (SrcSize < CompSize + 8) {
     return EFI_INVALID_PARAMETER;
   }
@@ -778,26 +768,6 @@ Returns:
 
   for (Index = 0; Index < sizeof (SCRATCH_DATA); Index++) {
     ((UINT8 *) Sd)[Index] = 0;
-  }
-  //
-  // The length of the field 'Position Set Code Length Array Size' in Block Header.
-  // For EFI 1.1 de/compression algorithm(Version 1), mPBit = 4
-  // For Tiano de/compression algorithm(Version 2), mPBit = 5
-  //
-  switch (Version) {
-  case 1:
-    Sd->mPBit = 4;
-    break;
-
-  case 2:
-    Sd->mPBit = 5;
-    break;
-
-  default:
-    //
-    // Currently, only have 2 versions
-    //
-    return EFI_INVALID_PARAMETER;
   }
 
   Sd->mSrcBase  = Src;
@@ -826,22 +796,20 @@ Returns:
 }
 
 EFI_STATUS
-EFIAPI
 EfiGetInfo (
-  IN      VOID                    *Source,
-  IN      UINT32                  SrcSize,
-  OUT     UINT32                  *DstSize,
-  OUT     UINT32                  *ScratchSize
+  IN      VOID    *Source,
+  IN      UINT32  SrcSize,
+  OUT     UINT32  *DstSize,
+  OUT     UINT32  *ScratchSize
   )
 /*++
 
 Routine Description:
 
-  The implementation is same as that  of EFI_DECOMPRESS_PROTOCOL.GetInfo().
+  The implementation Efi Decompress GetInfo().
 
 Arguments:
 
-  This        - The protocol instance pointer
   Source      - The source buffer containing the compressed data.
   SrcSize     - The size of source buffer
   DstSize     - The size of destination buffer.
@@ -854,78 +822,24 @@ Returns:
 
 --*/
 {
-  return GetInfo (
-          Source,
-          SrcSize,
-          DstSize,
-          ScratchSize
-          );
+  return GetInfo (Source, SrcSize, DstSize, ScratchSize);
 }
 
 EFI_STATUS
-EFIAPI
-EfiDecompress (
-  IN      VOID                    *Source,
-  IN      UINT32                  SrcSize,
-  IN OUT  VOID                    *Destination,
-  IN      UINT32                  DstSize,
-  IN OUT  VOID                    *Scratch,
-  IN      UINT32                  ScratchSize
-  )
-/*++
-
-Routine Description:
-
-  The implementation is same as that of EFI_DECOMPRESS_PROTOCOL.Decompress().
-
-Arguments:
-
-  This        - The protocol instance pointer
-  Source      - The source buffer containing the compressed data.
-  SrcSize     - The size of source buffer
-  Destination - The destination buffer to store the decompressed data
-  DstSize     - The size of destination buffer.
-  Scratch     - The buffer used internally by the decompress routine. This  buffer is needed to store intermediate data.
-  ScratchSize - The size of scratch buffer.
-
-Returns:
-
-  EFI_SUCCESS           - Decompression is successfull
-  EFI_INVALID_PARAMETER - The source data is corrupted
-
---*/
-{
-  //
-  // For EFI 1.1 de/compression algorithm, the version is 1.
-  //
-  return Decompress (
-          Source,
-          SrcSize,
-          Destination,
-          DstSize,
-          Scratch,
-          ScratchSize,
-          1
-          );
-}
-
-EFI_STATUS
-EFIAPI
 TianoGetInfo (
-  IN      VOID                          *Source,
-  IN      UINT32                        SrcSize,
-  OUT     UINT32                        *DstSize,
-  OUT     UINT32                        *ScratchSize
+  IN      VOID    *Source,
+  IN      UINT32  SrcSize,
+  OUT     UINT32  *DstSize,
+  OUT     UINT32  *ScratchSize
   )
 /*++
 
 Routine Description:
 
-  The implementation is same as that of EFI_TIANO_DECOMPRESS_PROTOCOL.GetInfo().
+  The implementation Tiano Decompress GetInfo().
 
 Arguments:
 
-  This        - The protocol instance pointer
   Source      - The source buffer containing the compressed data.
   SrcSize     - The size of source buffer
   DstSize     - The size of destination buffer.
@@ -938,33 +852,26 @@ Returns:
 
 --*/
 {
-  return GetInfo (
-          Source,
-          SrcSize,
-          DstSize,
-          ScratchSize
-          );
+  return GetInfo (Source, SrcSize, DstSize, ScratchSize);
 }
 
 EFI_STATUS
-EFIAPI
-TianoDecompress (
-  IN      VOID                          *Source,
-  IN      UINT32                        SrcSize,
-  IN OUT  VOID                          *Destination,
-  IN      UINT32                        DstSize,
-  IN OUT  VOID                          *Scratch,
-  IN      UINT32                        ScratchSize
+EfiDecompress (
+  IN      VOID    *Source,
+  IN      UINT32  SrcSize,
+  IN OUT  VOID    *Destination,
+  IN      UINT32  DstSize,
+  IN OUT  VOID    *Scratch,
+  IN      UINT32  ScratchSize
   )
 /*++
 
 Routine Description:
 
-  The implementation is same as that  of EFI_TIANO_DECOMPRESS_PROTOCOL.Decompress().
+  The implementation of Efi Decompress().
 
 Arguments:
 
-  This        - The protocol instance pointer
   Source      - The source buffer containing the compressed data.
   SrcSize     - The size of source buffer
   Destination - The destination buffer to store the decompressed data
@@ -979,17 +886,113 @@ Returns:
 
 --*/
 {
-  //
-  // For Tiano de/compression algorithm, the version is 2.
-  //
-  return Decompress (
-          Source,
-          SrcSize,
-          Destination,
-          DstSize,
-          Scratch,
-          ScratchSize,
-          2
-          );
+  mPbit = EFIPBIT;
+  return Decompress (Source, SrcSize, Destination, DstSize, Scratch, ScratchSize);
 }
+
+EFI_STATUS
+TianoDecompress (
+  IN      VOID    *Source,
+  IN      UINT32  SrcSize,
+  IN OUT  VOID    *Destination,
+  IN      UINT32  DstSize,
+  IN OUT  VOID    *Scratch,
+  IN      UINT32  ScratchSize
+  )
+/*++
+
+Routine Description:
+
+  The implementation of Tiano Decompress().
+
+Arguments:
+
+  Source      - The source buffer containing the compressed data.
+  SrcSize     - The size of source buffer
+  Destination - The destination buffer to store the decompressed data
+  DstSize     - The size of destination buffer.
+  Scratch     - The buffer used internally by the decompress routine. This  buffer is needed to store intermediate data.
+  ScratchSize - The size of scratch buffer.
+
+Returns:
+
+  EFI_SUCCESS           - Decompression is successfull
+  EFI_INVALID_PARAMETER - The source data is corrupted
+
+--*/
+{
+  mPbit = MAXPBIT;
+  return Decompress (Source, SrcSize, Destination, DstSize, Scratch, ScratchSize);
+}
+
+EFI_STATUS
+Extract (
+  IN      VOID    *Source,
+  IN      UINT32  SrcSize,
+     OUT  VOID    **Destination,
+     OUT  UINT32  *DstSize,
+  IN      UINTN   Algorithm
+  )
+{
+  VOID          *Scratch;
+  UINT32        ScratchSize;
+  EFI_STATUS    Status;
+
+  Scratch = NULL;
+  Status  = EFI_SUCCESS;
+
+  switch (Algorithm) {
+  case 0:
+    *Destination = (VOID *)malloc(SrcSize);
+    if (*Destination != NULL) {
+      memcpy(*Destination, Source, SrcSize);
+    } else {
+      Status = EFI_OUT_OF_RESOURCES;
+    }
+    break;
+  case 1:
+    Status = EfiGetInfo(Source, SrcSize, DstSize, &ScratchSize);
+    if (Status == EFI_SUCCESS) {
+      Scratch = (VOID *)malloc(ScratchSize);
+      if (Scratch == NULL) {
+        return EFI_OUT_OF_RESOURCES;
+      }
+
+      *Destination = (VOID *)malloc(*DstSize);
+      if (*Destination == NULL) {
+        free (Scratch);
+        return EFI_OUT_OF_RESOURCES;
+      }
+
+      Status = EfiDecompress(Source, SrcSize, *Destination, *DstSize, Scratch, ScratchSize);
+    }
+    break;
+  case 2:
+    Status = TianoGetInfo(Source, SrcSize, DstSize, &ScratchSize);
+    if (Status == EFI_SUCCESS) {
+      Scratch = (VOID *)malloc(ScratchSize);
+      if (Scratch == NULL) {
+        return EFI_OUT_OF_RESOURCES;
+      }
+
+      *Destination = (VOID *)malloc(*DstSize);
+      if (*Destination == NULL) {
+        free (Scratch);
+        return EFI_OUT_OF_RESOURCES;
+      }
+
+      Status = TianoDecompress(Source, SrcSize, *Destination, *DstSize, Scratch, ScratchSize);
+    }
+    break;
+  default:
+    Status = EFI_INVALID_PARAMETER;
+  }
+
+  if (Scratch != NULL) {
+    free (Scratch);
+  }
+
+  return Status;
+}
+
 
