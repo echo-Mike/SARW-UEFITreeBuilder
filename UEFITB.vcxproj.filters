@@ -185,26 +185,20 @@
     <ClInclude Include="include\CompressionModule.hpp">
       <Filter>Header Files\Compression</Filter>
     </ClInclude>
-    <ClInclude Include="include\DecompressionModule.hpp">
-      <Filter>Header Files\Compression</Filter>
-    </ClInclude>
     <ClInclude Include="include\LZMACompModule.hpp">
-      <Filter>Header Files\Compression\LZMA</Filter>
-    </ClInclude>
-    <ClInclude Include="include\LZMADecompModule.hpp">
       <Filter>Header Files\Compression\LZMA</Filter>
     </ClInclude>
     <ClInclude Include="include\Edk2CompModule.hpp">
       <Filter>Header Files\Compression\Tiano</Filter>
     </ClInclude>
-    <ClInclude Include="include\Edk2DecompModule.hpp">
-      <Filter>Header Files\Compression\Tiano</Filter>
-    </ClInclude>
     <ClInclude Include="include\EdkCompModule.hpp">
       <Filter>Header Files\Compression\Tiano</Filter>
     </ClInclude>
-    <ClInclude Include="include\EdkDecompModule.hpp">
-      <Filter>Header Files\Compression\Tiano</Filter>
+    <ClInclude Include="include\BaseCompressor.hpp">
+      <Filter>Header Files\Compression</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DecompressionModule.hpp">
+      <Filter>Header Files\Compression</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

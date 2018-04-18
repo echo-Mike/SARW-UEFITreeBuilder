@@ -26,6 +26,13 @@ namespace Project
 		typedef signed long long index_t;
 
 		typedef length_t count_t;
+
+		typedef void void_t;
+
+		typedef void_t* void_ptr_t;
+
+		typedef const void_t* const_void_ptr_t;
+
 	}
 }
 

@@ -133,14 +133,12 @@
     <ClCompile Include="submodules\codesnippets\DebugLib\DebugLib.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\CompressionModule.hpp" />
+    <ClInclude Include="include\BaseCompressor.hpp" />
     <ClInclude Include="include\DecompressionModule.hpp" />
+    <ClInclude Include="include\CompressionModule.hpp" />
     <ClInclude Include="include\Edk2CompModule.hpp" />
-    <ClInclude Include="include\Edk2DecompModule.hpp" />
     <ClInclude Include="include\EdkCompModule.hpp" />
-    <ClInclude Include="include\EdkDecompModule.hpp" />
     <ClInclude Include="include\LZMACompModule.hpp" />
-    <ClInclude Include="include\LZMADecompModule.hpp" />
     <ClInclude Include="include\PiFileUtils.hpp" />
     <ClInclude Include="include\PiFinders.hpp" />
     <ClInclude Include="include\PiParsers.hpp" />
