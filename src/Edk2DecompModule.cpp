@@ -28,7 +28,7 @@ namespace Project
 		EFI_STATUS TianoEdk2Decompresser::Decompress(
 			Types::void_ptr_t Source,
 			Types::length_t SrcSize,
-			Types::unique_buffer_t& Destination
+			Types::unique_byte_buff_t& Destination
 		)
 		{
 			if (SrcSize > MAX_UINT32) {
@@ -39,8 +39,8 @@ namespace Project
 			if (status != EFI_SUCCESS) {
 				return status;
 			}
-			Types::unique_buffer_t scratchBuff(new Types::memory_t[ScratchSize]);
-			Destination.reset(new Types::memory_t[DstSize]);
+			Types::unique_byte_buff_t scratchBuff(new Types::byte_t[ScratchSize]);
+			Destination.reset(new Types::byte_t[DstSize]);
 			status = TianoDecompress(
 				Source,
 				static_cast<UINT32>(SrcSize),
@@ -74,7 +74,7 @@ namespace Project
 		EFI_STATUS TianoEfi2Decompresser::Decompress(
 			Types::void_ptr_t Source,
 			Types::length_t SrcSize,
-			Types::unique_buffer_t& Destination
+			Types::unique_byte_buff_t& Destination
 		)
 		{
 			if (SrcSize > MAX_UINT32) {
@@ -85,8 +85,8 @@ namespace Project
 			if (status != EFI_SUCCESS) {
 				return status;
 			}
-			Types::unique_buffer_t scratchBuff(new Types::memory_t[ScratchSize]);
-			Destination.reset(new Types::memory_t[DstSize]);
+			Types::unique_byte_buff_t scratchBuff(new Types::byte_t[ScratchSize]);
+			Destination.reset(new Types::byte_t[DstSize]);
 			status = EfiDecompress(
 				Source,
 				static_cast<UINT32>(SrcSize),

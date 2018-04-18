@@ -13,17 +13,11 @@
 #include <ClassUtilsLib/mClassUtils.hpp>
 
 /// PROJECT
-#include "ProjectTypes.hpp"
+#include "ProjectExtendedTypes.hpp"
 #include "ExitCodes.hpp"
 
 namespace Project
 {
-
-	namespace Types
-	{
-
-		typedef std::unique_ptr<Types::memory_t[]> unique_buffer_t;
-	}
 
 	namespace Decompression
 	{
@@ -39,7 +33,7 @@ namespace Project
 				TianoEdk2,
 				TianoEfi2,
 				Lzma,
-				Lzma2,
+				//Lzma2,
 				Lzma86
 			};
 
@@ -63,7 +57,7 @@ namespace Project
 			virtual EFI_STATUS Decompress(
 				Types::void_ptr_t Source,
 				Types::length_t SrcSize,
-				Types::unique_buffer_t& Destination
+				Types::unique_byte_buff_t& Destination
 			) = 0;
 
 			const Decompresser::Decompresser_t type;
@@ -90,7 +84,7 @@ namespace Project
 			EFI_STATUS Decompress(
 				Types::void_ptr_t Source,
 				Types::length_t SrcSize,
-				Types::unique_buffer_t& Destination
+				Types::unique_byte_buff_t& Destination
 			);
 
 		};
@@ -116,7 +110,7 @@ namespace Project
 			EFI_STATUS Decompress(
 				Types::void_ptr_t Source,
 				Types::length_t SrcSize,
-				Types::unique_buffer_t& Destination
+				Types::unique_byte_buff_t& Destination
 			);
 
 		};
@@ -142,7 +136,7 @@ namespace Project
 			EFI_STATUS Decompress(
 				Types::void_ptr_t Source,
 				Types::length_t SrcSize,
-				Types::unique_buffer_t& Destination
+				Types::unique_byte_buff_t& Destination
 			);
 
 		};
@@ -168,7 +162,7 @@ namespace Project
 			EFI_STATUS Decompress(
 				Types::void_ptr_t Source,
 				Types::length_t SrcSize,
-				Types::unique_buffer_t& Destination
+				Types::unique_byte_buff_t& Destination
 			);
 
 		};
@@ -194,11 +188,12 @@ namespace Project
 			 EFI_STATUS Decompress(
 				Types::void_ptr_t Source,
 				Types::length_t SrcSize,
-				 Types::unique_buffer_t& Destination
+				 Types::unique_byte_buff_t& Destination
 			);
 
 		};
 
+		/*
 		struct Lzma2Decompresser :
 			public BaseDecompresser
 		{
@@ -220,10 +215,11 @@ namespace Project
 			 EFI_STATUS Decompress(
 				Types::void_ptr_t Source,
 				Types::length_t SrcSize,
-				 Types::unique_buffer_t& Destination
+				 Types::unique_byte_buff_t& Destination
 			);
 
 		};
+		//*/
 
 		struct Lzma86Decompresser :
 			public BaseDecompresser
@@ -235,19 +231,37 @@ namespace Project
 
 			DefaultCopyableAndMovable(Lzma86Decompresser)
 
-			 ~Lzma86Decompresser() {};
+			~Lzma86Decompresser() {};
 
-			 EFI_STATUS GetInfo(
+			EFI_STATUS GetInfo(
+				 Types::const_void_ptr_t Source,
+				 Types::length_t SrcSize,
+				 Types::length_t& DstSize
+			);
+
+			EFI_STATUS GetInfo(
 				Types::void_ptr_t Source,
 				Types::length_t SrcSize,
 				Types::length_t& DstSize
+			) 
+			{
+				return GetInfo(Source, SrcSize, DstSize);
+			}
+
+			EFI_STATUS Decompress(
+				Types::const_void_ptr_t Source,
+				Types::length_t SrcSize,
+				Types::unique_byte_buff_t& Destination
 			);
 
-			 EFI_STATUS Decompress(
+			EFI_STATUS Decompress(
 				Types::void_ptr_t Source,
 				Types::length_t SrcSize,
-				Types::unique_buffer_t& Destination
-			);
+				Types::unique_byte_buff_t& Destination
+			)
+			{
+				return Decompress(Source, SrcSize, Destination);
+			}
 
 		};
 

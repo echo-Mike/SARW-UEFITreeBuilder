@@ -168,6 +168,7 @@
     <ClInclude Include="include\PiSectionUtils.hpp" />
     <ClInclude Include="include\PiViews.hpp" />
     <ClInclude Include="include\PiVolumeObject.hpp" />
+    <ClInclude Include="include\ProjectExtendedTypes.hpp" />
     <ClInclude Include="include\ProjectTypes.hpp" />
     <ClInclude Include="include\SectionFinder.hpp" />
     <ClInclude Include="include\SectionParser.hpp" />

@@ -230,5 +230,8 @@
     <ClInclude Include="include\UefiHeaders.h">
       <Filter>Header Files\Helpers</Filter>
     </ClInclude>
+    <ClInclude Include="include\ProjectExtendedTypes.hpp">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
