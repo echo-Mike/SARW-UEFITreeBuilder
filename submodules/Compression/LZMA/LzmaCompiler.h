@@ -4,6 +4,8 @@
 #ifndef __7Z_COMPILER_H
 #define __7Z_COMPILER_H
 
+#define _7ZIP_ST
+
 #ifdef _MSC_VER
 
   #ifdef UNDER_CE

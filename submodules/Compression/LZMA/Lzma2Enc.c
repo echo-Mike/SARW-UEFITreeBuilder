@@ -1,7 +1,7 @@
 /* Lzma2Enc.c -- LZMA2 Encoder
 2017-08-28 : Igor Pavlov : Public domain */
 
-#include "Precomp.h"
+#include "LzmaCompiler.h"
 
 #include <string.h>
 

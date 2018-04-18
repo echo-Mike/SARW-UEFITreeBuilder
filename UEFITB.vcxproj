@@ -131,6 +131,15 @@
     <ClCompile Include="src\PiParsers.cpp" />
     <ClCompile Include="src\PiSectionUtils.cpp" />
     <ClCompile Include="submodules\codesnippets\DebugLib\DebugLib.cpp" />
+    <ClCompile Include="submodules\Compression\LZMA\Bra86.c" />
+    <ClCompile Include="submodules\Compression\LZMA\LzFind.c" />
+    <ClCompile Include="submodules\Compression\LZMA\Lzma2Dec.c" />
+    <ClCompile Include="submodules\Compression\LZMA\Lzma2Enc.c" />
+    <ClCompile Include="submodules\Compression\LZMA\Lzma86Dec.c" />
+    <ClCompile Include="submodules\Compression\LZMA\Lzma86Enc.c" />
+    <ClCompile Include="submodules\Compression\LZMA\LzmaAlloc.c" />
+    <ClCompile Include="submodules\Compression\LZMA\LzmaDec.c" />
+    <ClCompile Include="submodules\Compression\LZMA\LzmaEnc.c" />
     <ClCompile Include="submodules\Compression\Tiano\Edk2Decompress.c" />
     <ClCompile Include="submodules\Compression\Tiano\Edk2EfiCompress.c" />
     <ClCompile Include="submodules\Compression\Tiano\Edk2TianoCompress.c" />

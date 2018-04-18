@@ -117,6 +117,33 @@
     <ClCompile Include="submodules\Compression\Tiano\Edk2TianoCompress.c">
       <Filter>Source Files\Compression\Tiano</Filter>
     </ClCompile>
+    <ClCompile Include="submodules\Compression\LZMA\Bra86.c">
+      <Filter>Source Files\Compression\LZMA</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Compression\LZMA\LzFind.c">
+      <Filter>Source Files\Compression\LZMA</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Compression\LZMA\Lzma2Dec.c">
+      <Filter>Source Files\Compression\LZMA</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Compression\LZMA\Lzma2Enc.c">
+      <Filter>Source Files\Compression\LZMA</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Compression\LZMA\Lzma86Dec.c">
+      <Filter>Source Files\Compression\LZMA</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Compression\LZMA\Lzma86Enc.c">
+      <Filter>Source Files\Compression\LZMA</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Compression\LZMA\LzmaAlloc.c">
+      <Filter>Source Files\Compression\LZMA</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Compression\LZMA\LzmaDec.c">
+      <Filter>Source Files\Compression\LZMA</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Compression\LZMA\LzmaEnc.c">
+      <Filter>Source Files\Compression\LZMA</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\PiObjectRepresentation.hpp">
