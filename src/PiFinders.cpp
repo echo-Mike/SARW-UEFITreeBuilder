@@ -6,7 +6,7 @@
 
 /// PROJECT
 #include "PiFinders.hpp"
-#include "vFFSGuids.hpp"
+#include "GuidAdvanced.hpp"
 #include "PiFileUtils.hpp"
 #include "PiSectionUtils.hpp"
 
@@ -77,7 +77,7 @@ namespace Project
 							}
 						}
 						// 4) Check GUID match clue
-						if ( FfsGuids::isValidFfsGuid(&headerPtr->FileSystemGuid).code == FfsGuids::KnownFfsGuids::Unknown )
+						if (Guid::FFS::isValidFfsGuid(headerPtr->FileSystemGuid))
 							return true;
 						return false;
 					}
@@ -107,8 +107,7 @@ namespace Project
 				int counter = 0;
 				for (const auto& header : result) 
 				{
-					DEBUG_PRINT("\t\t", counter, ") GUID name: ", FfsGuids::isValidFfsGuid(&header->FileSystemGuid).name);
-					DEBUG_PRINT("\t\t   GUID: ", header->FileSystemGuid);
+					DEBUG_PRINT("\t\t", counter, ") ", Guid::NamedGuids::findNamedGuid(header->FileSystemGuid));
 					++counter;
 				}
 			DEBUG_END_MESSAGE

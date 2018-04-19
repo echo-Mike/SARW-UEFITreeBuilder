@@ -69,10 +69,18 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\uefi_headers\Include\X64;E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\uefi_headers\Include;E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\codesnippets;$(IncludePath)</IncludePath>
+    <IncludePath>E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\codesnippets;E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\include;E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\uefi_headers\Include;E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\uefi_headers\Include\X64;$(IncludePath)</IncludePath>
+    <ExecutablePath>$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\uefi_headers\Include\X64;E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\uefi_headers\Include;E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\codesnippets;$(IncludePath)</IncludePath>
+    <IncludePath>E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\codesnippets;E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\include;E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\uefi_headers\Include;E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\uefi_headers\Include\X64;$(IncludePath)</IncludePath>
+    <ExecutablePath>$(ExecutablePath)</ExecutablePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\codesnippets;E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\include;E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\uefi_headers\Include;E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\uefi_headers\Include\X64;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\codesnippets;E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\include;E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\uefi_headers\Include;E:\Repos\Projects\C++\UEFIFirmwareTreeBuilder\submodules\uefi_headers\Include\X64;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -115,7 +123,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\ProjectGlobalDefines.c" />
     <ClCompile Include="ApplyTests.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\ProjectGlobalDefines.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

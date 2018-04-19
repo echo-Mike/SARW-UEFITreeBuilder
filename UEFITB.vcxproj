@@ -67,14 +67,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)include;$(UefiHeadersHome)/Include;$(CodeSnippetsHome);$(ProcessorBindHome);$(JsonHome)/include;$(CompressionHome);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)include;$(UefiHeadersHome)/Include;$(CodeSnippetsHome);$(ProcessorBindHome);$(JsonHome)/include;$(Edk2Crc32Home);$(CompressionHome);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)include;$(UefiHeadersHome)/Include;$(CodeSnippetsHome);$(ProcessorBindHome);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(SolutionDir)include;$(UefiHeadersHome)/Include;$(CodeSnippetsHome);$(ProcessorBindHome);$(JsonHome)/include;$(CompressionHome);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)include;$(UefiHeadersHome)/Include;$(CodeSnippetsHome);$(ProcessorBindHome);$(JsonHome)/include;$(Edk2Crc32Home);$(CompressionHome);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(SolutionDir)include;$(UefiHeadersHome)/Include;$(CodeSnippetsHome);$(ProcessorBindHome);$(IncludePath)</IncludePath>
@@ -120,8 +120,9 @@
     <ClCompile Include="src\Edk2DecompModule.cpp" />
     <ClCompile Include="src\EdkCompModule.cpp" />
     <ClCompile Include="src\EdkDecompModule.cpp" />
-    <ClCompile Include="src\FFSGuids.cpp" />
+    <ClCompile Include="src\GuidAdvanced.cpp" />
     <ClCompile Include="src\General.cpp" />
+    <ClCompile Include="src\GuidDefines.cpp" />
     <ClCompile Include="src\LZMACompModule.cpp" />
     <ClCompile Include="src\LZMADecompModule.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -130,6 +131,7 @@
     <ClCompile Include="src\PiObject.cpp" />
     <ClCompile Include="src\PiParsers.cpp" />
     <ClCompile Include="src\PiSectionUtils.cpp" />
+    <ClCompile Include="src\ProjectGlobalDefines.c" />
     <ClCompile Include="submodules\codesnippets\DebugLib\DebugLib.cpp" />
     <ClCompile Include="submodules\Compression\LZMA\Bra86.c" />
     <ClCompile Include="submodules\Compression\LZMA\LzFind.c" />
@@ -146,10 +148,14 @@
     <ClCompile Include="submodules\Compression\Tiano\EdkDecompress.c" />
     <ClCompile Include="submodules\Compression\Tiano\EdkEfiCompress.c" />
     <ClCompile Include="submodules\Compression\Tiano\EdkTianoCompress.c" />
+    <ClCompile Include="submodules\crc32\Edk2Crc32.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\DecompressionModule.hpp" />
     <ClInclude Include="include\CompressionModule.hpp" />
+    <ClInclude Include="include\GuidAdvanced.hpp" />
+    <ClInclude Include="include\ProjectGlobalDefines.h" />
+    <ClInclude Include="include\GuidDefines.h" />
     <ClInclude Include="include\PiFileUtils.hpp" />
     <ClInclude Include="include\PiFinders.hpp" />
     <ClInclude Include="include\PiParsers.hpp" />
@@ -170,7 +176,6 @@
     <ClInclude Include="include\ProjectTypes.hpp" />
     <ClInclude Include="include\SignatureCasts.hpp" />
     <ClInclude Include="include\UefiHeaders.h" />
-    <ClInclude Include="include\vFFSGuids.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,6 +2,7 @@
 #include <exception>
 /// PROJECT
 #include "General.hpp"
+#include "Edk2Crc32.h"
 
 namespace Project
 {
@@ -45,6 +46,31 @@ namespace Project
 		{	// For C++17 std::string_view must be used
 			std::hash<std::string> h;
 			return h(std::string(reinterpret_cast<const char*>(ptr), length));
+		}
+
+		std::uint32_t crc32(Types::const_pointer_t ptr, Types::length_t length, std::uint32_t init)
+		{
+			if (!ptr) {
+				DEBUG_ERROR_MESSAGE
+					DEBUG_PRINT("\tMessage: Provided ptr to data is nullptr.");
+				DEBUG_END_MESSAGE_AND_EVAL({ return 0; })
+			}
+			if (!length) {
+				DEBUG_ERROR_MESSAGE
+					DEBUG_PRINT("\tMessage: Can't calculate CRC32 on zero length array.");
+				DEBUG_END_MESSAGE_AND_EVAL({ return 0; })
+			}
+			UINT32 crcOut = 0;
+			auto dataPtr = reinterpret_cast<UINT8*>(const_cast<Types::pointer_t>(ptr));
+			auto status = CalculateCrc32(dataPtr, length, &crcOut);
+
+			if (status != EFI_SUCCESS) {
+				DEBUG_ERROR_MESSAGE
+					DEBUG_PRINT("\tMessage: CalculateCrc32 returned unexpected status code.");
+					DEBUG_PRINT("\tStatus code: ", status);
+				DEBUG_END_MESSAGE_AND_EVAL({ return 0; })
+			}
+			return crcOut;
 		}
 	}
 }

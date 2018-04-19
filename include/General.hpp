@@ -30,6 +30,8 @@ namespace Project
 		std::uint8_t calc8(Types::const_pointer_t ptr, Types::length_t length);
 
 		Types::hash_t hash(Types::const_pointer_t ptr, Types::length_t length);
+
+		std::uint32_t crc32(Types::const_pointer_t ptr, Types::length_t length, std::uint32_t init);
 	}
 }
 
@@ -45,7 +47,9 @@ namespace Project
 #define ALIGN512(Value, Type) ALIGN_(Value, Type, 512)
 #define ALIGN1024(Value, Type) ALIGN_(Value, Type, 1024)
 
-#define UnifyPtrCast(Ptr) (reinterpret_cast<::Project::Types::const_pointer_t>((Ptr)))
+#ifndef UnifyPtrCast
+#	define UnifyPtrCast(Ptr) (reinterpret_cast<::Project::Types::const_pointer_t>((Ptr)))
+#endif
 
 #define ALIGNPTR_(BasePtr, Ptr, powOf2) ( UnifyPtrCast((BasePtr)) + ALIGN_( ( UnifyPtrCast((Ptr)) - UnifyPtrCast((BasePtr)) ), std::size_t, powOf2 ) )
 #define ALIGN_PTR4(BasePtr, Ptr) ALIGNPTR_(BasePtr, Ptr, 4)

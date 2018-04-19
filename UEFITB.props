@@ -7,6 +7,7 @@
 	<ProcessorBindHome>$(UefiHeadersHome)/Include/X64</ProcessorBindHome>
 	<JsonHome>./submodules/json</JsonHome>
 	<CompressionHome>./submodules/Compression</CompressionHome>
+	<Edk2Crc32Home>./submodules/crc32</Edk2Crc32Home>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />

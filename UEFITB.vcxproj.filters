@@ -51,9 +51,6 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files\General</Filter>
     </ClCompile>
-    <ClCompile Include="src\FFSGuids.cpp">
-      <Filter>Source Files\Helpers</Filter>
-    </ClCompile>
     <ClCompile Include="src\PiFinders.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -138,6 +135,18 @@
     <ClCompile Include="submodules\Compression\LZMA\LzmaEnc.c">
       <Filter>Source Files\Compression\LZMA</Filter>
     </ClCompile>
+    <ClCompile Include="submodules\crc32\Edk2Crc32.c">
+      <Filter>Source Files\General</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GuidDefines.cpp">
+      <Filter>Source Files\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GuidAdvanced.cpp">
+      <Filter>Source Files\Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ProjectGlobalDefines.c">
+      <Filter>Source Files\Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\PiObjectRepresentation.hpp">
@@ -159,9 +168,6 @@
       <Filter>Header Files\Helpers</Filter>
     </ClInclude>
     <ClInclude Include="include\cStructureView.hpp">
-      <Filter>Header Files\Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="include\vFFSGuids.hpp">
       <Filter>Header Files\Helpers</Filter>
     </ClInclude>
     <ClInclude Include="include\PiViews.hpp">
@@ -208,6 +214,15 @@
     </ClInclude>
     <ClInclude Include="include\PiFinders.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ProjectGlobalDefines.h">
+      <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GuidDefines.h">
+      <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GuidAdvanced.hpp">
+      <Filter>Header Files\Helpers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

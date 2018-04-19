@@ -2,7 +2,7 @@
 #include <cstring>
 
 /// PROJECT
-#include "vFFSGuids.hpp"
+#include "GuidAdvanced.hpp"
 #include "PiFinders.hpp"
 #include "PiParsers.hpp"
 #include "PiFileUtils.hpp"
@@ -329,7 +329,25 @@ namespace Project
 						} break;
 
 						case EFI_SECTION_GUID_DEFINED :
-						{
+						{	// Check known guided sections
+							// Obtain section field values
+							EFI_GUID section_guid;
+							UINT16   section_data_offset = 0;
+							UINT16   section_attributes = 0;
+
+							if (Pi::Section::Utils::isExtendedSection(sectionView)) {
+								Pi::Section::Extended::GuidDefined sv(sectionView.begin);
+								section_guid = sv->SectionDefinitionGuid;
+								section_data_offset = sv->DataOffset;
+								section_attributes = sv->Attributes;
+							} else {
+								Pi::Section::GuidDefined sv(sectionView.begin);
+								section_guid = sv->SectionDefinitionGuid;
+								section_data_offset = sv->DataOffset;
+								section_attributes = sv->Attributes;
+							}
+
+
 
 						} break; 
 

@@ -117,6 +117,11 @@ namespace Project
 
 				bool isEncapsulationType(Types::memory_t type);
 
+				inline bool isExtendedSection(const EFI_COMMON_SECTION_HEADER* header) 
+				{
+					return getSize(header) == PROJ_SECTION_MAX_SIZE;
+				}
+
 				const char* sectionTypeToCStr(Types::memory_t type);
 
 				inline std::string sectionTypeToStr(Types::memory_t type) { return sectionTypeToCStr(type); }

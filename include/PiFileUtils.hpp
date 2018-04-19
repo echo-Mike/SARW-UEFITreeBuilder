@@ -8,8 +8,12 @@
 #include "PiFileObject.hpp"
 
 // Not defined if UEFI headers but defined in specification
-#define EFI_FV_FILETYPE_SMM_STANDALONE 0x0E
-#define EFI_FV_FILETYPE_SMM_CORE_STANDALONE 0x0F
+#ifndef EFI_FV_FILETYPE_SMM_STANDALONE
+#	define EFI_FV_FILETYPE_SMM_STANDALONE 0x0E
+#endif
+#ifndef EFI_FV_FILETYPE_SMM_CORE_STANDALONE
+#	define EFI_FV_FILETYPE_SMM_CORE_STANDALONE 0x0F
+#endif
 
 // Mask for zero bit in file attributes
 #define FFS_ATTRIB_SET_TO_ZERO 0x80

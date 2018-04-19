@@ -2,20 +2,17 @@
 #ifndef UEFI_HEADERS_H__
 #define	UEFI_HEADERS_H__ "0.0.0@UefiHeaders.h"
 
+/// PROJECT
+#include "ProjectGlobalDefines.h"
+
+PROJ_EXTERN_C
+
 /// UEFI HEADERS
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
 #include <Base.h>
 #include <PiPei.h>
 #include <PiDxe.h>
 #include <Uefi.h>
 
-#ifdef __cplusplus
-}
-#endif
+PROJ_EXTERN_C_END
 
 #endif
