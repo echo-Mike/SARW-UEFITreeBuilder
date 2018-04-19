@@ -2,9 +2,6 @@
 #ifndef DECOMPRESSION_MODULE_HPP__
 #define	DECOMPRESSION_MODULE_HPP__ "0.0.0@DecompressionModule.hpp"
 
-/// STD
-#include <memory>
-
 /// UEFI HEADERS
 #include "UefiHeaders.h"
 
@@ -14,7 +11,6 @@
 
 /// PROJECT
 #include "ProjectExtendedTypes.hpp"
-#include "ExitCodes.hpp"
 
 namespace Project
 {

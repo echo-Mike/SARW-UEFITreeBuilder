@@ -22,7 +22,6 @@ namespace Project
 			static void processFileHeaders(PiObject::Volume& volume, const Finders::FilesVec_t& fileHeaders, const MemoryView& buffer)
 			{
 				Types::memory_t empty = volume.header->Attributes & EFI_FVB2_ERASE_POLARITY ? '\xFF' : '\x00';
-				Parsers::FileParser fileParser;
 				MemoryView fileMemory(buffer.begin, buffer.begin);
 
 				// Call parser for every file header entry
@@ -40,7 +39,7 @@ namespace Project
 							DEBUG_PRINT("\tMessage: File exceeds volume boundary.");
 						DEBUG_END_MESSAGE_AND_EXIT(ExitCodes::ParseErrorVolume)
 
-					volume.files.emplace_back(fileParser(fileHeader, fileMemory, volume.memory, empty));
+					volume.files.emplace_back(FileParser(fileHeader, fileMemory, volume.memory, empty));
 				}
 			
 				// Check for space after last file
@@ -50,7 +49,7 @@ namespace Project
 			}
 		}
 
-		PiObject::Volume VolumeParser::operator()(const Pi::Volume::Header& volumeView, const MemoryView& buffer, const MemoryView& baseBuffer)
+		PiObject::Volume VolumeParser(const Pi::Volume::Header& volumeView, const MemoryView& buffer, const MemoryView& baseBuffer)
 		{
 			using namespace VolumeParserNs;
 
@@ -103,26 +102,25 @@ namespace Project
 			// Find Pi file headers for all areas of interests based on their count
 			{
 				MemoryView volumeBody;
-				Finders::FileFinder fileFinder;
 
 				switch (searchAreaCount)
 				{
 					case 0 : // No extended header found
 						volumeBody.begin = ALIGN_PTR8(volume.fullHeader.begin, volume.fullHeader.end);
 						volumeBody.setEnd(volume.memory.end);
-						fileViews = fileFinder(volumeBody, empty);
+						fileViews = Finders::FileFinder(volumeBody, empty);
 						break;
 					case 1 : // Extended header is right after block map or space between is insignificant
 						volumeBody.begin = ALIGN_PTR8(volume.fullHeader.begin, volume.extHeader.memory.end);
 						volumeBody.setEnd(volume.memory.end);
-						fileViews = fileFinder(volumeBody, empty);
+						fileViews = Finders::FileFinder(volumeBody, empty);
 						break;
 					case 2 : // Both areas: between block map and extended header and after extended header are significant
 						volumeBody.begin = ALIGN_PTR8(volume.fullHeader.begin, volume.fullHeader.end);
 						volumeBody.setEnd(volume.extHeader.header.begin);
 
 						// Find all files in first area
-						fileViews = fileFinder(volumeBody, empty);
+						fileViews = Finders::FileFinder(volumeBody, empty);
 						if (fileViews.empty()) { // No files found: add area to empty space
 							volume.freeSpace.emplace_back(empty, volume.fullHeader.end, volume.extHeader.header.begin);
 						} else { // Some files found: process them to file objects and free space 
@@ -133,7 +131,7 @@ namespace Project
 						volumeBody.begin = ALIGN_PTR8(volume.fullHeader.begin, volume.extHeader.memory.end);
 						volumeBody.setEnd(volume.memory.end);
 						// Find files in second area
-						fileViews = fileFinder(volumeBody, empty);
+						fileViews = Finders::FileFinder(volumeBody, empty);
 						break;
 					default:
 						DEBUG_ERROR_MESSAGE
@@ -169,7 +167,6 @@ namespace Project
 
 			static void processSectionHeaders(PiObject::File& file, const Finders::SectionsVec_t& sectionHeaders, const MemoryView& buffer, Types::memory_t empty)
 			{
-				Parsers::SectionParser sectionParser;
 				MemoryView sectionMemory(buffer.begin, buffer.begin);
 
 				// Call parser for every section header entry
@@ -187,7 +184,7 @@ namespace Project
 							DEBUG_PRINT("\tMessage: Section exceeds file boundary.");
 						DEBUG_END_MESSAGE_AND_EXIT(ExitCodes::ParseErrorFile)
 
-					file.sections.emplace_back(sectionParser(sectionHdr, sectionMemory, file.memory, empty));
+					file.sections.emplace_back(SectionParser(sectionHdr, sectionMemory, file.memory, empty));
 				}
 			
 				// Check for space after last section
@@ -197,7 +194,7 @@ namespace Project
 			}
 		}
 
-		PiObject::File FileParser::operator()(const Pi::File::Header& fileView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t empty)
+		PiObject::File FileParser(const Pi::File::Header& fileView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t empty)
 		{
 			using namespace FileParserNs;
 
@@ -207,7 +204,6 @@ namespace Project
 			// Find all PI section headers in body of file
 			{
 				MemoryView fileBody;
-				Finders::SectionFinder sectionFinder;
 
 				if (file.header.isExtended()) {
 					fileBody.begin = file.header.extended.end;
@@ -225,7 +221,7 @@ namespace Project
 						DEBUG_PRINT("\tGUID: ", file.header.asSimpleHeader()->Name);
 					DEBUG_END_MESSAGE
 				} else {
-					sections = sectionFinder(fileBody);
+					sections = Finders::SectionFinder(fileBody);
 					if (sections.empty()) 
 					{	// File must be one of non-sectioned type
 						auto fileType = static_cast<Types::memory_t>(file.header.asSimpleHeader()->Type);
@@ -259,43 +255,110 @@ namespace Project
 				// Set section type
 				switch (sectionView->Type)
 				{
-					case EFI_SECTION_COMPRESSION: result.header.sectionType = SectionHeader::Compression; break;
-					case EFI_SECTION_GUID_DEFINED: result.header.sectionType = SectionHeader::GuidDefined; break;
-					case EFI_SECTION_DISPOSABLE: result.header.sectionType = SectionHeader::Disposable; break;
-					case EFI_SECTION_PE32: result.header.sectionType = SectionHeader::Pe32; break;
-					case EFI_SECTION_PIC: result.header.sectionType = SectionHeader::Pic; break;
-					case EFI_SECTION_TE: result.header.sectionType = SectionHeader::Te; break;
-					case EFI_SECTION_DXE_DEPEX: result.header.sectionType = SectionHeader::DxeDepex; break;
-					case EFI_SECTION_VERSION: result.header.sectionType = SectionHeader::Version; break;
-					case EFI_SECTION_USER_INTERFACE: result.header.sectionType = SectionHeader::UserInterface; break;
-					case EFI_SECTION_COMPATIBILITY16: result.header.sectionType = SectionHeader::Compatibility16; break;
-					case EFI_SECTION_FIRMWARE_VOLUME_IMAGE: result.header.sectionType = SectionHeader::FirmwareVolumeImage; break;
-					case EFI_SECTION_FREEFORM_SUBTYPE_GUID: result.header.sectionType = SectionHeader::FreeformSubtypeGuid; break;
-					case EFI_SECTION_RAW: result.header.sectionType = SectionHeader::Raw; break;
-					case EFI_SECTION_PEI_DEPEX: result.header.sectionType = SectionHeader::PeiDepex; break;
-					case EFI_SECTION_SMM_DEPEX: result.header.sectionType = SectionHeader::SmmDepex; break;
-					case SCT_SECTION_POSTCODE: result.header.sectionType = SectionHeader::PostcodeSct; break;
-					case INSYDE_SECTION_POSTCODE: result.header.sectionType = SectionHeader::PostcodeInsyde; break;
-					default:  result.header.sectionType = SectionHeader::Raw; break;
+					case EFI_SECTION_COMPRESSION :              result.header.sectionType = SectionHeader::Compression;         break;
+					case EFI_SECTION_GUID_DEFINED :             result.header.sectionType = SectionHeader::GuidDefined;         break;
+					case EFI_SECTION_DISPOSABLE :               result.header.sectionType = SectionHeader::Disposable;          break;
+					case EFI_SECTION_PE32 :                     result.header.sectionType = SectionHeader::Pe32;                break;
+					case EFI_SECTION_PIC :                      result.header.sectionType = SectionHeader::Pic;                 break;
+					case EFI_SECTION_TE :                       result.header.sectionType = SectionHeader::Te;                  break;
+					case EFI_SECTION_DXE_DEPEX :                result.header.sectionType = SectionHeader::DxeDepex;            break;
+					case EFI_SECTION_VERSION :                  result.header.sectionType = SectionHeader::Version;             break;
+					case EFI_SECTION_USER_INTERFACE :           result.header.sectionType = SectionHeader::UserInterface;       break;
+					case EFI_SECTION_COMPATIBILITY16 :          result.header.sectionType = SectionHeader::Compatibility16;     break;
+					case EFI_SECTION_FIRMWARE_VOLUME_IMAGE :    result.header.sectionType = SectionHeader::FirmwareVolumeImage; break;
+					case EFI_SECTION_FREEFORM_SUBTYPE_GUID :    result.header.sectionType = SectionHeader::FreeformSubtypeGuid; break;
+					case EFI_SECTION_PEI_DEPEX :                result.header.sectionType = SectionHeader::PeiDepex;            break;
+					case EFI_SECTION_SMM_DEPEX :                result.header.sectionType = SectionHeader::SmmDepex;            break;
+					case SCT_SECTION_POSTCODE :                 result.header.sectionType = SectionHeader::PostcodeSct;         break;
+					case INSYDE_SECTION_POSTCODE :              result.header.sectionType = SectionHeader::PostcodeInsyde;      break;
+					case EFI_SECTION_RAW :
+					default :                                   result.header.sectionType = SectionHeader::Raw;                 break;
 				}
 
 				return result;
 			}
 
+			static void processSectionHeaders(PiObject::Section& section, const Finders::SectionsVec_t& sectionHeaders, const MemoryView& buffer, Types::memory_t empty)
+			{
+				MemoryView sectionMemory(buffer.begin, buffer.begin);
+
+				// Call parser for every section header entry
+				for (const auto& sectionHdr : sectionHeaders)
+				{	// Check that previous section fill all space before current
+					if (sectionMemory.end != sectionMemory.begin) {
+						section.freeSpace.emplace_back(empty, sectionMemory.end, sectionMemory.begin);
+					}
+
+					sectionMemory.begin = sectionHdr.begin;
+					sectionMemory.end = sectionHdr.begin + Pi::Section::Utils::getSizeAuto(sectionHdr.get());
+
+					if (buffer.isOutside(sectionMemory.end - 1))
+						DEBUG_ERROR_MESSAGE
+							DEBUG_PRINT("\tMessage: Section exceeds section body boundary.");
+						DEBUG_END_MESSAGE_AND_EXIT(ExitCodes::ParseErrorFile)
+
+					section.sections.emplace_back(SectionParser(sectionHdr, sectionMemory, section.memory, empty));
+				}
+
+				// Check for space after last section
+				if (sectionMemory.end != buffer.end) {
+					section.freeSpace.emplace_back(empty, sectionMemory.end, buffer.end);
+				}
+			}
+
 		}
 
-		PiObject::Section SectionParser::operator()(const Pi::Section::Header& sectionView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t empty)
+		PiObject::Section SectionParser(const Pi::Section::Header& sectionView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t empty)
 		{
 			using namespace SectionParserNs;
 
-			auto section = sectionByHeader(sectionView, buffer, baseBuffer);
+			auto sectionObj = sectionByHeader(sectionView, buffer, baseBuffer);
 			Finders::SectionsVec_t sections;
 
+			// Handle section based on it's type
+			{
+				MemoryView sectionBody;
+				// If section is an encapsulation one => parse it according to it's type 
+				if (Pi::Section::Utils::isEncapsulationType(sectionView->Type))
+				{
+					switch (sectionView->Type)
+					{
+						case EFI_SECTION_COMPRESSION :
+						{
 
+						} break;
 
-			return section;
+						case EFI_SECTION_GUID_DEFINED :
+						{
 
+						} break; 
+
+						case EFI_SECTION_DISPOSABLE :
+						{	// This section may contain trash data or other sections => try to find other sections in it
+							sectionBody.begin = sectionView.begin + Pi::Section::Utils::getFullSize(sectionView);
+							// sectionView.begin is aligned to 4 byte boundary from FV header
+							sectionBody.begin = ALIGN_PTR4(sectionView.begin, sectionBody.begin);
+							sectionBody.end = buffer.end;
+							// Find sections
+							sections = Finders::SectionFinder(sectionBody);
+							if (!sections.empty()) {
+								processSectionHeaders(sectionObj, sections, sectionBody, empty);
+							}
+						} break;
+
+					default:
+						DEBUG_WARNING_MESSAGE
+							DEBUG_PRINT("\tMessage: No handler added to this encapsulation section type.");
+							DEBUG_PRINT("\tSection type: ", sectionView->Type);
+						DEBUG_END_MESSAGE
+						break;
+					}
+				}
+			}
+
+			return sectionObj;
 		}
 
 	}
+
 }

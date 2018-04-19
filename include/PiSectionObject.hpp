@@ -8,6 +8,7 @@
 /// PROJECT
 #include "General.hpp"
 #include "PiBaseObject.hpp"
+#include "DecompressionModule.hpp"
 
 namespace Project
 {
@@ -57,6 +58,26 @@ namespace Project
 			};
 
 			void to_json(nlohmann::json& j, const SectionHeader& obj);
+
+			struct SectionDecompressedData
+			{
+				SectionDecompressedData(
+						Types::length_t buffSize, 
+						Types::unique_byte_buff_t&& buff) :
+					memory(reinterpret_cast<Types::pointer_t>(buff.get())), 
+					buffer(std::move(buff)) 
+				{
+					memory.setLength(buffSize);
+				}
+
+				MemoryView memory;
+				Types::unique_byte_buff_t buffer;
+			};
+
+			typedef std::unique_ptr< SectionDecompressedData > unique_decomp_buff_t;
+
+			void to_json(nlohmann::json& j, const unique_decomp_buff_t& obj);
+
 		}
 
 		struct Section :
@@ -64,9 +85,12 @@ namespace Project
 		{
 			typedef BaseObject Base;
 
-			Section(	const Pi::Section::Header& hdr,
-				const MemoryView& baseBuffer, const MemoryView& myBuffer) :
-				Base(baseBuffer, myBuffer), header(hdr)
+			Section(const Pi::Section::Header& hdr,
+					const MemoryView& baseBuffer, 
+					const MemoryView& myBuffer) :
+				Base(baseBuffer, myBuffer), 
+				decompData(nullptr),
+				header(hdr)
 			{
 				setUid(myBuffer);
 			}
@@ -76,7 +100,8 @@ namespace Project
 			~Section() = default;
 
 			void toJson(nlohmann::json& j) const;
-
+			
+			helper::unique_decomp_buff_t decompData;
 			helper::SectionHeader header;
 			SectionObjectsVec_t sections;
 		};

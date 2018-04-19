@@ -157,8 +157,6 @@
     <ClInclude Include="include\cStructureView.hpp" />
     <ClInclude Include="include\debug.hpp" />
     <ClInclude Include="include\ExitCodes.hpp" />
-    <ClInclude Include="include\FileFinder.hpp" />
-    <ClInclude Include="include\FileParser.hpp" />
     <ClInclude Include="include\General.hpp" />
     <ClInclude Include="include\main.hpp" />
     <ClInclude Include="include\PiBaseObject.hpp" />
@@ -170,13 +168,9 @@
     <ClInclude Include="include\PiVolumeObject.hpp" />
     <ClInclude Include="include\ProjectExtendedTypes.hpp" />
     <ClInclude Include="include\ProjectTypes.hpp" />
-    <ClInclude Include="include\SectionFinder.hpp" />
-    <ClInclude Include="include\SectionParser.hpp" />
     <ClInclude Include="include\SignatureCasts.hpp" />
     <ClInclude Include="include\UefiHeaders.h" />
     <ClInclude Include="include\vFFSGuids.hpp" />
-    <ClInclude Include="include\VolumeFinder.hpp" />
-    <ClInclude Include="include\VolumeParser.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

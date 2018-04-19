@@ -17,6 +17,9 @@ namespace Project
 		
 		namespace VolumeFinderNs
 		{
+
+			static const signature_cast_32<EFI_FVH_SIGNATURE> VolumeSignature;
+
 			typedef std::pair<
 				Types::length_t, // Header offset
 				Pi::Volume::Header::const_pointer_t // Pointer to first byte of structure
@@ -27,7 +30,7 @@ namespace Project
 			static const std::size_t VolumeSignatureOffset = offsetof(Pi::Volume::Header::value_type, Signature);
 		}
 
-		VolumesVec_t VolumeFinder::operator()(const MemoryView& buffer)
+		VolumesVec_t VolumeFinder(const MemoryView& buffer)
 		{
 			using namespace VolumeFinderNs;
 
@@ -123,7 +126,7 @@ namespace Project
 			};
 		}
 
-		FilesVec_t FileFinder::operator()(const MemoryView& buffer, Types::memory_t empty)
+		FilesVec_t FileFinder(const MemoryView& buffer, Types::memory_t empty)
 		{
 			FilesVec_t result;
 			EFI_FFS_FILE_HEADER tmpHeader;
@@ -252,7 +255,7 @@ namespace Project
 			return result;
 		}
 
-		SectionsVec_t SectionFinder::operator()(const MemoryView& buffer)
+		SectionsVec_t SectionFinder(const MemoryView& buffer)
 		{
 			SectionsVec_t result;
 			// buffer.begin is aligned to 4 byte from FV beginning
