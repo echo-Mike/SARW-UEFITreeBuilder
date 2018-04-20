@@ -5,27 +5,25 @@
 /// STD
 
 /// PROJECT
-#include "General.hpp"
-#include "PiSectionObject.hpp"
+#include "PiBaseObject.hpp"
 
 namespace Project
 {
+
 	namespace PiObject
 	{
 
 		namespace helper
 		{
+
 			struct FileHeader
 			{
-				enum { Simple, Extended } headerType;
-				union
-				{
-					Pi::File::Header header;
-					Pi::File::Extended::Header extended;
-				};
 
-				FileHeader(const Pi::File::Header& h) : headerType(Simple), header(h) {}
-				FileHeader(const Pi::File::Extended::Header& h) : headerType(Extended), extended(h) {}
+				enum HeaderType { Simple, Extended } headerType;
+
+				Pi::File::Header header;
+
+				FileHeader(HeaderType htype, const Pi::File::Header& h) : headerType(htype), header(h) {}
 				
 				DefaultCopyableAndMovable(FileHeader)
 
@@ -33,29 +31,29 @@ namespace Project
 
 				bool isExtended() const { return headerType == Extended; }
 
-				Pi::File::Header::const_pointer_t asSimpleHeader() const
-				{
-					return isExtended() ? reinterpret_cast<Pi::File::Header::const_pointer_t>(extended.begin) : header.get();
-				}
-
 			};
 
 			void to_json(nlohmann::json& j, const FileHeader& obj);
+
 		}
 
 		struct File :
-			public BaseObject
+			public ComplexObject
 		{
-			typedef BaseObject Base;
+			typedef ComplexObject Base;
 
-			File(const Pi::File::Header& headerView, const MemoryView& baseBuffer, const MemoryView& myBuffer) :
-				Base(baseBuffer, myBuffer), header(headerView)
+			File(helper::FileHeader::HeaderType htype, const Pi::File::Header& headerView, 
+				 const MemoryView& baseBuffer, const MemoryView& myBuffer) :
+				Base(baseBuffer, myBuffer, InconsistencyState::FileFlag), 
+				header(htype, headerView)
 			{
 				setUid(headerView);
 			}
 
-			File(const Pi::File::Extended::Header& headerView, const MemoryView& baseBuffer, const MemoryView& myBuffer) :
-				Base(baseBuffer, myBuffer), header(headerView)
+			File(helper::FileHeader::HeaderType htype, const Pi::File::Header& headerView, 
+				 const MemoryView& baseBuffer, MemoryView&& myBuffer) :
+				Base(baseBuffer, std::move(myBuffer), InconsistencyState::FileFlag), 
+				header(htype, headerView)
 			{
 				setUid(headerView);
 			}
@@ -64,13 +62,22 @@ namespace Project
 
 			~File() = default;
 
+			// Virtual i-face implementation
+
 			void toJson(nlohmann::json& j) const;
 
+			PROJ_CopyablePiObject(File)
+			
+			// Class i-face
+
+			inline Pi::File::Header* operator->() { return &header.header; }
+			inline const Pi::File::Header* operator->() const { return &header.header; }
+
 			helper::FileHeader header;
-			SectionObjectsVec_t sections;
 		};
 
 	}
+
 }
 
 #endif

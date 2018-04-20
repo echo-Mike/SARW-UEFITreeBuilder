@@ -5,40 +5,60 @@
 /// STD
 
 /// PROJECT
-#include "General.hpp"
-#include "PiFileObject.hpp"
+#include "PiBaseObject.hpp"
 
 namespace Project
 {
+
 	namespace PiObject
 	{
 
-		typedef std::vector< File > FileObjectsVec_t;
-
 		struct Volume :
-			public BaseObject
+			public ComplexObject
 		{
-			typedef BaseObject Base;
+			typedef ComplexObject Base;
 
-			Volume( const Pi::Volume::Header& volHeader, 
+			Volume( const Pi::Volume::Header& hdr, 
 					const MemoryView& baseBuffer, const MemoryView& myBuffer) :
-					Base(baseBuffer, myBuffer), header(volHeader)
+				Base(baseBuffer, myBuffer, InconsistencyState::VolumeFlag), 
+				header(hdr)
 			{
 				fullHeader.begin = header.begin;
+				setUid(hdr);
 			}
 
+			Volume( const Pi::Volume::Header& hdr, 
+					const MemoryView& baseBuffer, MemoryView&& myBuffer) :
+				Base(baseBuffer, std::move(myBuffer), InconsistencyState::VolumeFlag), 
+				header(hdr)
+			{
+				fullHeader.begin = header.begin;
+				setUid(hdr);
+			}
+
+			DefaultCopyableAndMovable(Volume)
+
+			~Volume() = default;
+
+			// Virtual i-face implementation
+
 			void toJson(nlohmann::json& j) const;
+
+			PROJ_CopyablePiObject(Volume)
 			
-			Pi::Volume::Header header;
-			MemoryView fullHeader;
-			struct {
-				Pi::Volume::Extension::Header header;
-				MemoryView memory;
-			} extHeader;
-			FileObjectsVec_t files;
+			// Class i-face
+
+			Pi::Volume::Header* operator->() { return &normalHdr; }
+			const Pi::Volume::Header* operator->() const { return &normalHdr; }
+
+			Pi::Volume::Header normalHdr;
+			Pi::Volume::Extension::Header extendedHdr;
+			MemoryView normalHdr_memory;
+			MemoryView extendedHdr_memory;
 		};
 
 	}
+
 }
 
 #endif
