@@ -21,7 +21,7 @@ namespace Project
 		typedef std::vector< Pi::File::Header > FilesVec_t;
 
 		typedef std::vector< Pi::Volume::Header > VolumesVec_t;
-		
+
 		/// Finder functions
 
 		SectionsVec_t SectionFinder(const MemoryView& buffer);

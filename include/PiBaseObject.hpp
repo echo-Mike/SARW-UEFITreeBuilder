@@ -40,27 +40,15 @@ namespace Project
 
 				FileNormal = FileFlag,
 
-				VolumeNormal = VolumeFlag
+				VolumeNormal = VolumeFlag,
+				VolumeAlreadyParsed = VolumeFlag | 0x00000001
 			};
 
 		}
 
-
-		inline InconsistencyState::InconsistencyState_t& 
-		operator|=(
-			InconsistencyState::InconsistencyState_t& a, 
-			const InconsistencyState::InconsistencyState_t b
-		)
-		{
-			a = static_cast<InconsistencyState::InconsistencyState_t>(a | b);
-			return a;
-		}
-
-
 		struct Object;
 
 		typedef std::unique_ptr< Object > unique_object_ptr_t;
-
 
 		struct Object
 		{
@@ -86,6 +74,8 @@ namespace Project
 			virtual unique_object_ptr_t copy() { return std::make_unique<Object>(*this); };
 
 			inline Types::hash_t getUid() const { return uid; }
+
+			inline bool operator<(const Object& other) noexcept { return memory < other.memory; }
 
 		protected:
 
@@ -223,11 +213,28 @@ unique_object_ptr_t copy() \
 
 			PROJ_BaseCopyablePiObject(ComplexObject)
 
+			template< typename T, typename... Args>
+			inline std::enable_if< std::is_base_of<Object, T>::value >::type 
+				emplace_back(Args... args)
+			{
+				objects.emplace_back(new T(std::forward<Args>(args)...));
+			}
+
 			object_vec_t objects;
 		};
 
 	}
 
+}
+
+inline Project::PiObject::InconsistencyState::InconsistencyState_t& 
+operator|=(
+	Project::PiObject::InconsistencyState::InconsistencyState_t& a,
+	const Project::PiObject::InconsistencyState::InconsistencyState_t b
+)
+{
+	a = static_cast<Project::PiObject::InconsistencyState::InconsistencyState_t>(a | b);
+	return a;
 }
 
 #endif

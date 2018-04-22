@@ -17,9 +17,10 @@ namespace Project
 			CantOpenInputFile,
 			InvalidFileSize,
 			FileSizeAndReadCountDontMatch,
-			ParseErrorVolume = 100,
-			ParseErrorFile = 200,
-			ParseErrorSection = 300
+			ParseErrorFreeSpace = 100,
+			ParseErrorVolume = 200,
+			ParseErrorFile = 300,
+			ParseErrorSection = 400
 		};
 	}
 }

@@ -2,10 +2,10 @@
 #ifndef PI_VOLUME_OBJECT_HPP__
 #define	PI_VOLUME_OBJECT_HPP__ "0.0.0@PiVolumeObject.hpp"
 
-/// STD
-
 /// PROJECT
 #include "PiBaseObject.hpp"
+
+#define PROJ_DEFAULT_EMPTY (0xFF)
 
 namespace Project
 {
@@ -18,21 +18,23 @@ namespace Project
 		{
 			typedef ComplexObject Base;
 
+			typedef Pi::Volume::Header::value_type RepresentedStruct_t;
+
 			Volume( const Pi::Volume::Header& hdr, 
 					const MemoryView& baseBuffer, const MemoryView& myBuffer) :
 				Base(baseBuffer, myBuffer, InconsistencyState::VolumeFlag), 
-				header(hdr)
+				normalHdr(hdr)
 			{
-				fullHeader.begin = header.begin;
+				fullNormalHdr.begin = normalHdr.begin;
 				setUid(hdr);
 			}
 
 			Volume( const Pi::Volume::Header& hdr, 
 					const MemoryView& baseBuffer, MemoryView&& myBuffer) :
 				Base(baseBuffer, std::move(myBuffer), InconsistencyState::VolumeFlag), 
-				header(hdr)
+				normalHdr(hdr)
 			{
-				fullHeader.begin = header.begin;
+				fullNormalHdr.begin = normalHdr.begin;
 				setUid(hdr);
 			}
 
@@ -48,13 +50,12 @@ namespace Project
 			
 			// Class i-face
 
-			Pi::Volume::Header* operator->() { return &normalHdr; }
-			const Pi::Volume::Header* operator->() const { return &normalHdr; }
+			inline const RepresentedStruct_t* operator->() const { return normalHdr.get(); }
 
 			Pi::Volume::Header normalHdr;
 			Pi::Volume::Extension::Header extendedHdr;
-			MemoryView normalHdr_memory;
-			MemoryView extendedHdr_memory;
+			MemoryView fullNormalHdr;
+			MemoryView fullExtendedHdr;
 		};
 
 	}

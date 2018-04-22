@@ -123,7 +123,7 @@ namespace Project
 					}
 				}
 
-				Types::length_t getFullSize(const EFI_COMMON_SECTION_HEADER* header)
+				Types::length_t getFullSize(Pi::Section::Header::const_pointer_t header)
 				{
 					using namespace Pi::Section;
 					bool extended = getSize(header) == PROJ_SECTION_MAX_SIZE;

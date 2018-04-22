@@ -77,8 +77,10 @@ namespace Project
 							}
 						}
 						// 4) Check GUID match clue
+						/* // Do not check: image may introduce it's own GUIDs
 						if (Guid::FFS::isValidFfsGuid(headerPtr->FileSystemGuid))
 							return true;
+						//*/
 						return false;
 					}
 				),
@@ -96,18 +98,20 @@ namespace Project
 			);
 
 			// Create view entries
-			std::for_each(
-				headers.begin(),
-				headers.end(),
-				[&result](const FVHeaderData& a) { result.emplace_back(a.second); }
-			);
+			for (const auto& data : headers) {
+				result.emplace_back(data.second);
+			}
 
 			DEBUG_INFO_MESSAGE
 				DEBUG_PRINT("\tMessage: ", result.size() ," firmware volumes found.");
 				int counter = 0;
 				for (const auto& header : result) 
 				{
-					DEBUG_PRINT("\t\t", counter, ") ", Guid::NamedGuids::findNamedGuid(header->FileSystemGuid));
+					if (Guid::NamedGuids::isNamedGuid(header->FileSystemGuid)) {
+						DEBUG_PRINT("\t\t", counter, ") ", Guid::NamedGuids::findNamedGuid(header->FileSystemGuid));
+					} else {
+						DEBUG_PRINT("\t\t", counter, ") Unnamed GUID: ", header->FileSystemGuid);
+					}
 					++counter;
 				}
 			DEBUG_END_MESSAGE

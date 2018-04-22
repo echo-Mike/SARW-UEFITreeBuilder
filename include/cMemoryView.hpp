@@ -74,6 +74,8 @@ namespace Project
             return *this;
         }
 
+		inline bool operator<(const MemoryView& other) noexcept { return begin < other.begin; }
+
 		Types::const_pointer_t begin; //!< Pointer to beginning of viewed data
 		Types::const_pointer_t end;   //!< Pass-the-end pointer of viewed data
 

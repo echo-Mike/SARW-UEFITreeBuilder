@@ -5,6 +5,7 @@
 #include "GuidAdvanced.hpp"
 #include "PiFinders.hpp"
 #include "PiParsers.hpp"
+#include "PiVolumeUtils.hpp"
 #include "PiFileUtils.hpp"
 #include "PiSectionUtils.hpp"
 
@@ -14,87 +15,215 @@ namespace Project
 	namespace Parsers
 	{
 
+		namespace FreeSpaceParserNs
+		{
+
+			void parseVolume(PiObject::object_vec_t& results, const Pi::Volume::Header& header, const MemoryView& buffer)
+			{
+				MemoryView volumeBody(header.begin, header.begin + Pi::Volume::Utils::getSize(header));
+
+				if (buffer.isOutside(volumeBody.end - 1))
+					DEBUG_ERROR_MESSAGE
+						OffsetView ov(buffer.begin, volumeBody);
+						DEBUG_PRINT("\tMessage: Volume exceeds provided buffer.");
+						DEBUG_PRINT("\tVolume offset: ", ov.offset);
+						DEBUG_PRINT("\tVolume length: ", ov.length);
+						DEBUG_PRINT("\tBuffer length: ", buffer.getLength());
+						DEBUG_PRINT("\tExceeds by: ", ov.offset + ov.length - buffer.getLength());
+					DEBUG_END_MESSAGE_AND_EXIT(ExitCodes::ParseErrorFreeSpace)
+
+				results.emplace_back(new PiObject::Volume( VolumeParser(header, volumeBody, buffer, PROJ_DEFAULT_EMPTY ) ));
+			}
+
+			void parseVolumes(PiObject::object_vec_t& results, const Finders::VolumesVec_t& volumes, const MemoryView& buffer)
+			{
+				MemoryView volumeBody(buffer.begin, buffer.begin);
+
+				for (const auto& header : volumes)
+				{	// Check that previous object fill all space before current
+					if (volumeBody.end != header.begin) {
+						results.emplace_back(new PiObject::FreeSpace(PROJ_DEFAULT_EMPTY, buffer, MemoryView(volumeBody.end, header.begin));
+					}
+
+					volumeBody.begin = header.begin;
+					volumeBody.end = header.begin + Pi::Volume::Utils::getSize(header);
+
+					if (buffer.isOutside(volumeBody.end - 1))
+						DEBUG_ERROR_MESSAGE
+							OffsetView ov(buffer.begin, volumeBody);
+							DEBUG_PRINT("\tMessage: Volume exceeds provided buffer.");
+							DEBUG_PRINT("\tVolume offset: ", ov.offset);
+							DEBUG_PRINT("\tVolume length: ", ov.length);
+							DEBUG_PRINT("\tBuffer length: ", buffer.getLength());
+							DEBUG_PRINT("\tExceeds by: ", ov.offset + ov.length - buffer.getLength());
+						DEBUG_END_MESSAGE_AND_EXIT(ExitCodes::ParseErrorFreeSpace)
+
+					results.emplace_back(new PiObject::Volume( VolumeParser(header, volumeBody, buffer, PROJ_DEFAULT_EMPTY ) ));
+				}
+				// Check for space after last volume
+				if (volumeBody.end != buffer.end) {
+					results.emplace_back( new PiObject::FreeSpace(PROJ_DEFAULT_EMPTY, buffer, MemoryView(volumeBody.end, buffer.end));
+				}
+			}
+		}
+
+		PiObject::object_vec_t FreeSpaceParser(const MemoryView& buffer)
+		{
+			using namespace FreeSpaceParserNs;
+
+			PiObject::object_vec_t result;
+			auto volumes = Finders::VolumeFinder(buffer);
+			const MemoryView& baseBuff = buffer;
+
+			if (volumes.empty()) { // Volumes not found : add as a free space
+				result.emplace_back(new PiObject::FreeSpace(PROJ_DEFAULT_EMPTY, baseBuff, buffer));
+				// Report parsing stats
+				DEBUG_INFO_MESSAGE
+					DEBUG_PRINT("\tMessage: Free space parsing ended.");
+					DEBUG_PRINT("\tNothing found.");
+				DEBUG_END_MESSAGE
+			} else { // Something is found
+				Finders::VolumesVec_t toProcess;
+				Finders::VolumesVec_t deferred;
+				{	// Check intersections
+					auto end = volumes.end();
+					auto last = volumes.begin();
+					std::advance(last, std::distance(volumes.begin(), volumes.end()) - 1);
+					MemoryView thisBody;
+					// "volumes" array is sorted by header address, so only previous volume may contain next one
+					for (auto iter = volumes.begin(); iter != last; iter = std::next(iter))
+					{	// Add "this" volume to processing list
+						toProcess.emplace_back(*iter);
+						// Setup this MV
+						thisBody.begin = iter->begin;
+						thisBody.setEnd(iter->begin + Pi::Volume::Utils::getSize(iter->get()));
+						bool error = false;
+						for (auto iter2 = std::next(iter); iter2 != end; iter2 = std::next(iter2))
+						{	// At least the left side must be inside for intersection
+							if (!thisBody.isInside(iter2->begin))
+							{	// This skips previous volume in outer loop
+								iter = std::prev(iter2);
+								// At min: iter2 = std::next(iter)
+								// Outer loop continues from current "other" volume
+								break;
+							}
+							// Check right side intersection
+							if (thisBody.isInside(iter2->begin + Pi::Volume::Utils::getSize(iter2->get()) - 1))
+							{	// "other" volume is fully contained in "this" one
+								deferred.emplace_back(*iter2);
+							} else { // This is deadly intersection report an error
+								OffsetView thisOV(baseBuff.begin, thisBody);
+								OffsetView otherOV(baseBuff.begin, MemoryView(iter2->begin, iter2->begin + Pi::Volume::Utils::getSize(iter2->get()) - 1));
+								DEBUG_ERROR_MESSAGE
+									DEBUG_PRINT("\tMessage: Intersected volumes found.");
+									DEBUG_PRINT("\tThis position: ", std::distance(volumes.begin(), iter) + 1);
+									DEBUG_PRINT("\tThis offset: ", thisOV.offset);
+									DEBUG_PRINT("\tOther position: ", std::distance(volumes.begin(), iter2) + 1);
+									DEBUG_PRINT("\tOther offset: ", otherOV.offset);
+								DEBUG_END_MESSAGE
+								error = true;
+								break;
+							}
+						}
+						if (error) break;
+					}
+					if (volumes.size() == 1) { 
+						// In this case outer loop never triggers insertion
+						toProcess.emplace_back(volumes.front());
+					}
+				}
+
+				// Now toProcess contains only primal volumes : process them first
+				// only primal volumes may contain free space between them
+				parseVolumes(result, toProcess, buffer);
+				// Now parse deferred if them are not parsed yet
+				auto deferedProc = 0;
+				for (const auto& volume : deferred) {
+					if (!Pi::Volume::Utils::isParsedVolume(volume)) {
+						parseVolume(result, volume, buffer);
+						++deferedProc;
+					}
+				}
+
+				// Report parsing stats
+				DEBUG_INFO_MESSAGE
+					DEBUG_PRINT("\tMessage: Free space parsing ended.");
+					DEBUG_PRINT("\tTotal volumes found: ", volumes.size());
+					DEBUG_PRINT("\tPrimal volumes: ", toProcess.size());
+					DEBUG_PRINT("\tDeferred volumes: ", toProcess.size());
+					DEBUG_PRINT("\tDeferred volumes processed: ", deferedProc);
+					DEBUG_PRINT("\tTotal objects: ", result.size());
+				DEBUG_END_MESSAGE
+			}
+
+			return result;
+		}
+
 		namespace VolumeParserNs
 		{
 
 			static const EFI_FV_BLOCK_MAP_ENTRY lastEntry = { 0, 0 };
 
-			static void processFileHeaders(PiObject::Volume& volume, const Finders::FilesVec_t& fileHeaders, const MemoryView& buffer)
+			inline static Types::length_t calcFileLen(const MemoryView& hdr)
 			{
-				Types::memory_t empty = volume.header->Attributes & EFI_FVB2_ERASE_POLARITY ? '\xFF' : '\x00';
-				MemoryView fileMemory(buffer.begin, buffer.begin);
-
-				// Call parser for every file header entry
-				for (const auto& fileHeader : fileHeaders)
-				{	// Check that previous file fill all space before current
-					if (fileMemory.end != fileHeader.begin) {
-						volume.freeSpace.emplace_back(empty, fileMemory.end, fileHeader.begin);
-					}
-
-					fileMemory.begin = fileHeader.begin;
-					fileMemory.end = fileHeader.begin + Pi::File::Utils::getSizeAuto(fileHeader.get());
-
-					if (buffer.isOutside(fileMemory.end - 1))
-						DEBUG_ERROR_MESSAGE
-							DEBUG_PRINT("\tMessage: File exceeds volume boundary.");
-						DEBUG_END_MESSAGE_AND_EXIT(ExitCodes::ParseErrorVolume)
-
-					volume.files.emplace_back(FileParser(fileHeader, fileMemory, volume.memory, empty));
-				}
-			
-				// Check for space after last file
-				if (fileMemory.end != buffer.end) {
-					volume.freeSpace.emplace_back(empty, fileMemory.end, buffer.end);
-				}
+				return Pi::File::Utils::getSizeAuto(reinterpret_cast<Pi::File::Header::const_pointer_t>(hdr.begin));
 			}
 		}
 
-		PiObject::Volume VolumeParser(const Pi::Volume::Header& volumeView, const MemoryView& buffer, const MemoryView& baseBuffer)
+		PiObject::Volume VolumeParser(const Pi::Volume::Header& volumeView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t)
 		{
 			using namespace VolumeParserNs;
-
 			PiObject::Volume volume(volumeView, baseBuffer, buffer);
 			Finders::FilesVec_t fileViews;
 
-			Types::memory_t empty = volume.header->Attributes & EFI_FVB2_ERASE_POLARITY ? '\xFF' : '\x00';
+			if (!Pi::Volume::Utils::addParsedVolume(volumeView))
+			{
+				DEBUG_INFO_MESSAGE
+					DEBUG_PRINT("\tMessage: Found already parsed volume.");
+					DEBUG_PRINT("\tUID: ", volume.getUid());
+				DEBUG_END_MESSAGE
+				volume.state |= PiObject::InconsistencyState::VolumeAlreadyParsed;
+				return volume;
+			}
+
+			Types::memory_t empty = volume->Attributes & EFI_FVB2_ERASE_POLARITY ? '\xFF' : '\x00';
 
 			// Define memory used by full header: Pi volume header + block map
 			{	// Size of first entry is already counted in size of header structure itself
 				Types::count_t blockEntryCount = 0;
-				const EFI_FV_BLOCK_MAP_ENTRY* blocks = volume.header->BlockMap;
+				const EFI_FV_BLOCK_MAP_ENTRY* blocks = volume->BlockMap;
 
 				while (std::memcmp(blocks, &lastEntry, Pi::Volume::BlockMap::structure_size)) {
 					++blockEntryCount;
-					// Next will work only if alignment for EFI_FV_BLOCK_MAP_ENTRY is not weird
-					++blocks;
+					blocks = ADVANCE_PTR_(blocks, const EFI_FV_BLOCK_MAP_ENTRY*, Pi::Volume::BlockMap::structure_size);
 				}
 				// Count real size of base volume header: 
 				//	sizeof(EFI_FIRMWARE_VOLUME_HEADER) + sizeof(EFI_FV_BLOCK_MAP_ENTRY) * blockEntryCount
-				volume.fullHeader.setLength(Pi::Volume::Header::structure_size + Pi::Volume::BlockMap::structure_size * blockEntryCount);
+				volume.fullNormalHdr.setLength(Pi::Volume::Header::structure_size + Pi::Volume::BlockMap::structure_size * blockEntryCount);
 			}
 
 			// Consider memory used by extended header and determine areas of interests
 			Types::count_t searchAreaCount = 0;
 			// Find extension header and ban file search on it
-			if (volume.header->ExtHeaderOffset)
+			if (volume->ExtHeaderOffset)
 			{
-			 	volume.extHeader.header = volume.header.begin + volume.header->ExtHeaderOffset;
-				volume.extHeader.memory = volume.extHeader.header;
-				volume.extHeader.memory.setLength(volume.extHeader.header->ExtHeaderSize);
+			 	volume.extendedHdr = volume.normalHdr.begin + volume->ExtHeaderOffset;
+				volume.fullExtendedHdr = volume.extendedHdr;
+				volume.fullExtendedHdr.setLength(volume.extendedHdr->ExtHeaderSize);
 
-				if (volume.extHeader.memory.isInside(volume.fullHeader.end - 1))
+				if (volume.fullExtendedHdr.isInside(volume.fullNormalHdr.end - 1))
 					DEBUG_ERROR_MESSAGE
 						DEBUG_PRINT("\tMessage: Block map collided with extended header.");
 					DEBUG_END_MESSAGE_AND_EXIT(ExitCodes::ParseErrorVolume)
 
 				// If there is no space between header and extended header than there is only one
 				// search area, otherwise there is two
-				searchAreaCount = volume.extHeader.memory.isInside(volume.fullHeader.end) ? 1 : 2;
+				searchAreaCount = volume.fullExtendedHdr.isInside(volume.fullNormalHdr.end) ? 1 : 2;
 				// Case when extended header is padded to a not significant value of bytes :
 				// No legitimate file can be created in that space
-				if (volume.extHeader.header.begin - volume.fullHeader.end < Pi::File::Header::structure_size)
+				if (volume.extendedHdr.begin - volume.fullNormalHdr.end < Pi::File::Header::structure_size)
 				{	// Create new free space instance
-					volume.freeSpace.emplace_back(empty, volume.fullHeader.end, volume.extHeader.header.begin);
+					volume.emplace_back<PiObject::FreeSpace>(empty, volume.memory, MemoryView(volume.fullNormalHdr.end, volume.extendedHdr.begin));
 					--searchAreaCount;
 				}
 			}
@@ -106,29 +235,34 @@ namespace Project
 				switch (searchAreaCount)
 				{
 					case 0 : // No extended header found
-						volumeBody.begin = ALIGN_PTR8(volume.fullHeader.begin, volume.fullHeader.end);
+						volumeBody.begin = ALIGN_PTR8(volume.fullNormalHdr.begin, volume.fullNormalHdr.end);
 						volumeBody.setEnd(volume.memory.end);
 						fileViews = Finders::FileFinder(volumeBody, empty);
 						break;
 					case 1 : // Extended header is right after block map or space between is insignificant
-						volumeBody.begin = ALIGN_PTR8(volume.fullHeader.begin, volume.extHeader.memory.end);
+						volumeBody.begin = ALIGN_PTR8(volume.fullNormalHdr.begin, volume.fullExtendedHdr.end);
 						volumeBody.setEnd(volume.memory.end);
 						fileViews = Finders::FileFinder(volumeBody, empty);
 						break;
 					case 2 : // Both areas: between block map and extended header and after extended header are significant
-						volumeBody.begin = ALIGN_PTR8(volume.fullHeader.begin, volume.fullHeader.end);
-						volumeBody.setEnd(volume.extHeader.header.begin);
+						volumeBody.begin = ALIGN_PTR8(volume.fullNormalHdr.begin, volume.fullNormalHdr.end);
+						volumeBody.setEnd(volume.extendedHdr.begin);
 
 						// Find all files in first area
 						fileViews = Finders::FileFinder(volumeBody, empty);
 						if (fileViews.empty()) { // No files found: add area to empty space
-							volume.freeSpace.emplace_back(empty, volume.fullHeader.end, volume.extHeader.header.begin);
-						} else { // Some files found: process them to file objects and free space 
-							processFileHeaders(volume, fileViews, volumeBody);
+							volume.emplace_back<PiObject::FreeSpace>(empty, volume.memory, MemoryView(volume.fullNormalHdr.end, volume.extendedHdr.begin));
+						} else { // Some files found: process them to file objects and free space
+							processHeaders< PiObject::File, calcFileLen >(
+								FileParser,
+								volume, fileViews, volumeBody, empty, 
+								"\tMessage: File exceeds volume boundary.", ExitCodes::ParseErrorVolume
+							);
+							// processFileHeaders(volume, fileViews, volumeBody);
 							fileViews.clear();
 						}
 
-						volumeBody.begin = ALIGN_PTR8(volume.fullHeader.begin, volume.extHeader.memory.end);
+						volumeBody.begin = ALIGN_PTR8(volume.fullNormalHdr.begin, volume.fullExtendedHdr.end);
 						volumeBody.setEnd(volume.memory.end);
 						// Find files in second area
 						fileViews = Finders::FileFinder(volumeBody, empty);
@@ -142,12 +276,17 @@ namespace Project
 
 				// Process found files to file objects and free space 
 				if (!fileViews.empty()) {
-					processFileHeaders(volume, fileViews, volumeBody);
+					processHeaders< PiObject::File, calcFileLen >(
+						FileParser,
+						volume, fileViews, volumeBody, empty, 
+						"\tMessage: File exceeds volume boundary.", ExitCodes::ParseErrorVolume
+					);
+					//processFileHeaders(volume, fileViews, volumeBody);
 				} else { // Add whole volume body as free space
 					DEBUG_WARNING_MESSAGE
 						DEBUG_PRINT("\tMessage: No files found in volume.");
 					DEBUG_END_MESSAGE
-					volume.freeSpace.emplace_back(empty, volumeBody.begin, volumeBody.begin);
+					volume.emplace_back<PiObject::FreeSpace>(empty, volume.memory, volumeBody);
 				}
 			}
 
@@ -157,40 +296,19 @@ namespace Project
 
 		namespace FileParserNs
 		{
-			static PiObject::File fileByHeader(const Pi::File::Header& fileView, const MemoryView& buffer, const MemoryView& baseBuffer)
+			inline static PiObject::File fileByHeader(const Pi::File::Header& fileView, const MemoryView& buffer, const MemoryView& baseBuffer)
 			{
+				using namespace ::Project::PiObject::helper;
+
 				if (fileView->Attributes & FFS_ATTRIB_LARGE_FILE) {
-					return PiObject::File(Pi::File::Extended::Header(fileView.begin), baseBuffer, buffer);
+					return PiObject::File(FileHeader::Extended, fileView, baseBuffer, buffer);
 				}
-				return PiObject::File(fileView, baseBuffer, buffer);
+				return PiObject::File(FileHeader::Simple , fileView, baseBuffer, buffer);
 			}
 
-			static void processSectionHeaders(PiObject::File& file, const Finders::SectionsVec_t& sectionHeaders, const MemoryView& buffer, Types::memory_t empty)
+			inline static Types::length_t calcSecLen(const MemoryView& hdr)
 			{
-				MemoryView sectionMemory(buffer.begin, buffer.begin);
-
-				// Call parser for every section header entry
-				for (const auto& sectionHdr : sectionHeaders)
-				{	// Check that previous section fill all space before current
-					if (sectionMemory.end != sectionMemory.begin) {
-						file.freeSpace.emplace_back(empty, sectionMemory.end, sectionMemory.begin);
-					}
-
-					sectionMemory.begin = sectionHdr.begin;
-					sectionMemory.end = sectionHdr.begin + Pi::Section::Utils::getSizeAuto(sectionHdr.get());
-
-					if (buffer.isOutside(sectionMemory.end - 1))
-						DEBUG_ERROR_MESSAGE
-							DEBUG_PRINT("\tMessage: Section exceeds file boundary.");
-						DEBUG_END_MESSAGE_AND_EXIT(ExitCodes::ParseErrorFile)
-
-					file.sections.emplace_back(SectionParser(sectionHdr, sectionMemory, file.memory, empty));
-				}
-			
-				// Check for space after last section
-				if (sectionMemory.end != buffer.end) {
-					file.freeSpace.emplace_back(empty, sectionMemory.end, buffer.end);
-				}
+				return Pi::Section::Utils::getSizeAuto(reinterpret_cast<Pi::Section::Header::const_pointer_t>(hdr.begin));
 			}
 		}
 
@@ -206,36 +324,41 @@ namespace Project
 				MemoryView fileBody;
 
 				if (file.header.isExtended()) {
-					fileBody.begin = file.header.extended.end;
-					fileBody.setEnd(buffer.end);
+					fileBody.begin = file.header.header.begin + Pi::File::Extended::Header::structure_size;
 				} else {
 					fileBody.begin = file.header.header.end;
-					fileBody.setEnd(buffer.end);
 				}
+				fileBody.setEnd(buffer.end);
 				// fileView.begin is aligned by 8 to FV header -> we can align by 4 from it <=> align by 4 from FV header
 				fileBody.begin = ALIGN_PTR4(fileView.begin, fileBody.begin);
 
 				if (fileBody.getLength() == 0) {
 					DEBUG_INFO_MESSAGE
 						DEBUG_PRINT("\tMessage: File without body found.");
-						DEBUG_PRINT("\tGUID: ", file.header.asSimpleHeader()->Name);
+						DEBUG_PRINT("\tGUID: ", file->Name);
 					DEBUG_END_MESSAGE
 				} else {
-					sections = Finders::SectionFinder(fileBody);
-					if (sections.empty()) 
-					{	// File must be one of non-sectioned type
-						auto fileType = static_cast<Types::memory_t>(file.header.asSimpleHeader()->Type);
-						// Check that file is not a sectioned type
-						if ( Pi::File::Utils::isSectionedFileType(fileType) )
+					if ( Pi::File::Utils::isSectionedFileType(file->Type) )
+					{
+						sections = Finders::SectionFinder(fileBody);
+						if (sections.empty()) 
 						{	// It is sectioned type by UEFI PI : report a warning
 							DEBUG_WARNING_MESSAGE
 								DEBUG_PRINT("\tMessage: No section found in sectioned file type.");
-								DEBUG_PRINT("\tGUID: ", file.header.asSimpleHeader()->Name);
-								DEBUG_PRINT("\tFile type: ", Pi::File::Utils::fileTypeToCStr(fileType));
+								DEBUG_PRINT("\tGUID: ", file->Name);
+								DEBUG_PRINT("\tFile type: ", Pi::File::Utils::fileTypeToCStr(file->Type));
 							DEBUG_END_MESSAGE
+						} else { // Run section parsing routine
+							processHeaders< PiObject::Section, calcSecLen >(
+								SectionParser,
+								file, sections, fileBody, empty,
+								"\tMessage: Section exceeds file boundary.", ExitCodes::ParseErrorFile
+							);
 						}
-					} else {
-						processSectionHeaders(file, sections, fileBody, empty);
+					} else if (file->Type == EFI_FV_FILETYPE_RAW) {
+						// Raw file types may contain other volumes
+
+
 					}
 				}
 			}
@@ -278,34 +401,10 @@ namespace Project
 				return result;
 			}
 
-			static void processSectionHeaders(PiObject::Section& section, const Finders::SectionsVec_t& sectionHeaders, const MemoryView& buffer, Types::memory_t empty)
+			inline static Types::length_t calcVolLen(const MemoryView& hdr)
 			{
-				MemoryView sectionMemory(buffer.begin, buffer.begin);
-
-				// Call parser for every section header entry
-				for (const auto& sectionHdr : sectionHeaders)
-				{	// Check that previous section fill all space before current
-					if (sectionMemory.end != sectionMemory.begin) {
-						section.freeSpace.emplace_back(empty, sectionMemory.end, sectionMemory.begin);
-					}
-
-					sectionMemory.begin = sectionHdr.begin;
-					sectionMemory.end = sectionHdr.begin + Pi::Section::Utils::getSizeAuto(sectionHdr.get());
-
-					if (buffer.isOutside(sectionMemory.end - 1))
-						DEBUG_ERROR_MESSAGE
-							DEBUG_PRINT("\tMessage: Section exceeds section body boundary.");
-						DEBUG_END_MESSAGE_AND_EXIT(ExitCodes::ParseErrorFile)
-
-					section.sections.emplace_back(SectionParser(sectionHdr, sectionMemory, section.memory, empty));
-				}
-
-				// Check for space after last section
-				if (sectionMemory.end != buffer.end) {
-					section.freeSpace.emplace_back(empty, sectionMemory.end, buffer.end);
-				}
+				return reinterpret_cast<Pi::Volume::Header::const_pointer_t>(hdr.begin)->FvLength;
 			}
-
 		}
 
 		PiObject::Section SectionParser(const Pi::Section::Header& sectionView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t empty)
@@ -371,6 +470,27 @@ namespace Project
 						DEBUG_END_MESSAGE
 						break;
 					}
+
+				} else if (sectionView->Type == EFI_SECTION_FIRMWARE_VOLUME_IMAGE) {
+					auto secHdrSize = Pi::Section::Utils::getFullSize(sectionView);
+					MemoryView volumeSecBody(sectionView, sectionView.begin + secHdrSize);
+					
+					auto volumeVec = Finders::VolumeFinder(MemoryView(sectionView, sectionView.begin + secHdrSize));
+
+					if (volumeVec.empty())
+					{
+						DEBUG_WARNING_MESSAGE
+							DEBUG_PRINT("\tMessage: Firmware Volume not found in volume image section.");
+							DEBUG_PRINT("\tUID: ", sectionObj.getUid());
+						DEBUG_END_MESSAGE
+					} else {
+						processHeaders< PiObject::Section, calcSecLen >(
+							SectionParser,
+							file, sections, fileBody, empty,
+							"\tMessage: Section exceeds file boundary.", ExitCodes::ParseErrorFile
+						);
+					}
+
 				}
 			}
 

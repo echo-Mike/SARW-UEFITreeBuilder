@@ -86,6 +86,8 @@ namespace Project
 
 			typedef helper::section_decomp_data_storage_t* decomp_data_storage_ptr_t;
 
+			typedef Pi::Section::Header::value_type RepresentedStruct_t;
+
 		private:
 
 			static decomp_data_storage_t DecompressedSectionData;
@@ -139,8 +141,7 @@ namespace Project
 						nullptr;
 			}
 
-			inline Pi::Section::Header* operator->() { return &header.header; }
-			inline const Pi::Section::Header* operator->() const { return &header.header; }
+			inline const RepresentedStruct_t* operator->() const { return header.header.get(); }
 
 			helper::SectionHeader header;
 		};

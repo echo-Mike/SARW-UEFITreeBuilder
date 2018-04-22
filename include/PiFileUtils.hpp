@@ -52,21 +52,16 @@ namespace Project
 					return header->ExtendedSize;
 				}
 
-				inline Types::length_t getSize(const EFI_FFS_FILE_HEADER* header)
+				inline Types::length_t getSize(Pi::File::Header::const_pointer_t header)
 				{
 					return  (static_cast<Types::length_t>(header->Size[2]) << 16) +
 							(static_cast<Types::length_t>(header->Size[1]) << 8) +
 							 static_cast<Types::length_t>(header->Size[0]);
 				}
 				
-				inline Types::length_t getSize(const EFI_FFS_FILE_HEADER2* header)
+				inline Types::length_t getSize(Pi::File::Extended::Header::const_pointer_t header)
 				{
 					return header->ExtendedSize;
-				}
-				
-				inline Types::length_t getSize(const PiObject::File& file)
-				{
-					return file.header.isExtended() ? getSize(file.header.extended) : getSize(file.header.header);
 				}
 
 				inline Types::length_t getSize1(Types::const_pointer_t header)
@@ -78,8 +73,13 @@ namespace Project
 				{
 					return reinterpret_cast<const EFI_FFS_FILE_HEADER2*>(header)->ExtendedSize;
 				}
+				
+				inline Types::length_t getSize(const PiObject::File& file)
+				{
+					return file.header.isExtended() ? getSize2(UnifyPtrCast(file.header.header.get())) : getSize1(UnifyPtrCast(file.header.header.get()));
+				}
 
-				inline Types::length_t getSizeAuto(const EFI_FFS_FILE_HEADER* header)
+				inline Types::length_t getSizeAuto(Pi::File::Header::const_pointer_t header)
 				{
 					return header->Attributes & FFS_ATTRIB_LARGE_FILE ? getSize2(UnifyPtrCast(header)) : getSize(header);
 				}

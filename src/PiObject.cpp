@@ -9,41 +9,38 @@ namespace Project
 	namespace PiObject
 	{
 
-		bool FreeSpace::checkCorruption(Types::memory_t empty)
+		bool FreeSpace::IsCorrupted(Types::memory_t empty, const MemoryView& buffer)
 		{
-			corruptFlag = (end != std::find_if_not(
-				begin, 
-				end, 
+			return (buffer.end != std::find_if_not(
+				buffer.begin,
+				buffer.end,
 				[empty](const Types::memory_t v) -> bool
 				{ 
 					return v == empty; 
 				}
 			));
-			return corruptFlag;
 		}
 
-		//void to_json(nlohmann::json& j, const FreeSpace& obj)
-		//{
-
-		//}
-
-		void BaseObject::toJson(nlohmann::json& j) const
+		void Object::toJson(nlohmann::json& j) const
 		{
 			j["uid"] = uid;
-			j["position"] = OffsetView(basePtr, memory);
-			if (!freeSpace.empty())
-			{
-				std::vector< OffsetView > freeOffsets;
-				freeOffsets.reserve(freeSpace.size());
-				for (const auto& v : freeSpace)
-					freeOffsets.emplace_back(memory.begin, v);
-				j["freeSpace"] = freeOffsets;
-			}
+			j["position"] = OffsetView(baseBegin, memory);
 		}
 
-		void BaseObject::setUid(const MemoryView& buffer)
+		void Object::setUid(const MemoryView& buffer)
 		{
 			uid = Checksums::hash(buffer, buffer.getLength());
+		}
+
+		void Object::setUid(MemoryView&& buffer)
+		{
+			uid = Checksums::hash(buffer, buffer.getLength());
+		}
+
+		void ComplexObject::toJson(nlohmann::json& j) const
+		{
+			Base::toJson(j);
+			j["children"] = objects;
 		}
 
 		namespace helper

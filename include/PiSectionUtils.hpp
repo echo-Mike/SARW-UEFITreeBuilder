@@ -79,14 +79,14 @@ namespace Project
 					return header->ExtendedSize;
 				}
 
-				inline Types::length_t getSize(const EFI_COMMON_SECTION_HEADER* header)
+				inline Types::length_t getSize(Pi::Section::Header::const_pointer_t header)
 				{
 					return  (static_cast<Types::length_t>(header->Size[2]) << 16) +
 							(static_cast<Types::length_t>(header->Size[1]) << 8) +
 							 static_cast<Types::length_t>(header->Size[0]);
 				}
 
-				inline Types::length_t getSize(const EFI_COMMON_SECTION_HEADER2* header)
+				inline Types::length_t getSize(Pi::Section::Extended::Header::const_pointer_t header)
 				{
 					return header->ExtendedSize;
 				}
@@ -98,26 +98,26 @@ namespace Project
 
 				inline Types::length_t getSize1(Types::const_pointer_t header)
 				{
-					return getSize(reinterpret_cast<const EFI_COMMON_SECTION_HEADER*>(header));
+					return getSize(reinterpret_cast<Pi::Section::Header::const_pointer_t>(header));
 				}
 
 				inline Types::length_t getSize2(Types::const_pointer_t header)
 				{
-					return reinterpret_cast<const EFI_COMMON_SECTION_HEADER2*>(header)->ExtendedSize;
+					return reinterpret_cast<Pi::Section::Extended::Header::const_pointer_t>(header)->ExtendedSize;
 				}
 
-				inline Types::length_t getSizeAuto(const EFI_COMMON_SECTION_HEADER* header)
+				inline Types::length_t getSizeAuto(Pi::Section::Header::const_pointer_t header)
 				{
 					return getSize(header) == PROJ_SECTION_MAX_SIZE ? getSize2(UnifyPtrCast(header)) : getSize(header);
 				}
 
-				Types::length_t getFullSize(const EFI_COMMON_SECTION_HEADER* header);
+				Types::length_t getFullSize(Pi::Section::Header::const_pointer_t header);
 
 				bool isSectionType(Types::memory_t type);
 
 				bool isEncapsulationType(Types::memory_t type);
 
-				inline bool isExtendedSection(const EFI_COMMON_SECTION_HEADER* header) 
+				inline bool isExtendedSection(Pi::Section::Header::const_pointer_t header)
 				{
 					return getSize(header) == PROJ_SECTION_MAX_SIZE;
 				}

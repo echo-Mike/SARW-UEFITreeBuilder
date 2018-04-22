@@ -131,6 +131,7 @@
     <ClCompile Include="src\PiObject.cpp" />
     <ClCompile Include="src\PiParsers.cpp" />
     <ClCompile Include="src\PiSectionUtils.cpp" />
+    <ClCompile Include="src\PiVolumeUtils.cpp" />
     <ClCompile Include="src\ProjectGlobalDefines.c" />
     <ClCompile Include="submodules\codesnippets\DebugLib\DebugLib.cpp" />
     <ClCompile Include="submodules\Compression\LZMA\Bra86.c" />
@@ -154,6 +155,7 @@
     <ClInclude Include="include\DecompressionModule.hpp" />
     <ClInclude Include="include\CompressionModule.hpp" />
     <ClInclude Include="include\GuidAdvanced.hpp" />
+    <ClInclude Include="include\PiVolumeUtils.hpp" />
     <ClInclude Include="include\ProjectGlobalDefines.h" />
     <ClInclude Include="include\GuidDefines.h" />
     <ClInclude Include="include\PiFileUtils.hpp" />

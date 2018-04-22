@@ -42,6 +42,8 @@ namespace Project
 		{
 			typedef ComplexObject Base;
 
+			typedef Pi::File::Header::value_type RepresentedStruct_t;
+
 			File(helper::FileHeader::HeaderType htype, const Pi::File::Header& headerView, 
 				 const MemoryView& baseBuffer, const MemoryView& myBuffer) :
 				Base(baseBuffer, myBuffer, InconsistencyState::FileFlag), 
@@ -70,8 +72,7 @@ namespace Project
 			
 			// Class i-face
 
-			inline Pi::File::Header* operator->() { return &header.header; }
-			inline const Pi::File::Header* operator->() const { return &header.header; }
+			inline const RepresentedStruct_t* operator->() const { return header.header.get(); }
 
 			helper::FileHeader header;
 		};
