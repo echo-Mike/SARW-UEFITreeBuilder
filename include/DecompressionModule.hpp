@@ -30,7 +30,8 @@ namespace Project
 				TianoEfi2,
 				Lzma,
 				//Lzma2,
-				Lzma86
+				Lzma86,
+				Brotli
 			};
 
 		}
@@ -42,7 +43,7 @@ namespace Project
 
 			DefaultCopyableAndMovable(BaseDecompresser)
 
-			virtual ~BaseDecompresser() {};
+			virtual ~BaseDecompresser() = default;
 
 			virtual EFI_STATUS GetInfo(
 				Types::void_ptr_t Source,
@@ -69,7 +70,7 @@ namespace Project
 
 			DefaultCopyableAndMovable(TianoEdkDecompresser)
 
-			~TianoEdkDecompresser() {};
+			~TianoEdkDecompresser() = default;
 
 			EFI_STATUS GetInfo(
 				Types::void_ptr_t Source,
@@ -95,7 +96,7 @@ namespace Project
 
 			DefaultCopyableAndMovable(TianoEfiDecompresser)
 
-			~TianoEfiDecompresser() {};
+			~TianoEfiDecompresser() = default;
 
 			EFI_STATUS GetInfo(
 				Types::void_ptr_t Source,
@@ -121,7 +122,7 @@ namespace Project
 
 			DefaultCopyableAndMovable(TianoEdk2Decompresser)
 
-			~TianoEdk2Decompresser() {};
+			~TianoEdk2Decompresser() = default;
 
 			EFI_STATUS GetInfo(
 				Types::void_ptr_t Source,
@@ -147,7 +148,7 @@ namespace Project
 
 			DefaultCopyableAndMovable(TianoEfi2Decompresser)
 
-			~TianoEfi2Decompresser() {};
+			~TianoEfi2Decompresser() = default;
 
 			EFI_STATUS GetInfo(
 				Types::void_ptr_t Source,
@@ -173,7 +174,7 @@ namespace Project
 
 			DefaultCopyableAndMovable(LzmaDecompresser)
 
-			 ~LzmaDecompresser() {};
+			 ~LzmaDecompresser() = default;
 
 			 EFI_STATUS GetInfo(
 				Types::void_ptr_t Source,
@@ -227,7 +228,7 @@ namespace Project
 
 			DefaultCopyableAndMovable(Lzma86Decompresser)
 
-			~Lzma86Decompresser() {};
+			~Lzma86Decompresser() = default;
 
 			EFI_STATUS GetInfo(
 				 Types::const_void_ptr_t Source,
@@ -240,6 +241,49 @@ namespace Project
 				Types::length_t SrcSize,
 				Types::length_t& DstSize
 			) 
+			{
+				return GetInfo(Source, SrcSize, DstSize);
+			}
+
+			EFI_STATUS Decompress(
+				Types::const_void_ptr_t Source,
+				Types::length_t SrcSize,
+				Types::unique_byte_buff_t& Destination
+			);
+
+			EFI_STATUS Decompress(
+				Types::void_ptr_t Source,
+				Types::length_t SrcSize,
+				Types::unique_byte_buff_t& Destination
+			)
+			{
+				return Decompress(Source, SrcSize, Destination);
+			}
+
+		};
+
+		struct BrotliDecompresser :
+			public BaseDecompresser
+		{
+			typedef BaseDecompresser Base;
+
+			BrotliDecompresser() : Base(Decompresser::Brotli) {}
+
+			DefaultCopyableAndMovable(BrotliDecompresser)
+
+			~BrotliDecompresser() = default;
+
+			EFI_STATUS GetInfo(
+				Types::const_void_ptr_t Source,
+				Types::length_t SrcSize,
+				Types::length_t& DstSize
+			);
+
+			EFI_STATUS GetInfo(
+				Types::void_ptr_t Source,
+				Types::length_t SrcSize,
+				Types::length_t& DstSize
+			)
 			{
 				return GetInfo(Source, SrcSize, DstSize);
 			}

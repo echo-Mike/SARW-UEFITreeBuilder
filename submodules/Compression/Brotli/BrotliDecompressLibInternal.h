@@ -18,14 +18,16 @@
 #define __BROTLI_DECOMPRESS_INTERNAL_H__
 
 /// PROJECT
+#include "BrotliAdapter.h"
 
+/// UEFI
 // #include <PiPei.h>
 // #include <Library/BaseLib.h>
 // #include <Library/BaseMemoryLib.h>
 // #include <Library/DebugLib.h>
 // #include <Library/ExtractGuidedSectionLib.h>
 
-#include "BrotliAdapter.h"
+/// BROTLI
 #include "Brotli_types.h"
 #include "Brotli_decode.h"
 

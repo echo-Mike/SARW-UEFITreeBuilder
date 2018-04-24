@@ -16,8 +16,9 @@ namespace Project
 				case Project::Decompression::Decompresser::TianoEdk2	:	return std::make_unique<TianoEdk2Decompresser>();
 				case Project::Decompression::Decompresser::TianoEfi2	:	return std::make_unique<TianoEfi2Decompresser>();
 				case Project::Decompression::Decompresser::Lzma			:	return std::make_unique<LzmaDecompresser>();
-				case Project::Decompression::Decompresser::Lzma2		:	return std::make_unique<Lzma2Decompresser>();
+				// case Project::Decompression::Decompresser::Lzma2		:	return std::make_unique<Lzma2Decompresser>();
 				case Project::Decompression::Decompresser::Lzma86		:	return std::make_unique<Lzma86Decompresser>();
+				case Project::Decompression::Decompresser::Brotli		:	return std::make_unique<BrotliDecompresser>();
 				case Project::Decompression::Decompresser::Unknown		:
 				default	: {
 					DEBUG_ERROR_MESSAGE

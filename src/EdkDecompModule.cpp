@@ -39,7 +39,7 @@ namespace Project
 			if (status != EFI_SUCCESS) {
 				return status;
 			}
-			Types::unique_byte_buff_t scratchBuff(new Types::memory_t[ScratchSize]);
+			Types::unique_byte_buff_t scratchBuff(new Types::byte_t[ScratchSize]);
 			Destination.reset(new Types::memory_t[DstSize]);
 			status = TianoDecompress(
 				Source,
@@ -85,7 +85,7 @@ namespace Project
 			if (status != EFI_SUCCESS) {
 				return status;
 			}
-			Types::unique_byte_buff_t scratchBuff(new Types::memory_t[ScratchSize]);
+			Types::unique_byte_buff_t scratchBuff(new Types::byte_t[ScratchSize]);
 			Destination.reset(new Types::memory_t[DstSize]);
 			status = EfiDecompress(
 				Source,

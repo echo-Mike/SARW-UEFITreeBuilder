@@ -2,12 +2,12 @@
 #ifndef BROTLI_ADAPTER_H__
 #define BROTLI_ADAPTER_H__ "0.0.0@BrotliAdapter.h"
 
-// PROJECT
+/// PROJECT
 #include "ProjectGlobalDefines.h"
 
 PROJ_EXTERN_C
 
-// UEFI
+/// UEFI
 #include <Uefi/UefiBaseType.h>
 
 #ifndef _SIZE_T_DEFINED
@@ -18,6 +18,11 @@ typedef UINTN size_t;
 #ifndef NULL
 #	define NULL (0)
 #endif 
+
+// UEFI/Library/DebugLib.h
+#ifndef ASSERT
+#	define ASSERT(expression)
+#endif
 
 VOID* 
 EFIAPI 

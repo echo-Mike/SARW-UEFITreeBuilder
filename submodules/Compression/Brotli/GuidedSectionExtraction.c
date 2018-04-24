@@ -14,7 +14,7 @@
 
 **/
 
-#include <BrotliDecompressLibInternal.h>
+#include "BrotliDecompressLibInternal.h"
 
 /**
   Examines a GUIDed section and returns the size of the decoded buffer and the

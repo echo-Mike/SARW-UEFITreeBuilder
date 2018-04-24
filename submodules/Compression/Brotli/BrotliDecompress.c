@@ -11,7 +11,7 @@
   WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 **/
-#include <BrotliDecompressLibInternal.h>
+#include "BrotliDecompressLibInternal.h"
 
 /**
   Dummy malloc function for compiler.

@@ -114,6 +114,8 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\BrotliAdapter.c" />
+    <ClCompile Include="src\BrotliDecompModule.cpp" />
     <ClCompile Include="src\CompressionModule.cpp" />
     <ClCompile Include="src\DecompressionModule.cpp" />
     <ClCompile Include="src\Edk2CompModule.cpp" />
@@ -134,6 +136,7 @@
     <ClCompile Include="src\PiVolumeUtils.cpp" />
     <ClCompile Include="src\ProjectGlobalDefines.c" />
     <ClCompile Include="submodules\codesnippets\DebugLib\DebugLib.cpp" />
+    <ClCompile Include="submodules\Compression\Brotli\BrotliDecompress.c" />
     <ClCompile Include="submodules\Compression\Brotli\Brotli_bit_reader.c" />
     <ClCompile Include="submodules\Compression\Brotli\Brotli_decode.c" />
     <ClCompile Include="submodules\Compression\Brotli\Brotli_dictionary.c" />

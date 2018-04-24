@@ -168,6 +168,15 @@
     <ClCompile Include="submodules\Compression\Brotli\Brotli_state.c">
       <Filter>Source Files\Compression\Brotli</Filter>
     </ClCompile>
+    <ClCompile Include="submodules\Compression\Brotli\BrotliDecompress.c">
+      <Filter>Source Files\Compression\Brotli</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BrotliAdapter.c">
+      <Filter>Source Files\Compression\Brotli</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BrotliDecompModule.cpp">
+      <Filter>Source Files\Compression\Brotli</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\PiObjectRepresentation.hpp">
