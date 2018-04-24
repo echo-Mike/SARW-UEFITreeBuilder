@@ -98,6 +98,12 @@ namespace Project
 
 				FileTypeRanges::FileTypeRange_t whatTypeRange(Types::memory_t type);
 
+				inline bool isZeroLengthFile(Pi::File::Header::const_pointer_t header)
+				{
+					auto length = getSizeAuto(header);
+					return length == (header->Attributes & FFS_ATTRIB_LARGE_FILE ? Pi::File::Extended::Header::structure_size : Pi::File::Header::structure_size);
+				}
+
 				bool isFileType(Types::memory_t type) { return whatTypeRange(type) != FileTypeRanges::NotAFileType; }
 
 				bool isSectionedFileType(Types::memory_t type);

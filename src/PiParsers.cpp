@@ -8,6 +8,7 @@
 #include "PiVolumeUtils.hpp"
 #include "PiFileUtils.hpp"
 #include "PiSectionUtils.hpp"
+#include "DecompressionModule.hpp"
 
 namespace Project
 {
@@ -42,7 +43,7 @@ namespace Project
 				for (const auto& header : volumes)
 				{	// Check that previous object fill all space before current
 					if (volumeBody.end != header.begin) {
-						results.emplace_back(new PiObject::FreeSpace(PROJ_DEFAULT_EMPTY, buffer, MemoryView(volumeBody.end, header.begin));
+						results.emplace_back(new PiObject::FreeSpace(PROJ_DEFAULT_EMPTY, buffer, MemoryView(volumeBody.end, header.begin)));
 					}
 
 					volumeBody.begin = header.begin;
@@ -62,7 +63,7 @@ namespace Project
 				}
 				// Check for space after last volume
 				if (volumeBody.end != buffer.end) {
-					results.emplace_back( new PiObject::FreeSpace(PROJ_DEFAULT_EMPTY, buffer, MemoryView(volumeBody.end, buffer.end));
+					results.emplace_back( new PiObject::FreeSpace(PROJ_DEFAULT_EMPTY, buffer, MemoryView(volumeBody.end, buffer.end)));
 				}
 			}
 		}
@@ -73,10 +74,9 @@ namespace Project
 
 			PiObject::object_vec_t result;
 			auto volumes = Finders::VolumeFinder(buffer);
-			const MemoryView& baseBuff = buffer;
 
 			if (volumes.empty()) { // Volumes not found : add as a free space
-				result.emplace_back(new PiObject::FreeSpace(PROJ_DEFAULT_EMPTY, baseBuff, buffer));
+				result.emplace_back(new PiObject::FreeSpace(PROJ_DEFAULT_EMPTY, buffer, buffer));
 				// Report parsing stats
 				DEBUG_INFO_MESSAGE
 					DEBUG_PRINT("\tMessage: Free space parsing ended.");
@@ -112,8 +112,8 @@ namespace Project
 							{	// "other" volume is fully contained in "this" one
 								deferred.emplace_back(*iter2);
 							} else { // This is deadly intersection report an error
-								OffsetView thisOV(baseBuff.begin, thisBody);
-								OffsetView otherOV(baseBuff.begin, MemoryView(iter2->begin, iter2->begin + Pi::Volume::Utils::getSize(iter2->get()) - 1));
+								OffsetView thisOV(buffer.begin, thisBody);
+								OffsetView otherOV(buffer.begin, MemoryView(iter2->begin, iter2->begin + Pi::Volume::Utils::getSize(iter2->get()) - 1));
 								DEBUG_ERROR_MESSAGE
 									DEBUG_PRINT("\tMessage: Intersected volumes found.");
 									DEBUG_PRINT("\tThis position: ", std::distance(volumes.begin(), iter) + 1);
@@ -317,50 +317,51 @@ namespace Project
 			using namespace FileParserNs;
 
 			auto file = fileByHeader(fileView, buffer, baseBuffer);
-			Finders::SectionsVec_t sections;
+			MemoryView fileBody;
 
-			// Find all PI section headers in body of file
-			{
-				MemoryView fileBody;
+			if (file.header.isExtended()) {
+				fileBody.begin = file.header.header.begin + Pi::File::Extended::Header::structure_size;
+			} else {
+				fileBody.begin = file.header.header.end;
+			}
+			fileBody.setEnd(buffer.end);
 
-				if (file.header.isExtended()) {
-					fileBody.begin = file.header.header.begin + Pi::File::Extended::Header::structure_size;
-				} else {
-					fileBody.begin = file.header.header.end;
-				}
-				fileBody.setEnd(buffer.end);
+			if (Pi::File::Utils::isZeroLengthFile(fileView)) {
+				// nothing to do here
+				return file;
+			} else if (fileBody.getLength() == 0) {
+				DEBUG_INFO_MESSAGE
+					DEBUG_PRINT("\tMessage: File without body found.");
+					DEBUG_PRINT("\tGUID: ", file->Name);
+				DEBUG_END_MESSAGE
+			} else if ( Pi::File::Utils::isSectionedFileType(file->Type) ) {
 				// fileView.begin is aligned by 8 to FV header -> we can align by 4 from it <=> align by 4 from FV header
 				fileBody.begin = ALIGN_PTR4(fileView.begin, fileBody.begin);
-
-				if (fileBody.getLength() == 0) {
-					DEBUG_INFO_MESSAGE
-						DEBUG_PRINT("\tMessage: File without body found.");
+				// Find all PI section headers in body of file
+				auto sections = Finders::SectionFinder(fileBody);
+				if (sections.empty())
+				{	// It is sectioned type by UEFI PI : report a warning
+					DEBUG_WARNING_MESSAGE
+						DEBUG_PRINT("\tMessage: No section found in sectioned file type.");
 						DEBUG_PRINT("\tGUID: ", file->Name);
+						DEBUG_PRINT("\tFile type: ", Pi::File::Utils::fileTypeToCStr(file->Type));
 					DEBUG_END_MESSAGE
-				} else {
-					if ( Pi::File::Utils::isSectionedFileType(file->Type) )
-					{
-						sections = Finders::SectionFinder(fileBody);
-						if (sections.empty()) 
-						{	// It is sectioned type by UEFI PI : report a warning
-							DEBUG_WARNING_MESSAGE
-								DEBUG_PRINT("\tMessage: No section found in sectioned file type.");
-								DEBUG_PRINT("\tGUID: ", file->Name);
-								DEBUG_PRINT("\tFile type: ", Pi::File::Utils::fileTypeToCStr(file->Type));
-							DEBUG_END_MESSAGE
-						} else { // Run section parsing routine
-							processHeaders< PiObject::Section, calcSecLen >(
-								SectionParser,
-								file, sections, fileBody, empty,
-								"\tMessage: Section exceeds file boundary.", ExitCodes::ParseErrorFile
-							);
-						}
-					} else if (file->Type == EFI_FV_FILETYPE_RAW) {
-						// Raw file types may contain other volumes
-
-
-					}
+				} else { // Run section parsing routine
+					processHeaders< PiObject::Section, calcSecLen >(
+						SectionParser,
+						file, sections, fileBody, empty,
+						"\tMessage: Section exceeds file boundary.", ExitCodes::ParseErrorFile
+					);
 				}
+			} else if (file->Type == EFI_FV_FILETYPE_RAW) {
+				// Raw file types may contain other volumes
+				auto parseResult = FreeSpaceParser(fileBody);
+				// Move found objects
+				file.objects.insert(
+					file.objects.end(),
+					std::make_move_iterator(parseResult.begin()),
+					std::make_move_iterator(parseResult.end())
+				);
 			}
 
 			return file;
@@ -403,7 +404,7 @@ namespace Project
 
 			inline static Types::length_t calcVolLen(const MemoryView& hdr)
 			{
-				return reinterpret_cast<Pi::Volume::Header::const_pointer_t>(hdr.begin)->FvLength;
+				return Pi::Volume::Utils::getSize(reinterpret_cast<Pi::Volume::Header::const_pointer_t>(hdr.begin));
 			}
 		}
 
@@ -416,10 +417,9 @@ namespace Project
 
 			// Handle section based on it's type
 			{
-				MemoryView sectionBody;
+				MemoryView sectionBody(sectionView.begin + Pi::Section::Utils::getFullSize(sectionView), buffer.end);
 				// If section is an encapsulation one => parse it according to it's type 
-				if (Pi::Section::Utils::isEncapsulationType(sectionView->Type))
-				{
+				if (Pi::Section::Utils::isEncapsulationType(sectionView->Type)) {
 					switch (sectionView->Type)
 					{
 						case EFI_SECTION_COMPRESSION :
@@ -452,46 +452,46 @@ namespace Project
 
 						case EFI_SECTION_DISPOSABLE :
 						{	// This section may contain trash data or other sections => try to find other sections in it
-							sectionBody.begin = sectionView.begin + Pi::Section::Utils::getFullSize(sectionView);
 							// sectionView.begin is aligned to 4 byte boundary from FV header
 							sectionBody.begin = ALIGN_PTR4(sectionView.begin, sectionBody.begin);
-							sectionBody.end = buffer.end;
 							// Find sections
 							sections = Finders::SectionFinder(sectionBody);
 							if (!sections.empty()) {
-								processSectionHeaders(sectionObj, sections, sectionBody, empty);
+								processHeaders< PiObject::Section, FileParserNs::calcSecLen >(
+									SectionParser,
+									sectionObj, sections, sectionBody, empty,
+									"\tMessage: Section exceeds section boundary.", ExitCodes::ParseErrorSection
+								);
 							}
 						} break;
 
-					default:
-						DEBUG_WARNING_MESSAGE
-							DEBUG_PRINT("\tMessage: No handler added to this encapsulation section type.");
-							DEBUG_PRINT("\tSection type: ", sectionView->Type);
-						DEBUG_END_MESSAGE
-						break;
+						default:
+						{
+							DEBUG_WARNING_MESSAGE
+								DEBUG_PRINT("\tMessage: No handler added to this encapsulation section type.");
+								DEBUG_PRINT("\tSection type: ", sectionView->Type);
+							DEBUG_END_MESSAGE
+						} break;
 					}
-
 				} else if (sectionView->Type == EFI_SECTION_FIRMWARE_VOLUME_IMAGE) {
-					auto secHdrSize = Pi::Section::Utils::getFullSize(sectionView);
-					MemoryView volumeSecBody(sectionView, sectionView.begin + secHdrSize);
-					
-					auto volumeVec = Finders::VolumeFinder(MemoryView(sectionView, sectionView.begin + secHdrSize));
-
-					if (volumeVec.empty())
-					{
+					// This section must contain volume
+					auto volumeVec = Finders::VolumeFinder(sectionBody);
+					if (volumeVec.empty()) {
 						DEBUG_WARNING_MESSAGE
 							DEBUG_PRINT("\tMessage: Firmware Volume not found in volume image section.");
 							DEBUG_PRINT("\tUID: ", sectionObj.getUid());
 						DEBUG_END_MESSAGE
 					} else {
-						processHeaders< PiObject::Section, calcSecLen >(
+						processHeaders< PiObject::Section, FileParserNs::calcSecLen >(
 							SectionParser,
-							file, sections, fileBody, empty,
-							"\tMessage: Section exceeds file boundary.", ExitCodes::ParseErrorFile
+							sectionObj, sections, sectionBody, empty,
+							"\tMessage: Section exceeds section boundary.", ExitCodes::ParseErrorSection
 						);
 					}
+				} /*else if (sectionView->Type == EFI_SECTION_RAW) {
 
-				}
+				}*/
+				// No other section type must be handled in a special way
 			}
 
 			return sectionObj;

@@ -40,6 +40,9 @@
     <Filter Include="Source Files\Compression\Tiano">
       <UniqueIdentifier>{2cba128d-8231-4d7f-8d0f-dd385137814e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Compression\Brotli">
+      <UniqueIdentifier>{756a222d-f669-4b79-b414-de092e782e09}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="submodules\codesnippets\DebugLib\DebugLib.cpp">
@@ -150,6 +153,21 @@
     <ClCompile Include="src\PiVolumeUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="submodules\Compression\Brotli\Brotli_bit_reader.c">
+      <Filter>Source Files\Compression\Brotli</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Compression\Brotli\Brotli_decode.c">
+      <Filter>Source Files\Compression\Brotli</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Compression\Brotli\Brotli_dictionary.c">
+      <Filter>Source Files\Compression\Brotli</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Compression\Brotli\Brotli_huffman.c">
+      <Filter>Source Files\Compression\Brotli</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Compression\Brotli\Brotli_state.c">
+      <Filter>Source Files\Compression\Brotli</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\PiObjectRepresentation.hpp">
@@ -229,6 +247,9 @@
     </ClInclude>
     <ClInclude Include="include\PiVolumeUtils.hpp">
       <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BrotliAdapter.h">
+      <Filter>Header Files\Compression</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

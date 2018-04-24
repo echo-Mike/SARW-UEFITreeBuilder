@@ -134,6 +134,11 @@
     <ClCompile Include="src\PiVolumeUtils.cpp" />
     <ClCompile Include="src\ProjectGlobalDefines.c" />
     <ClCompile Include="submodules\codesnippets\DebugLib\DebugLib.cpp" />
+    <ClCompile Include="submodules\Compression\Brotli\Brotli_bit_reader.c" />
+    <ClCompile Include="submodules\Compression\Brotli\Brotli_decode.c" />
+    <ClCompile Include="submodules\Compression\Brotli\Brotli_dictionary.c" />
+    <ClCompile Include="submodules\Compression\Brotli\Brotli_huffman.c" />
+    <ClCompile Include="submodules\Compression\Brotli\Brotli_state.c" />
     <ClCompile Include="submodules\Compression\LZMA\Bra86.c" />
     <ClCompile Include="submodules\Compression\LZMA\LzFind.c" />
     <ClCompile Include="submodules\Compression\LZMA\Lzma2Dec.c" />
@@ -152,6 +157,7 @@
     <ClCompile Include="submodules\crc32\Edk2Crc32.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\BrotliAdapter.h" />
     <ClInclude Include="include\DecompressionModule.hpp" />
     <ClInclude Include="include\CompressionModule.hpp" />
     <ClInclude Include="include\GuidAdvanced.hpp" />
