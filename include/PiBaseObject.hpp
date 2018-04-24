@@ -215,7 +215,7 @@ unique_object_ptr_t copy() \
 
 			template< typename T, typename... Args>
 			inline std::enable_if< std::is_base_of<Object, T>::value >::type 
-				emplace_back(Args... args)
+				emplace_back(Args&&... args)
 			{
 				objects.emplace_back(new T(std::forward<Args>(args)...));
 			}

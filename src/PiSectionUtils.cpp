@@ -182,6 +182,16 @@ namespace Project
 						return SecNames[secNamePosition(NOT_EFI_SECTION_TYPE)].name;
 					}
 				}
+
+				bool checkRsa2048Sha256GuidedSection(const Pi::Section::Header& sectionView, const MemoryView& buffer)
+				{
+					auto dataSize = Pi::Section::Utils::getSizeAuto(sectionView);
+					auto headerSize = Pi::Section::Utils::isExtendedSection(sectionView) ? Pi::Section::Extended::GuidedSha256::structure_size : Pi::Section::GuidedSha256::structure_size;
+					auto tmp = buffer.memcpy();
+					MemoryView dataView(tmp.get() + (sectionView.begin - buffer.begin)  + headerSize);
+					dataView.setLength(dataSize - headerSize);
+
+				}
 			}
 		}
 	}

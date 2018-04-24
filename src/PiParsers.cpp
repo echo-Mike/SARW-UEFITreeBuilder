@@ -406,6 +406,54 @@ namespace Project
 			{
 				return Pi::Volume::Utils::getSize(reinterpret_cast<Pi::Volume::Header::const_pointer_t>(hdr.begin));
 			}
+
+			static EFI_STATUS decompress(
+				Decompression::Decompresser::Decompresser_t decompType, 
+				Types::unique_byte_buff_t& source, Types::length_t length, MemoryView& result,
+				PiObject::Section& section, PiObject::Section::decomp_data_storage_ptr_t storage,
+				const char* compressionTypeName
+			) 
+			{
+				auto decomp = Decompression::AllocDecompresser(decompType);
+				Types::length_t dstSize = 0;
+				auto err = decomp->GetInfo(source.get(), length, dstSize);
+				if (EFI_SUCCESS != err) DEBUG_WARNING_MESSAGE
+					DEBUG_PRINT("\tMessage: Error during request for compressed data information.");
+					DEBUG_PRINT("\tCompression type: ", compressionTypeName);
+					DEBUG_PRINT("\tSection UID: ", section.getUid());
+					DEBUG_PRINT("\tError code: ", err);
+				DEBUG_END_MESSAGE_AND_EVAL({ return err; })
+
+				Types::unique_byte_buff_t decomp_data;
+
+				err = decomp->Decompress(source.get(), length, decomp_data);
+				if (EFI_SUCCESS != err) DEBUG_WARNING_MESSAGE
+					DEBUG_PRINT("\tMessage: Error occurred during decompression.");
+					DEBUG_PRINT("\tCompression type: ", compressionTypeName);
+					DEBUG_PRINT("\tSection UID: ", section.getUid());
+					DEBUG_PRINT("\tError code: ", err);
+				DEBUG_END_MESSAGE_AND_EVAL({ return err; })
+
+				// Store decompressed data in global storage
+				auto store_result = storage->emplace(std::piecewise_construct,
+					std::forward_as_tuple(
+						section.getUid()
+					),
+					std::forward_as_tuple(
+						decompType,
+						dstSize,
+						std::move(decomp_data)
+					)
+				);
+
+				if (!store_result.second) DEBUG_WARNING_MESSAGE
+					DEBUG_PRINT("\tMessage: Can't store decompressed data in global storage.");
+					DEBUG_PRINT("\tSection UID: ", section.getUid());
+				DEBUG_END_MESSAGE_AND_EVAL({ return EFI_OUT_OF_RESOURCES; })
+
+				result = store_result.first->second->memory;
+				return EFI_SUCCESS;
+			}
 		}
 
 		PiObject::Section SectionParser(const Pi::Section::Header& sectionView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t empty)
@@ -446,7 +494,174 @@ namespace Project
 								section_attributes = sv->Attributes;
 							}
 
+							if (sectionBody.isOutside(sectionView.begin + section_data_offset)) DEBUG_WARNING_MESSAGE
+								DEBUG_PRINT("\tMessage: Found GUID defined section which body is outside of provided buffer.");
+								DEBUG_PRINT("\tSection UID: ", sectionObj.getUid());
+								DEBUG_PRINT("\tSection data offset: ", section_data_offset);
+								DEBUG_PRINT("\tProvided buffer length: ", buffer.getLength());
+							DEBUG_END_MESSAGE_AND_EVAL({ return sectionObj; });
 
+							// Obtain pointer to global decompressed data storage
+							auto decomp_data_storage = sectionObj.getDecomressedDataStorage();
+							if (!decomp_data_storage) DEBUG_WARNING_MESSAGE
+								DEBUG_PRINT("\tMessage: Can't access decompressed data storage.");
+								DEBUG_PRINT("\tSection UID: ", sectionObj.getUid());
+							DEBUG_END_MESSAGE_AND_EVAL({ return sectionObj; })
+
+							sectionBody.begin = sectionView.begin + section_data_offset;
+							// Decompresser works with non constant memory
+							auto tmp = sectionBody.memcpy();
+
+							if (Guid::NamedGuids::whatNamedGuidRange(section_guid) == Guid::NamedGuids::NamedGuidsRanges::FirmwareSection)
+							{	// EFI_GUID SOME_GUID_NAME works on C++11 braced initialization
+								MemoryView toProcess;
+								bool processBody = false;
+								const char* message = nullptr;
+
+								if (section_guid == EFI_GUID LZMA_CUSTOM_DECOMPRESS_GUID)
+								{
+									auto err = decompress(
+										Decompression::Decompresser::Lzma,
+										tmp,
+										sectionBody.getLength(),
+										toProcess,
+										sectionObj,
+										decomp_data_storage,
+										"LZMAF86"
+									);
+
+									if (err == EFI_SUCCESS)
+									{
+										message = "\tMessage: Section exceeds decompressed section boundary.";
+										processBody = true;
+									}
+								}
+								else if (section_guid == EFI_GUID LZMAF86_CUSTOM_DECOMPRESS_GUID) 
+								{
+									auto err = decompress(
+										Decompression::Decompresser::Lzma86,
+										tmp,
+										sectionBody.getLength(),
+										toProcess,
+										sectionObj,
+										decomp_data_storage,
+										"LZMAF86"
+									);
+
+									if (err == EFI_SUCCESS)
+									{
+										message = "\tMessage: Section exceeds decompressed section boundary.";
+										processBody = true;
+									}
+								} 
+								else if (section_guid == EFI_GUID BROTLI_CUSTOM_DECOMPRESS_GUID) 
+								{
+									auto err = decompress(
+										Decompression::Decompresser::Brotli,
+										tmp,
+										sectionBody.getLength(),
+										toProcess,
+										sectionObj,
+										decomp_data_storage,
+										"BROTLI"
+									);
+
+									if (err == EFI_SUCCESS)
+									{
+										message = "\tMessage: Section exceeds decompressed section boundary.";
+										processBody = true;
+									}
+								} 
+								else if (section_guid == EFI_GUID TIANO_CUSTOM_DECOMPRESS_GUID) 
+								{
+									auto err = decompress(
+										Decompression::Decompresser::TianoEdk2,
+										tmp,
+										sectionBody.getLength(),
+										toProcess,
+										sectionObj,
+										decomp_data_storage,
+										"TIANO"
+									);
+
+									if (err != EFI_SUCCESS)
+									{	// May be compressed with EFI1.1
+										err = decompress(
+											Decompression::Decompresser::TianoEfi2,
+											tmp,
+											sectionBody.getLength(),
+											toProcess,
+											sectionObj,
+											decomp_data_storage,
+											"EFI1.1"
+										);
+									}
+
+									if (err == EFI_SUCCESS)
+									{
+										message = "\tMessage: Section exceeds decompressed section boundary.";
+										processBody = true;
+									}
+								} 
+								else if (section_guid == EFI_GUID EFI_CRC32_GUIDED_SECTION_EXTRACTION_GUID) 
+								{	// This section body is obtained as plain not compressed data
+									// This implementation is copy of : 
+									//     https://github.com/tianocore/edk2/blob/master/MdeModulePkg/Library/PeiCrc32GuidedSectionExtractLib/PeiCrc32GuidedSectionExtractLib.c
+									// For DXE sections algorithm is the same : 
+									//    https://github.com/tianocore/edk2/blob/master/MdeModulePkg/Library/DxeCrc32GuidedSectionExtractLib/DxeCrc32GuidedSectionExtractLib.c
+									auto dataSize = Pi::Section::Utils::getSize(sectionObj) - section_data_offset;
+									auto checksum = Pi::Section::Utils::isExtendedSection(sectionView) ? Pi::Section::Extended::GuidedCrc32(sectionView.begin)->CRC32Checksum : Pi::Section::GuidedCrc32(sectionView.begin)->CRC32Checksum;
+									toProcess.begin = sectionView.begin + section_data_offset;
+									toProcess.setEnd(buffer.end);
+									auto realChecksum = Checksums::crc32(toProcess, dataSize);
+									if (checksum != realChecksum) DEBUG_INFO_MESSAGE
+										DEBUG_PRINT("\tMessage: CRC32 GUIDed section have invalid checksum.");
+										DEBUG_PRINT("\tExpected checksum: ", checksum);
+										DEBUG_PRINT("\tReal checksum: ", realChecksum);
+									DEBUG_END_MESSAGE
+
+									message = "\tMessage: Section exceeds section boundary.";
+									processBody = true;
+								} 
+								else if (section_guid == EFI_GUID EFI_CERT_TYPE_RSA2048_SHA256_GUID) 
+								{	// This section body is obtained as plain not compressed data
+									// This implementation is copy of : 
+									//    https://github.com/tianocore/edk2/blob/master/SecurityPkg/Library/PeiRsa2048Sha256GuidedSectionExtractLib/PeiRsa2048Sha256GuidedSectionExtractLib.c
+									// For DXE sections algorithm is the same : 
+									//    https://github.com/tianocore/edk2/blob/master/SecurityPkg/Library/DxeRsa2048Sha256GuidedSectionExtractLib/DxeRsa2048Sha256GuidedSectionExtractLib.c
+									auto dataSize = Pi::Section::Utils::getSize(sectionObj);
+									auto secHeaderSize = Pi::Section::Utils::isExtendedSection(sectionView) ? Pi::Section::Extended::GuidedSha256::structure_size : Pi::Section::GuidedSha256::structure_size;
+									if (dataSize < secHeaderSize || buffer.isOutside(sectionView.begin + secHeaderSize)) DEBUG_ERROR_MESSAGE
+										DEBUG_PRINT("\tMessage: SHA256 GUIDed section have invalid size.");
+										DEBUG_PRINT("\tExpected size: at least ", secHeaderSize);
+										DEBUG_PRINT("\tReal size: ", dataSize);
+									DEBUG_END_MESSAGE_AND_EVAL({ return sectionObj; })
+									toProcess.begin = sectionView.begin + secHeaderSize; // section_data_offset is ignored by EDK2 implementation
+									toProcess.setEnd(buffer.end);
+									// Check section content and print all messages
+									Pi::Section::Utils::checkRsa2048Sha256GuidedSection(sectionView, buffer);
+									message = "\tMessage: Section exceeds section boundary.";
+									processBody = true;
+								} 
+								else if (section_guid == EFI_GUID EFI_FIRMWARE_CONTENTS_SIGNED_GUID) 
+								{
+
+								} else {
+									
+								}
+
+								if (processBody)
+								{   // This section may contain other section in it's data
+									sections = Finders::SectionFinder(toProcess);
+									if (!sections.empty()) {
+										processHeaders< PiObject::Section, FileParserNs::calcSecLen >(
+											SectionParser,
+											sectionObj, sections, toProcess, empty,
+											message, ExitCodes::ParseErrorSection
+										);
+									}
+								}
+							}
 
 						} break; 
 
@@ -482,15 +697,24 @@ namespace Project
 							DEBUG_PRINT("\tUID: ", sectionObj.getUid());
 						DEBUG_END_MESSAGE
 					} else {
-						processHeaders< PiObject::Section, FileParserNs::calcSecLen >(
-							SectionParser,
-							sectionObj, sections, sectionBody, empty,
-							"\tMessage: Section exceeds section boundary.", ExitCodes::ParseErrorSection
+						processHeaders< PiObject::Volume, calcVolLen >(
+							VolumeParser,
+							sectionObj, volumeVec, sectionBody, empty,
+							"\tMessage: Volume exceeds section boundary.", ExitCodes::ParseErrorSection
 						);
 					}
-				} /*else if (sectionView->Type == EFI_SECTION_RAW) {
-
-				}*/
+				} else if (sectionView->Type == EFI_SECTION_RAW) {
+					// Parse as if it is a new image
+					auto foundEntries = FreeSpaceParser(sectionBody);
+					if (!foundEntries.empty()) {
+						// Move found entries to child array
+						sectionObj.objects.insert(
+							sectionObj.objects.end(),
+							std::make_move_iterator(foundEntries.begin()),
+							std::make_move_iterator(foundEntries.end())
+						);
+					}
+				}
 				// No other section type must be handled in a special way
 			}
 

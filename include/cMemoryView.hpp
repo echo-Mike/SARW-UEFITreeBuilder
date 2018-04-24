@@ -2,6 +2,9 @@
 #ifndef MEMORY_VIEW_HPP__
 #define MEMORY_VIEW_HPP__ "0.0.0@cMemoryView.hpp"
 
+/// STD
+#include <cstring>
+
 /// SNIPPETS
 #include <ClassUtilsLib/mClassUtils.hpp>
 
@@ -10,6 +13,7 @@
 
 /// PROJECT
 #include "General.hpp"
+#include "ProjectExtendedTypes.hpp"
 
 namespace Project 
 {
@@ -34,13 +38,22 @@ namespace Project
 		
 		~MemoryView() = default;
 
-		bool checkPointers() const { return begin != Types::const_pointer_t() && end != Types::const_pointer_t(); }
+		// Class i-face
 
-		bool isInside(const void* ptr) const { return begin <= reinterpret_cast<Types::const_pointer_t>(ptr) && reinterpret_cast<Types::const_pointer_t>(ptr) < end; }
+		inline bool checkPointers() const { return begin != Types::const_pointer_t() && end != Types::const_pointer_t(); }
 
-		bool isOutside(const void* ptr) const { return !isInside(ptr); }
+		inline bool isInside(const void* ptr) const { return begin <= reinterpret_cast<Types::const_pointer_t>(ptr) && reinterpret_cast<Types::const_pointer_t>(ptr) < end; }
 
-		Types::length_t getLength() const { return end - begin; }
+		inline bool isOutside(const void* ptr) const { return !isInside(ptr); }
+
+		inline Types::length_t getLength() const { return end - begin; }
+
+		inline Types::unique_memo_buff_t memcpy() const
+		{
+			Types::unique_memo_buff_t result(new Types::memory_t[getLength()]);
+			std::memcpy(result.get(), begin, getLength() * sizeof(Types::memory_t));
+			return result;
+		}
 
         bool setEnd(Types::const_pointer_t newEnd) 
 		{
@@ -56,7 +69,9 @@ namespace Project
 			return true;
         }
 
-        void setLength(Types::length_t length) { end = begin != Types::const_pointer_t() ? begin + length : begin; }
+        inline void setLength(Types::length_t length) { end = begin != Types::const_pointer_t() ? begin + length : begin; }
+
+		// Conversions and operators
 
         operator Types::const_pointer_t() const { return begin; }
         operator const char*() const { return reinterpret_cast<const char*>(begin); }
@@ -75,6 +90,8 @@ namespace Project
         }
 
 		inline bool operator<(const MemoryView& other) noexcept { return begin < other.begin; }
+
+		// Class members
 
 		Types::const_pointer_t begin; //!< Pointer to beginning of viewed data
 		Types::const_pointer_t end;   //!< Pass-the-end pointer of viewed data

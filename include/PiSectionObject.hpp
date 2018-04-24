@@ -57,16 +57,19 @@ namespace Project
 			struct SectionDecompressedData
 			{
 				SectionDecompressedData(
+						Decompression::Decompresser::Decompresser_t decomp,
 						Types::length_t buffSize, 
 						Types::unique_byte_buff_t&& buff) :
 					memory(reinterpret_cast<Types::pointer_t>(buff.get())), 
-					buffer(std::move(buff)) 
+					buffer(std::move(buff)),
+					decompresser(decomp)
 				{
 					memory.setLength(buffSize);
 				}
 
 				MemoryView memory;
 				Types::unique_byte_buff_t buffer;
+				Decompression::Decompresser::Decompresser_t decompresser;
 			};
 
 			typedef std::unique_ptr< SectionDecompressedData > unique_section_decomp_buff_t;
@@ -81,6 +84,10 @@ namespace Project
 			public ComplexObject
 		{
 			typedef ComplexObject Base;
+
+			typedef helper::SectionDecompressedData decomp_data_t;
+
+			typedef helper::unique_section_decomp_buff_t unique_section_decomp_buff_t;
 
 			typedef helper::section_decomp_data_storage_t  decomp_data_storage_t;
 

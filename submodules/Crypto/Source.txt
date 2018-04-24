@@ -1,0 +1,11 @@
+[CryptRsaBasic.c]
+	edk2\CryptoPkg\Library\BaseCryptLib\Pk
+	
+[CryptSha256.c]
+	edk2\CryptoPkg\Library\BaseCryptLib\Hash
+	
+[InternalCryptLib.h]
+	edk2\CryptoPkg\Library\BaseCryptLib
+	
+[CrtLibSupport.h]
+	edk2\CryptoPkg\Library\Include

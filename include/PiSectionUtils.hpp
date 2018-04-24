@@ -42,6 +42,32 @@ typedef struct {
 	UINT32   Postcode;
 } POSTCODE_SECTION2;
 
+// Special section structure for GUIDed sections with GUID : 
+// EFI_CRC32_GUIDED_SECTION_EXTRACTION_GUID
+
+typedef struct {
+	EFI_GUID_DEFINED_SECTION  GuidedSectionHeader; ///< EFI guided section header
+	UINT32                    CRC32Checksum;       ///< 32bit CRC check sum
+} CRC32_SECTION_HEADER;
+
+typedef struct {
+	EFI_GUID_DEFINED_SECTION2 GuidedSectionHeader; ///< EFI guided section header
+	UINT32                    CRC32Checksum;       ///< 32bit CRC check sum
+} CRC32_SECTION2_HEADER;
+
+// Special section structure for GUIDed sections with GUID : 
+// EFI_CERT_TYPE_RSA2048_SHA256_GUID
+
+typedef struct {
+	EFI_GUID_DEFINED_SECTION        GuidedSectionHeader;     ///< EFI guided section header
+	EFI_CERT_BLOCK_RSA_2048_SHA256  CertBlockRsa2048Sha256;  ///< RSA 2048-bit Signature
+} RSA_2048_SHA_256_SECTION_HEADER;
+
+typedef struct {
+	EFI_GUID_DEFINED_SECTION2       GuidedSectionHeader;     ///< EFI guided section header
+	EFI_CERT_BLOCK_RSA_2048_SHA256  CertBlockRsa2048Sha256;  ///< RSA 2048-bit Signature
+} RSA_2048_SHA_256_SECTION2_HEADER;
+
 }
 
 // Clear structure packing
@@ -57,11 +83,15 @@ namespace Project
 		{
 
 			typedef StructureView<POSTCODE_SECTION, SectionTag> Postcode;
+			typedef StructureView<CRC32_SECTION_HEADER, SectionTag> GuidedCrc32;
+			typedef StructureView<RSA_2048_SHA_256_SECTION_HEADER, SectionTag> GuidedSha256;
 
 			namespace Extended
 			{
 
 				typedef StructureView<POSTCODE_SECTION2, SectionExtTag> Postcode;
+				typedef StructureView<CRC32_SECTION2_HEADER, SectionExtTag> GuidedCrc32;
+				typedef StructureView<RSA_2048_SHA_256_SECTION2_HEADER, SectionExtTag> GuidedSha256;
 			}
 
 			namespace Utils
@@ -126,6 +156,7 @@ namespace Project
 
 				inline std::string sectionTypeToStr(Types::memory_t type) { return sectionTypeToCStr(type); }
 
+				bool checkRsa2048Sha256GuidedSection(const Pi::Section::Header& sectionView, const MemoryView& buffer);
 			}
 
 		}

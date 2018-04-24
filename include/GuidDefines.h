@@ -90,19 +90,96 @@ PROJ_EXTERN_C_END
 
 /// # FF GUIDS
 
+/// ## APRIORI FILE GUIDS
 
+/// UEFI PI SPEC : Volume 1: Pre - EFI Initialization Core Interface page 64
+
+/**	
+ * There is a controversy because GUID in UEFI PI is defined as
+ * { 0x1b45cc0a, 0x156a, 0x428a, 0xaf62, 0x49, 0x86, 0x4d, 0xa0, 0xe6, 0xe6 } 
+ * which means that for different endianness platforms different GUIDs will be produced.
+ * We define both variants for big- and little-endian platforms.
+ */
+/// AS DEFINED IN UEFITOOL : ffs.h
+// 1B45CC0A-156A-428A-AF62-49864DA0E6E6
+#define PEI_APRIORI_FILE_NAME_GUID \
+	{ 0x1b45cc0a, 0x156a, 0x428a, { 0xaf, 0x62, 0x49, 0x86, 0x4d, 0xa0, 0xe6, 0xe6 } }
+/// AS DEFINED IN EDK2 : https://github.com/tianocore/edk2/blob/master/MdePkg/Include/Guid/AprioriFileName.h
+// 1B45CC0A-156A-428A-62AF-49864DA0E6E6
+#define PEI_APRIORI_FILE_NAME2_GUID \
+	{ 0x1b45cc0a, 0x156a, 0x428a, { 0x62, 0xaf, 0x49, 0x86, 0x4d, 0xa0, 0xe6, 0xe6 } }
+
+/// EDK2 : https://github.com/tianocore/edk2/blob/master/MdePkg/Include/Guid/Apriori.h
+
+// FC510EE7-FFDC-11D4-BD41-0080C73C8881
+#define EFI_DXE_APRIORI_FILE_GUID \
+	{ 0xfc510ee7, 0xffdc, 0x11d4, { 0xbd, 0x41, 0x00, 0x80, 0xc7, 0x3c, 0x88, 0x81 } }
+
+/// APRIORI FILE GUIDS ##
+
+/// UEFI PI SPEC : Volume 3 : Shared Architectural Elements page 39
+
+// 1BA0062E-C779-4582-8566-336AE8F78F09
+#define EFI_FFS_VOLUME_TOP_FILE_GUID \
+	{ 0x1BA0062E, 0xC779, 0x4582, { 0x85, 0x66, 0x33, 0x6A, 0xE8, 0xF7, 0x8F, 0x09 } }
 
 /// FF GUIDS #
 
 /// # FS GUIDS
 
+/// ## COMPRESSED SECTION GUIDS
 
+/// EDK2 SOURCE : https://github.com/tianocore/edk2/blob/master/MdeModulePkg/Include/Guid/LzmaDecompress.h
+
+// EE4E5898-3914-4259-9D6E-DC7BD79403CF
+#define LZMA_CUSTOM_DECOMPRESS_GUID  \
+	{ 0xEE4E5898, 0x3914, 0x4259, { 0x9D, 0x6E, 0xDC, 0x7B, 0xD7, 0x94, 0x03, 0xCF } }
+// D42AE6BD-1352-4BFB-909A-CA72A6EAE889
+#define LZMAF86_CUSTOM_DECOMPRESS_GUID  \
+	{ 0xD42AE6BD, 0x1352, 0x4bfb, { 0x90, 0x9A, 0xCA, 0x72, 0xA6, 0xEA, 0xE8, 0x89 } }
+
+/// EDK2 SOURCE : https://github.com/tianocore/edk2/blob/master/MdeModulePkg/MdeModulePkg.dec
+
+// 3D532050-5CDA-4FD0-879E-0F7F630D5AFB
+#define BROTLI_CUSTOM_DECOMPRESS_GUID  \
+	{ 0x3D532050, 0x5CDA, 0x4FD0, { 0x87, 0x9E, 0x0F, 0x7F, 0x63, 0x0D, 0x5A, 0xFB } }
+
+/// EDK2 SOURCE : https://github.com/tianocore/edk2/blob/master/IntelFrameworkModulePkg/Include/Guid/TianoDecompress.h
+
+// A31280AD-481E-41B6-95E8-127F4C984779
+#define TIANO_CUSTOM_DECOMPRESS_GUID  \
+	{ 0xA31280AD, 0x481E, 0x41B6, { 0x95, 0xE8, 0x12, 0x7F, 0x4C, 0x98, 0x47, 0x79 } }
+
+/// COMPRESSED SECTION GUIDS ##
+
+/// EDK2 SOURCE : https://github.com/tianocore/edk2/blob/master/MdeModulePkg/Include/Guid/Crc32GuidedSectionExtraction.h
+
+// FC1BCDB0-7D31-49AA-936A-A4600D9DD083
+#define EFI_CRC32_GUIDED_SECTION_EXTRACTION_GUID \
+	{ 0xFC1BCDB0, 0x7D31, 0x49aa, { 0x93, 0x6A, 0xA4, 0x60, 0x0D, 0x9D, 0xD0, 0x83 } }
+
+/// EDK2 SOURCE : https://github.com/tianocore/edk2/blob/master/BaseTools/Source/C/Include/Common/UefiMultiPhase.h
+
+// A7717414-C616-4977-9420-844712A735BF
+#define EFI_CERT_TYPE_RSA2048_SHA256_GUID \
+	{ 0xa7717414, 0xc616, 0x4977, { 0x94, 0x20, 0x84, 0x47, 0x12, 0xa7, 0x35, 0xbf } }
+
+/// UEFI PI : Volume 3 : Shared Architectural Elements page 57
+/// EDK2 SOURCE : https://github.com/tianocore/edk2/blob/master/MdePkg/Include/Guid/FirmwareContentsSigned.h
+
+// 0F9D89E8-9259-4F76-A5AF-0C89E34023DF
+#define EFI_FIRMWARE_CONTENTS_SIGNED_GUID \
+	{ 0x0f9d89e8, 0x9259, 0x4f76, { 0xa5, 0xaf, 0x0c, 0x89, 0xe3, 0x40, 0x23, 0xdf } }
 
 /// FS GUIDS #
 
 /// # OTHER GUIDS
 
+/// EDK2 SOURCE : https://github.com/tianocore/edk2/blob/master/MdePkg/Include/Guid/FirmwareContentsSigned.h
 
+// 4AAFD29D-68DF-49EE-8AA9-347D375665A7
+#define EFI_CERT_TYPE_PKCS7_GUID  \
+	{ 0x4aafd29d, 0x68df, 0x49ee, { 0x8a, 0xa9, 0x34, 0x7d, 0x37, 0x56, 0x65, 0xa7 } }
 
 /// OTHER GUIDS #
 
@@ -195,14 +272,14 @@ namespace Project
 
 			inline NamedGuidsRanges::NamedGuidsRanges_t whatNamedGuidRange(const EFI_GUID* ptr)
 			{
-				auto& ref = findNamedGuid(ptr);
-				if ( FvGuids() <= &ref && &ref < FvGuidsEnd()) {
+				auto ptr_ = &findNamedGuid(ptr);
+				if ( FvGuids() <= ptr_ && ptr_ < FvGuidsEnd()) {
 					return NamedGuidsRanges::FirmwareVolume;
-				} else if (FfGuids() <= &ref && &ref < FfGuidsEnd()) {
+				} else if (FfGuids() <= ptr_ && ptr_ < FfGuidsEnd()) {
 					return NamedGuidsRanges::FirmwareFile;
-				} else if (FsGuids() <= &ref && &ref < FsGuidsEnd()) {
+				} else if (FsGuids() <= ptr_ && ptr_ < FsGuidsEnd()) {
 					return NamedGuidsRanges::FirmwareSection;
-				} else if (OtherGuids() <= &ref && &ref < OtherGuidsEnd()) {
+				} else if (OtherGuids() <= ptr_ && ptr_ < OtherGuidsEnd()) {
 					return NamedGuidsRanges::Other;
 				} else {
 					return NamedGuidsRanges::Unknown;
@@ -211,15 +288,39 @@ namespace Project
 			inline NamedGuidsRanges::NamedGuidsRanges_t whatNamedGuidRange(const EFI_GUID& guid) { return whatNamedGuidRange(&guid); }
 		};
 
+		namespace FindGUIDResult
+		{
+
+			enum FindGUIDResult_t
+			{
+				NotFound,
+				Found,
+				BufferToSmall
+			};
+
+			struct result_t
+			{
+				Types::const_byte_ptr_t begin;
+				Types::length_t offset;
+			};
+
+		}
+
+		FindGUIDResult::FindGUIDResult_t findGuid(const EFI_GUID* guid, Types::const_void_ptr_t buffer, Types::length_t length, FindGUIDResult::result_t& result);
+		inline FindGUIDResult::FindGUIDResult_t findGuid(const EFI_GUID& guid, Types::const_void_ptr_t buffer, Types::length_t length, FindGUIDResult::result_t& result)
+		{
+			return findGuid(&guid, buffer, length, result);
+		}
+
 	}
 
 }
 
-bool operator!=(const EFI_GUID& lhs, const EFI_GUID& rhs) noexcept { return std::memcmp(&lhs, &rhs, sizeof(EFI_GUID)); }
+inline bool operator!=(const EFI_GUID& lhs, const EFI_GUID& rhs) noexcept { return std::memcmp(&lhs, &rhs, sizeof(EFI_GUID)); }
 
-bool operator==(const EFI_GUID& lhs, const EFI_GUID& rhs) noexcept { return !operator!=(lhs, rhs); }
+inline bool operator==(const EFI_GUID& lhs, const EFI_GUID& rhs) noexcept { return !operator!=(lhs, rhs); }
 
-bool operator<(const EFI_GUID& lhs, const EFI_GUID& rhs) noexcept { return std::lexicographical_compare(UnifyPtrCast(&lhs), UnifyPtrCast(&lhs) + sizeof(EFI_GUID), UnifyPtrCast(&rhs), UnifyPtrCast(&rhs) + sizeof(EFI_GUID)); }
+inline bool operator< (const EFI_GUID& lhs, const EFI_GUID& rhs) noexcept { return std::lexicographical_compare(UnifyPtrCast(&lhs), UnifyPtrCast(&lhs) + sizeof(EFI_GUID), UnifyPtrCast(&rhs), UnifyPtrCast(&rhs) + sizeof(EFI_GUID)); }
 
 #define PROJ_GUID_SIZE (::Project::Guid::struct_size)
 

@@ -48,7 +48,7 @@ namespace Project
 			return h(std::string(reinterpret_cast<const char*>(ptr), length));
 		}
 
-		std::uint32_t crc32(Types::const_pointer_t ptr, Types::length_t length, std::uint32_t init)
+		std::uint32_t crc32(Types::const_pointer_t ptr, Types::length_t length)
 		{
 			if (!ptr) {
 				DEBUG_ERROR_MESSAGE
