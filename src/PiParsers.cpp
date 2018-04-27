@@ -121,9 +121,9 @@ namespace Project
 							{	// "other" volume is fully contained in "this" one
 								deferred.emplace_back(*iter2);
 							} else { // This is deadly intersection report an error
-								OffsetView thisOV(buffer.begin, thisBody);
-								OffsetView otherOV(buffer.begin, MemoryView(iter2->begin, iter2->begin + Pi::Volume::Utils::getSize(iter2->get()) - 1));
 								DEBUG_ERROR_MESSAGE
+									OffsetView thisOV(buffer.begin, thisBody);
+									OffsetView otherOV(buffer.begin, MemoryView(iter2->begin, iter2->begin + Pi::Volume::Utils::getSize(iter2->get()) - 1));
 									DEBUG_PRINT("\tMessage: Intersected volumes found.");
 									DEBUG_PRINT("\tThis position: ", std::distance(volumes.begin(), iter) + 1);
 									DEBUG_PRINT("\tThis offset: ", thisOV.offset);
@@ -552,7 +552,7 @@ namespace Project
 						do {
 							const char* message = nullptr;
 
-							if (section_compressionType = EFI_NOT_COMPRESSED)
+							if (section_compressionType == EFI_NOT_COMPRESSED)
 							{	// Section is not compressed
 								toProcess.begin = ALIGN_PTR4(sectionView.begin, toProcess.begin);
 								message = "\tMessage: Section exceeds section boundary.";
@@ -562,7 +562,7 @@ namespace Project
 								if (!decomp_data_storage) break;
 								// Decompresser works with non constant memory
 								auto tmp = sectionBody.memcpy();
-								if (section_compressionType = EFI_STANDARD_COMPRESSION)
+								if (section_compressionType == EFI_STANDARD_COMPRESSION)
 								{	// Standard compression Tiano or Efi1.1
 									auto err = decompress(
 										Decompression::Decompresser::TianoEdk2,

@@ -200,7 +200,7 @@ namespace Project
 
 						return FileNames[pos].name;
 					} else {
-						std::memset(filenameBuffer, 0, sizeof(filenameBuffer) * sizeof(char));
+						std::memset(filenameBuffer, 0, sizeof(filenameBuffer));
 						if (EFI_FV_FILETYPE_OEM_MIN < type && type < EFI_FV_FILETYPE_OEM_MAX) {
 							pos = fileNamePosition(EFI_FV_FILETYPE_OEM_MIN) + 1;
 							std::snprintf(filenameBuffer, sizeof(filenameBuffer) / sizeof(char), FileNames[pos].name, type - EFI_FV_FILETYPE_OEM_MIN);

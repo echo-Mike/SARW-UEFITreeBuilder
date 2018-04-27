@@ -63,7 +63,7 @@ namespace Project
 
 #define PROJ_MAX_FFS2_SIZE ( PROJ_16MB - 1 )
 
-#define ALIGN_(Value, Type, powOf2) ( ( (Value) + (Type)(powOf2 - 1) ) & ~( (Type)(powOf2 - 1) ) )
+#define ALIGN_(Value, Type, powOf2) ( ( (Value) + (Type)((powOf2) - 1) ) & ~( (Type)((powOf2) - 1) ) )
 #define ALIGN2(Value, Type) ALIGN_(Value, Type, 2)
 #define ALIGN4(Value, Type) ALIGN_(Value, Type, 4)
 #define ALIGN8(Value, Type) ALIGN_(Value, Type, 8)

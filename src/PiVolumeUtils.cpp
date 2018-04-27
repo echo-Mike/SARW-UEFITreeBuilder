@@ -24,7 +24,7 @@ namespace Utils {
 
 			while (std::memcmp(blocks, &lastEntry, Pi::Volume::BlockMap::structure_size))
 			{
-				result += blocks->Length * blocks->NumBlocks;
+				result += static_cast<Types::length_t>(blocks->Length) * blocks->NumBlocks;
 				blocks = ADVANCE_PTR_(blocks, const EFI_FV_BLOCK_MAP_ENTRY*, Pi::Volume::BlockMap::structure_size);
 			}
 

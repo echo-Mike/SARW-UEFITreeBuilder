@@ -39,7 +39,7 @@ namespace Project
 			Types::const_pointer_t current = buffer.begin;
 
 			// Find all occurrence of Firmware volume signature EFI_FVH_SIGNATURE
-			while ( ( current = std::search( current,  buffer.end, VolumeSignature.bytes, VolumeSignature.bytes + sizeof(EFI_FVH_SIGNATURE)) ) != buffer.end )
+			while ( ( current = std::search( current,  buffer.end, VolumeSignature.bytes, VolumeSignature.bytes + VolumeSignature.byte_size) ) != buffer.end )
 			{
 				headers.emplace_back(
 					current - buffer.begin - VolumeSignatureOffset,
@@ -233,8 +233,8 @@ namespace Project
 						break;
 					case FileHeaderStatus::Repeated :
 						{	// Report about repeated GUID
-							OffsetView ov(buffer.begin, Pi::File::Header(header));
 							DEBUG_INFO_MESSAGE
+								OffsetView ov(buffer.begin, Pi::File::Header(header));
 								DEBUG_PRINT("\tMessage: File found with repeated GUID.");
 								DEBUG_PRINT("\tFile GUID: ", header->Name);
 								DEBUG_PRINT("\tOffset in inspected buffer: ", ov.offset);
