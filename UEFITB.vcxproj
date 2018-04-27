@@ -158,6 +158,8 @@
     <ClCompile Include="submodules\Compression\Tiano\EdkEfiCompress.c" />
     <ClCompile Include="submodules\Compression\Tiano\EdkTianoCompress.c" />
     <ClCompile Include="submodules\crc32\Edk2Crc32.c" />
+    <ClCompile Include="submodules\Crypto\Edk2CryptRsaBasic.c" />
+    <ClCompile Include="submodules\Crypto\Edk2CryptSha256.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\BrotliAdapter.h" />
@@ -185,6 +187,7 @@
     <ClInclude Include="include\PiVolumeObject.hpp" />
     <ClInclude Include="include\ProjectExtendedTypes.hpp" />
     <ClInclude Include="include\ProjectTypes.hpp" />
+    <ClInclude Include="include\Rsa2048Sha256Adapter.h" />
     <ClInclude Include="include\SignatureCasts.hpp" />
     <ClInclude Include="include\UefiHeaders.h" />
   </ItemGroup>

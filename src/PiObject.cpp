@@ -9,6 +9,8 @@ namespace Project
 	namespace PiObject
 	{
 
+		Types::memory_t default_empty = PROJ_DEFAULT_EMPTY;
+
 		bool FreeSpace::IsCorrupted(Types::memory_t empty, const MemoryView& buffer)
 		{
 			return (buffer.end != std::find_if_not(

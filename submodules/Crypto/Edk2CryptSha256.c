@@ -12,7 +12,12 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 **/
 
-#include "InternalCryptLib.h"
+/// PROJECT
+#include "Rsa2048Sha256Adapter.h"
+
+#ifndef PROJ_Rsa2048Sha256_NOT_IMPLEMENTED
+
+/// OPENSSL
 #include <openssl/sha.h>
 
 /**
@@ -227,3 +232,5 @@ Sha256HashAll (
     return TRUE;
   }
 }
+
+#endif

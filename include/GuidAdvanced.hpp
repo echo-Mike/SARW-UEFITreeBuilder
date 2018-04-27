@@ -29,8 +29,8 @@ namespace Project
 
 			inline bool isValidFfsGuid(const EFI_GUID* ptr)
 			{
-				auto& ref = NamedGuids::findNamedGuid(ptr);
-				return NamedGuids::FvGuids() <= &ref && &ref < NamedGuids::FvGuidsEnd();
+				auto ptr_ = &NamedGuids::findNamedGuid(ptr);
+				return NamedGuids::FvGuids() <= ptr_ && ptr_ < NamedGuids::FfsGuidsEnd();
 			}
 			inline bool isValidFfsGuid(const EFI_GUID& guid) { return isValidFfsGuid(&guid); }
 			inline bool isValidFfsGuid(Types::const_pointer_t ptr) { return isValidFfsGuid(reinterpret_cast<const EFI_GUID*>(ptr)); }

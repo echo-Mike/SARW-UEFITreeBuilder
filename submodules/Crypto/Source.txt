@@ -9,3 +9,6 @@
 	
 [CrtLibSupport.h]
 	edk2\CryptoPkg\Library\Include
+
+[BaseCryptLib.h]
+	edk2\CryptoPkg\Include\Library

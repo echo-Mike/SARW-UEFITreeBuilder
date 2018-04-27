@@ -26,22 +26,31 @@ namespace Project
 			enum InconsistencyState_t : std::uint32_t
 			{
 				Unknown        = 0x00000000,
-				FreeSpaceFlag  = 0x10000000,
+				FreeSpaceFlag  = 0x80000000,
+				DataFlag       = 0x40000000,
 				SectionFlag    = 0x20000000,
-				FileFlag       = 0x40000000,
-				VolumeFlag     = 0x80000000,
+				FileFlag       = 0x10000000,
+				VolumeFlag     = 0x08000000,
 
-				TypeBits       = 0xF0000000,
+				TypeBits       = FreeSpaceFlag | DataFlag | SectionFlag | FileFlag | VolumeFlag,
 
 				FreeSpaceNormal    = FreeSpaceFlag,
 				FreeSpaceCorrupted = FreeSpaceFlag | 0x00000001,
+
+				DataNormal         = DataFlag,
+				DataInvalidVolume  = DataFlag | 0x00000001,
+				DataInvalidFile    = DataFlag | 0x00000002,
+				DataInvalidSection = DataFlag | 0x00000004,
 
 				SectionNormal = SectionFlag,
 
 				FileNormal = FileFlag,
 
-				VolumeNormal = VolumeFlag,
-				VolumeAlreadyParsed = VolumeFlag | 0x00000001
+				VolumeNormal                = VolumeFlag,
+				VolumeAlreadyParsed         = VolumeFlag | 0x00000001,
+				VolumeBlockMapCollision     = VolumeFlag | 0x00000002,
+				VolumeInvalidExtendedHeader = VolumeFlag | 0x00000004,
+				VolumeUnknownFileSystem     = VolumeFlag | 0x00000008
 			};
 
 		}
@@ -165,6 +174,32 @@ unique_object_ptr_t copy() \
 		};
 
 
+		struct Data :
+			public Object
+		{
+			typedef Object Base;
+
+		public:
+
+			Data(const MemoryView& baseBuffer, const MemoryView& myBuffer) :
+				Base(baseBuffer, myBuffer, InconsistencyState::DataFlag) {}
+
+			Data(const MemoryView& baseBuffer, MemoryView&& myBuffer) :
+				Base(baseBuffer, std::move(myBuffer), InconsistencyState::DataFlag) {}
+
+			DefaultCopyableAndMovable(Data)
+
+			~Data() = default;
+
+			// Virtual i-face implementation
+
+			void toJson(nlohmann::json& j) const;
+
+			PROJ_CopyablePiObject(Data)
+
+		};
+
+
 		typedef std::vector< unique_object_ptr_t > object_vec_t;
 
 
@@ -233,6 +268,12 @@ operator|=(
 	const Project::PiObject::InconsistencyState::InconsistencyState_t b
 )
 {
+	using namespace Project::PiObject::InconsistencyState;
+	if ((a & TypeBits) ^ (b & TypeBits)) DEBUG_WARNING_MESSAGE
+		DEBUG_PRINT("\tMessage: Can't assign new state. Type bits differ.");
+		DEBUG_PRINT("\tOriginal state: ", a);
+		DEBUG_PRINT("\tNew state: ", b);
+	DEBUG_END_MESSAGE_AND_EVAL({ return a; })
 	a = static_cast<Project::PiObject::InconsistencyState::InconsistencyState_t>(a | b);
 	return a;
 }

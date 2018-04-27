@@ -75,6 +75,20 @@ namespace Utils {
 		return volumeField < blockMap ? blockMap : volumeField;
 	}
 
+	Types::length_t getHeaderSize(Pi::Volume::Header::const_pointer_t header)
+	{	// Size of first block map entry is already counted in size of header structure itself
+		using namespace Helper;
+		Types::count_t blockEntryCount = 0;
+		const EFI_FV_BLOCK_MAP_ENTRY* blocks = header->BlockMap;
+		while (std::memcmp(blocks, &lastEntry, Pi::Volume::BlockMap::structure_size)) {
+			++blockEntryCount;
+			blocks = ADVANCE_PTR_(blocks, const EFI_FV_BLOCK_MAP_ENTRY*, Pi::Volume::BlockMap::structure_size);
+		}
+		// Count real size of base volume header: 
+		//	sizeof(EFI_FIRMWARE_VOLUME_HEADER) + sizeof(EFI_FV_BLOCK_MAP_ENTRY) * blockEntryCount
+		return Pi::Volume::Header::structure_size + Pi::Volume::BlockMap::structure_size * blockEntryCount;
+	}
+
 	bool addParsedVolume(const Pi::Volume::Header& header)
 	{
 		return Helper::parsedVolumes.insert(header.get()).second;

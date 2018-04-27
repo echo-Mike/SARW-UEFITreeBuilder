@@ -4,6 +4,7 @@
 
 /// STD
 #include <map>
+
 /// PROJECT
 #include "PiBaseObject.hpp"
 #include "DecompressionModule.hpp"
@@ -142,10 +143,16 @@ namespace Project
 
 			decomp_data_storage_ptr_t getDecomressedDataStorage() const 
 			{
-				return  header.sectionType == helper::SectionHeader::Compression ||
-                        header.sectionType == helper::SectionHeader::GuidDefined ?
-						&DecompressedSectionData :
-						nullptr;
+				decomp_data_storage_ptr_t result = nullptr;
+				if (header.sectionType == helper::SectionHeader::Compression ||
+					header.sectionType == helper::SectionHeader::GuidDefined) {
+					result = &DecompressedSectionData;
+				} else DEBUG_WARNING_MESSAGE
+					DEBUG_PRINT("\tMessage: Can't access decompressed data storage.");
+					DEBUG_PRINT("\tSection UID: ", getUid());
+					DEBUG_PRINT("\tSection type: ", header.sectionType);
+				DEBUG_END_MESSAGE;
+				return result;
 			}
 
 			inline const RepresentedStruct_t* operator->() const { return header.header.get(); }

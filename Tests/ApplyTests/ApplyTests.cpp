@@ -1,5 +1,6 @@
 #include <iostream>
 #include <iomanip>
+#include <numeric>
 
 extern "C"
 {
@@ -54,26 +55,32 @@ std::ostream& operator<<(std::ostream& out, const EFI_GUID& guid)
 
 int main(void)
 {
-	//EFI_GUID a = EFI_FIRMWARE_FILE_SYSTEM_GUID;
-	//EFI_GUID b = PROJ_UNKNOWN_GUID;
-	EFI_GUID c = PROJ_SUPER_GUID;
-
-	// std::cout << (proj_is_big_endian() ? "BIG-ENDIAN\n" : "LITTLE_ENDIAN\n");
+	char a[256];
+	char b[64];
+	std::iota(a, a + 256, 0);
+	for (size_t i = 0; i < 16; ++i)
 	{
-		//std::uint16_t a = 0xABCD;
-		//std::uint32_t b = 0x12345678;
-		std::uint64_t c = 0x0123456789ABCDEF;
-		std::uint64_t d = 0;
-		
-		//proj_get_rev_uint_n(&c, &d, 7);
-
-		//std::cout << std::hex << std::uppercase << std::setfill('0');
-		//std::cout << std::setw(16) << d << '\n';
+		std::memset(b, 0, sizeof(b));
+		std::snprintf(b, sizeof(b),
+			"\t\t%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX",
+			a[16 * i + 0],
+			a[16 * i + 1],
+			a[16 * i + 2],
+			a[16 * i + 3],
+			a[16 * i + 4],
+			a[16 * i + 5],
+			a[16 * i + 6],
+			a[16 * i + 7],
+			a[16 * i + 8],
+			a[16 * i + 9],
+			a[16 * i + 10],
+			a[16 * i + 11],
+			a[16 * i + 12],
+			a[16 * i + 13],
+			a[16 * i + 14],
+			a[16 * i + 15]
+		);
+		std::cout << b << '\n';
 	}
-
-	//std::cout << a << '\n';
-	//std::cout << b << '\n';
-	std::cout << c << '\n';
-
 	return 1;
 }

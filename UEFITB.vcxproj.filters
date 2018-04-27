@@ -43,6 +43,9 @@
     <Filter Include="Source Files\Compression\Brotli">
       <UniqueIdentifier>{756a222d-f669-4b79-b414-de092e782e09}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Crypto">
+      <UniqueIdentifier>{73ae9b1b-5bb9-4f94-99c9-74466dd2886c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="submodules\codesnippets\DebugLib\DebugLib.cpp">
@@ -177,6 +180,12 @@
     <ClCompile Include="src\BrotliDecompModule.cpp">
       <Filter>Source Files\Compression\Brotli</Filter>
     </ClCompile>
+    <ClCompile Include="submodules\Crypto\Edk2CryptRsaBasic.c">
+      <Filter>Source Files\Crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="submodules\Crypto\Edk2CryptSha256.c">
+      <Filter>Source Files\Crypto</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\PiObjectRepresentation.hpp">
@@ -259,6 +268,9 @@
     </ClInclude>
     <ClInclude Include="include\BrotliAdapter.h">
       <Filter>Header Files\Compression</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Rsa2048Sha256Adapter.h">
+      <Filter>Header Files\Helpers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

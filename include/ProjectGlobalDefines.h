@@ -15,6 +15,7 @@ extern "C" \
 #endif
 
 PROJ_EXTERN_C
+
 int proj_is_big_endian(void);
 
 void proj_get_uint_n(const void* src, void* dest, unsigned int n);
@@ -26,5 +27,9 @@ void proj_get_rev_uint_n(const void* src, void* dest, unsigned int n);
 void proj_get_rev_uint16_t(const void* src, void* dest);
 void proj_get_rev_uint32_t(const void* src, void* dest);
 void proj_get_rev_uint64_t(const void* src, void* dest);
+
 PROJ_EXTERN_C_END
+
+#define PROJ_Rsa2048Sha256_NOT_IMPLEMENTED
+
 #endif

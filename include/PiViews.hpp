@@ -89,6 +89,13 @@ namespace Project
 				typedef StructureView<EFI_VERSION_SECTION2, SectionExtTag> Version;
 			}
 
+			namespace Other
+			{
+
+				typedef StructureView<WIN_CERTIFICATE> WinCertificate;
+				typedef StructureView<WIN_CERTIFICATE_UEFI_GUID> WinCertUefiGuid;
+			}
+
 		}
 
 	}

@@ -84,6 +84,11 @@ namespace Project
 					return header->Attributes & FFS_ATTRIB_LARGE_FILE ? getSize2(UnifyPtrCast(header)) : getSize(header);
 				}
 
+				inline Types::length_t getHeaderSize(Pi::File::Header::const_pointer_t header)
+				{
+					return header->Attributes & FFS_ATTRIB_LARGE_FILE ? Pi::File::Extended::Header::structure_size : Pi::File::Header::structure_size;
+				}
+
 				namespace FileTypeRanges
 				{
 					enum FileTypeRange_t : int

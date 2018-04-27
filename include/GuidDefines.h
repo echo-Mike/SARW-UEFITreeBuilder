@@ -238,6 +238,7 @@ namespace Project
 			
 			const GuidWithName* begin();
 			const GuidWithName* FvGuids();
+			const GuidWithName* FfsGuidsEnd();
 			const GuidWithName* FvGuidsEnd();
 			const GuidWithName* FfGuids();
 			const GuidWithName* FfGuidsEnd();

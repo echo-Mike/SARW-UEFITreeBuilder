@@ -18,8 +18,12 @@ WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
 
 **/
 
-#include "InternalCryptLib.h"
+/// PROJECT
+#include "Rsa2048Sha256Adapter.h"
 
+#ifndef PROJ_Rsa2048Sha256_NOT_IMPLEMENTED
+
+/// OPENSSL
 #include <openssl/bn.h>
 #include <openssl/rsa.h>
 #include <openssl/objects.h>
@@ -323,3 +327,5 @@ RsaPkcs1Verify (
                      (RSA *) RsaContext
                      );
 }
+
+#endif

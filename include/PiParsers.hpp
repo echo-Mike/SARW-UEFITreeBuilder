@@ -25,35 +25,39 @@ namespace Project
 			VecT headerVec, 
 			const MemoryView& buffer,
 			Types::memory_t empty,
-			const char* errMsg, 
-			ExitCodes::ExitCodes_t exitCode)
+			const char* errMsg,
+			PiObject::InconsistencyState::InconsistencyState_t errorState)
 		{
 			MemoryView subObjMemory(buffer.begin, buffer.begin);
 
 			// Call parser for every header entry
 			for (const auto& hdr : headerVec)
 			{	// Check that previous object fill all space before current
-				if (subObjMemory.end != hdr.begin) {
+				if (subObjMemory.end < hdr.begin) {
 					baseObject.emplace_back<PiObject::FreeSpace>(empty, baseObject.memory, MemoryView(subObjMemory.end, hdr.begin));
 				}
 
 				subObjMemory.begin = hdr.begin;
 				subObjMemory.end = hdr.begin + calcLen(hdr);
 
-				if (buffer.isOutside(subObjMemory.end - 1))
-					DEBUG_ERROR_MESSAGE
-						OffsetView ov(baseObject.memory.begin, subObjMemory);
-						DEBUG_PRINT(errMsg);
-						DEBUG_PRINT("\tSub-object offset: ", ov.offset);
-						DEBUG_PRINT("\tSub-object length: ", ov.length);
-						DEBUG_PRINT("\tBuffer length: ", baseObject.memory.getLength());
-						DEBUG_PRINT("\tExceeds by: ", ov.offset + ov.length - baseObject.memory.getLength());
-					DEBUG_END_MESSAGE_AND_EXIT(exitCode)
+				if (buffer.isOutside(subObjMemory.end - 1)) DEBUG_ERROR_MESSAGE
+					OffsetView ov(baseObject.memory.begin, subObjMemory);
+					DEBUG_PRINT(errMsg);
+					DEBUG_PRINT("\tSub-object offset: ", ov.offset);
+					DEBUG_PRINT("\tSub-object length: ", ov.length);
+					DEBUG_PRINT("\tBuffer length: ", baseObject.memory.getLength());
+					DEBUG_PRINT("\tExceeds by: ", ov.offset + ov.length - baseObject.memory.getLength());
+				DEBUG_END_MESSAGE_AND_EVAL({
+					auto ptr = std::make_unique<PiObject::Data>(buffer, subObjMemory);
+					ptr->state |= errorState;
+					baseObject.objects.emplace_back(std::move(ptr));
+					continue;
+				})
 				baseObject.emplace_back<SubObjT>( parser(hdr, subObjMemory, baseObject.memory, empty) );
 			}
 
 			// Check for space after last object
-			if (subObjMemory.end != buffer.end) {
+			if (subObjMemory.end < buffer.end) {
 				baseObject.emplace_back<PiObject::FreeSpace>(empty, baseObject.memory, MemoryView(subObjMemory.end, buffer.end));
 			}
 		}
