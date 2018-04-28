@@ -51,10 +51,10 @@ namespace Project
 		namespace Helper
 		{
 			void to_json(nlohmann::json& j, const SectionHeader& obj);
-
+			
 			void to_json(nlohmann::json& j, const unique_section_decomp_buff_t& obj);
 
-			void to_json(nlohmann::json& j, const FileHeader& obj);
+			inline void to_json(nlohmann::json& j, const FileHeader& obj) { j = obj.header; }
 		}
 	}
 

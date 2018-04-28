@@ -1,6 +1,8 @@
 /// STD
 #include <cstring>
 #include <cstdio>
+#include <string>
+#include <codecvt>
 /// PROJECT
 #include "JsonConverters.hpp"
 #include "PiSectionUtils.hpp"
@@ -24,6 +26,10 @@ namespace Helper
 		}
 	}
 
+	static void parseDepexSection(nlohmann::json& j, const Project::Pi::Section::Header& hdr, Project::PiObject::Helper::SectionHeader::SectionType secType)
+	{
+		// EFI_DEP_AFTER
+	}
 }
 
 void to_json(nlohmann::json& j, const EFI_GUID& guid)
@@ -111,7 +117,7 @@ void Project::to_json(nlohmann::json& j, const Project::Pi::Volume::Header& hdr)
 
 void Project::to_json(nlohmann::json& j, const Project::Pi::File::Header& hdr)
 {
-	char strBuffer[128];
+	char strBuffer[64];
 	j["Structure type"] = "Firmware File";
 	j["isExtended"] = static_cast<bool>(hdr->Attributes & FFS_ATTRIB_LARGE_FILE);
 	// Structure fields
@@ -159,26 +165,176 @@ void Project::to_json(nlohmann::json& j, const Project::Pi::File::Header& hdr)
 
 void Project::to_json(nlohmann::json& j, const Project::Pi::Section::Header& hdr)
 {
-	char strBuffer[128];
+	char strBuffer[64];
 	j["Structure type"] = "Firmware Section";
-	j["isExtended"] = static_cast<bool>(hdr->Attributes & FFS_ATTRIB_LARGE_FILE);
-
-
+	j["isExtended"] = Pi::Section::Utils::isExtendedSection(hdr);
+	// Structure fields
+	// Size
+	auto simple_size = Pi::Section::Utils::getSize(hdr);
+	std::snprintf(strBuffer, sizeof(strBuffer), "%lld (%#llX)", simple_size, simple_size);
+	j["fields"]["Size"]["string"] = strBuffer;
+	j["fields"]["Size"]["value"] = simple_size;
+	// Type
+	j["fields"]["Type"]["string"] = Pi::Section::Utils::sectionTypeToCStr(hdr->Type);
+	j["fields"]["Type"]["value"] = hdr->Type;
+	// ExtendedSize
+	if (Pi::Section::Utils::isExtendedSection(hdr))
+	{
+		auto extended_size = Pi::Section::Utils::getSize2(hdr);
+		std::snprintf(strBuffer, sizeof(strBuffer), "%lld (%#llX)", extended_size, extended_size);
+		j["fields"]["ExtendedSize"]["string"] = strBuffer;
+		j["fields"]["ExtendedSize"]["value"] = extended_size;
+	}
 }
 
 void Project::PiObject::Helper::to_json(nlohmann::json& j, const SectionHeader& obj)
 {
+	char strBuffer[64];
+	j = obj.header;
+	switch (obj.sectionType)
+	{
+		case SectionHeader::Compression:
+		{
+			UINT32 section_uncompressedLength = 0;
+			UINT8 section_compressionType = 0;
 
+			if (Pi::Section::Utils::isExtendedSection(obj.header)) {
+				Pi::Section::Extended::Compression sv(obj.header.begin);
+				section_uncompressedLength = sv->UncompressedLength;
+				section_compressionType = sv->CompressionType;
+			}
+			else
+			{
+				Pi::Section::Compression sv(obj.header.begin);
+				section_uncompressedLength = sv->UncompressedLength;
+				section_compressionType = sv->CompressionType;
+			}
+			std::snprintf(strBuffer, sizeof(strBuffer), "%d (%#X)", section_uncompressedLength, section_uncompressedLength);
+			j["fields"]["UncompressedLength"]["string"] = strBuffer;
+			j["fields"]["UncompressedLength"]["value"] = section_uncompressedLength;
+			std::snprintf(strBuffer, sizeof(strBuffer), "%hhd (%#hhX)", section_compressionType, section_compressionType);
+			switch (section_compressionType)
+			{
+				case EFI_NOT_COMPRESSED       : j["fields"]["CompressionType"]["string"] = "EFI_NOT_COMPRESSED"; break;
+				case EFI_STANDARD_COMPRESSION : j["fields"]["CompressionType"]["string"] = "EFI_STANDARD_COMPRESSION"; break;
+				default                       : j["fields"]["CompressionType"]["string"] = strBuffer; break;
+			}
+			j["fields"]["CompressionType"]["value"] = section_compressionType;
+		} break;
+
+		case SectionHeader::SmmDepex:
+		case SectionHeader::PeiDepex:
+		case SectionHeader::DxeDepex:
+		{
+			::Helper::parseDepexSection(j, obj.header, obj.sectionType);
+		} break;
+
+		case SectionHeader::FreeformSubtypeGuid:
+		{
+			EFI_GUID section_guid;
+			if (Pi::Section::Utils::isExtendedSection(obj.header)) {
+				section_guid = reinterpret_cast<Pi::Section::Extended::FreeformSubtypeGuid::const_pointer_t>(obj.header.begin)->SubTypeGuid;
+			} else {
+				section_guid = reinterpret_cast<Pi::Section::FreeformSubtypeGuid::const_pointer_t>(obj.header.begin)->SubTypeGuid;
+			}
+			auto& guid_ = Guid::NamedGuids::findNamedGuid(section_guid);
+			if (&guid_ == Guid::NamedGuids::end())
+				j["fields"]["SubTypeGuid"]["value"] = section_guid;
+			else
+				j["fields"]["SubTypeGuid"] = guid_;
+		} break;
+
+		case SectionHeader::GuidDefined:
+		{
+			EFI_GUID section_guid;
+			UINT16   section_data_offset = 0;
+			UINT16   section_attributes = 0;
+			if (Pi::Section::Utils::isExtendedSection(obj.header)) {
+				Pi::Section::Extended::GuidDefined sv(obj.header.begin);
+				section_guid = sv->SectionDefinitionGuid;
+				section_data_offset = sv->DataOffset;
+				section_attributes = sv->Attributes;
+			}
+			else
+			{
+				Pi::Section::GuidDefined sv(obj.header.begin);
+				section_guid = sv->SectionDefinitionGuid;
+				section_data_offset = sv->DataOffset;
+				section_attributes = sv->Attributes;
+			}
+			auto& guid_ = Guid::NamedGuids::findNamedGuid(section_guid);
+			if (&guid_ == Guid::NamedGuids::end())
+				j["fields"]["SectionDefinitionGuid"]["value"] = section_guid;
+			else
+				j["fields"]["SectionDefinitionGuid"] = guid_;
+			std::snprintf(strBuffer, sizeof(strBuffer), "%hd (%#hX)", section_data_offset, section_data_offset);
+			j["fields"]["DataOffset"]["string"] = strBuffer;
+			j["fields"]["DataOffset"]["value"] = section_data_offset;
+			std::snprintf(strBuffer, sizeof(strBuffer), "%hd (%#hX)", section_attributes, section_attributes);
+			switch (section_attributes)
+			{
+				case EFI_GUIDED_SECTION_PROCESSING_REQUIRED : j["fields"]["Attributes"]["string"] = "EFI_GUIDED_SECTION_PROCESSING_REQUIRED"; break;
+				case EFI_GUIDED_SECTION_AUTH_STATUS_VALID   : j["fields"]["Attributes"]["string"] = "EFI_GUIDED_SECTION_AUTH_STATUS_VALID"; break;
+				default                                     : j["fields"]["Attributes"]["string"] = strBuffer; break;
+			}
+			j["fields"]["Attributes"]["value"] = section_attributes;
+		} break;
+
+		case SectionHeader::UserInterface:
+		{	// It is nearly impossible that this section will have type EFI_USER_INTERFACE_SECTION2
+			auto ptr_ = reinterpret_cast<const char16_t*>(reinterpret_cast<Pi::Section::UserInterface::const_pointer_t>(obj.header.begin)->FileNameString);
+			std::u16string u16str(ptr_, (Pi::Section::Utils::getSize(obj.header) - Pi::Section::Header::structure_size) / sizeof(CHAR16));
+			std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
+			j["fields"]["FileNameString"] = convert.to_bytes(u16str);
+		} break;
+
+		case SectionHeader::Version:
+		{	// It is nearly impossible that this section will have type EFI_VERSION_SECTION2
+			auto* ptr_ = reinterpret_cast<const char16_t*>(reinterpret_cast<Pi::Section::Version::const_pointer_t>(obj.header.begin)->VersionString);
+			std::u16string u16str(ptr_, (Pi::Section::Utils::getSize(obj.header) - Pi::Section::Header::structure_size - sizeof(UINT16)) / sizeof(CHAR16));
+			std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
+			j["fields"]["VersionString"] = convert.to_bytes(u16str);
+			UINT16 section_build_number = reinterpret_cast<Pi::Section::Version::const_pointer_t>(obj.header.begin)->BuildNumber;
+			std::snprintf(strBuffer, sizeof(strBuffer), "%hd (%#hX)", section_build_number, section_build_number);
+			j["fields"]["BuildNumber"]["string"] = strBuffer;
+			j["fields"]["BuildNumber"]["value"] = section_build_number;
+		} break;
+
+		case SectionHeader::PostcodeSct:
+		case SectionHeader::PostcodeInsyde:
+		{	// It is nearly impossible that this section will have type POSTCODE_SECTION2
+			UINT32 section_postcode = reinterpret_cast<Pi::Section::Postcode::const_pointer_t>(obj.header.begin)->Postcode;
+			std::snprintf(strBuffer, sizeof(strBuffer), "%d (%#X)", section_postcode, section_postcode);
+			j["fields"]["Postcode"]["string"] = strBuffer;
+			j["fields"]["Postcode"]["value"] = section_postcode;
+		} break;
+
+		case SectionHeader::Raw:
+		case SectionHeader::Te:
+		case SectionHeader::Pic:
+		case SectionHeader::Pe32:
+		case SectionHeader::FirmwareVolumeImage:
+		case SectionHeader::Disposable:
+		case SectionHeader::Compatibility16:
+		default: break;
+	}
 }
 
 void Project::PiObject::Helper::to_json(nlohmann::json& j, const unique_section_decomp_buff_t& obj)
 {
-
-}
-
-void Project::PiObject::Helper::to_json(nlohmann::json& j, const FileHeader& obj)
-{
-
+	j["length"] = obj->memory.getLength();
+	switch (obj->decompresser)
+	{
+		case Decompression::Decompresser::TianoEdk  : j["algorithm"] = "TIANO EDK"; break;
+		case Decompression::Decompresser::TianoEfi  : j["algorithm"] = "EFI1.1 EDK"; break;
+		case Decompression::Decompresser::TianoEdk2 : j["algorithm"] = "TIANO EDK2"; break;
+		case Decompression::Decompresser::TianoEfi2 : j["algorithm"] = "EFI1.1 EDK2"; break;
+		case Decompression::Decompresser::Lzma      : j["algorithm"] = "LZMA"; break;
+		case Decompression::Decompresser::Lzma86    : j["algorithm"] = "LZMA86"; break;
+		case Decompression::Decompresser::Brotli    : j["algorithm"] = "BROTLI"; break;
+		case Decompression::Decompresser::Unknown   : 
+		default                                     : j["algorithm"] = "Unknown"; break;
+	}
 }
 
 
