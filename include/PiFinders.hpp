@@ -11,6 +11,7 @@
 
 namespace Project
 {
+
 	namespace Finders
 	{
 
@@ -31,7 +32,7 @@ namespace Project
 		VolumesVec_t VolumeFinder(const MemoryView& buffer);
 
 	}
-}
 
+}
 
 #endif

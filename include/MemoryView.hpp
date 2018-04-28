@@ -1,15 +1,12 @@
 #pragma once
 #ifndef MEMORY_VIEW_HPP__
-#define MEMORY_VIEW_HPP__ "0.0.0@cMemoryView.hpp"
+#define MEMORY_VIEW_HPP__ "0.0.0@MemoryView.hpp"
 
 /// STD
 #include <cstring>
 
 /// SNIPPETS
 #include <ClassUtilsLib/mClassUtils.hpp>
-
-/// JSON
-#include <nlohmann/json.hpp>
 
 /// PROJECT
 #include "General.hpp"
@@ -76,7 +73,6 @@ namespace Project
         operator Types::const_pointer_t() const { return begin; }
         operator const char*() const { return reinterpret_cast<const char*>(begin); }
         operator const void*() const { return reinterpret_cast<const void*>(begin); }
-        operator const unsigned char*() const { return reinterpret_cast<const unsigned char*>(begin); }
 
 		MemoryView& operator=(Types::const_pointer_t ptr)
 		{
@@ -109,6 +105,7 @@ namespace Project
 				return;
 			offset = mv.begin - dataPtr;
 			length = mv.getLength();
+			valid = true;
 		}
 
 		DefaultCopyableAndMovable(OffsetView)
@@ -132,11 +129,5 @@ namespace Project
 		bool valid;
 	};
 
-	void to_json(nlohmann::json& j, const OffsetView& obj) 
-	{ 
-		j["offset"] = obj.offset;
-		j["length"] = obj.length;
-		j["valid"] = obj.valid;
-	}
 }
 #endif

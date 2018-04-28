@@ -10,11 +10,6 @@ PROJ_EXTERN_C
 /// UEFI
 #include <Uefi/UefiBaseType.h>
 
-#ifndef _SIZE_T_DEFINED
-typedef UINTN size_t;
-#	define _SIZE_T_DEFINED
-#endif 
-
 #ifndef NULL
 #	define NULL (0)
 #endif 
@@ -46,6 +41,24 @@ proj_brotli_memset(
 	VOID* buffer,
 	UINTN length,
 	UINT8 value
+);
+
+EFI_STATUS
+EFIAPI
+proj_brotli_GetInfo(
+	IN  CONST VOID  *Source,
+	IN  UINT32      SourceSize,
+	OUT UINT32      *DestinationSize,
+	OUT UINT32      *ScratchSize
+);
+
+EFI_STATUS
+EFIAPI
+proj_brotli_Decompress(
+	IN CONST VOID  *Source,
+	IN UINTN       SourceSize,
+	IN OUT VOID    *Destination,
+	IN OUT VOID    *Scratch
 );
 
 PROJ_EXTERN_C_END

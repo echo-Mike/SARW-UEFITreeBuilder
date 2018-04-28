@@ -72,20 +72,11 @@
     <ClCompile Include="src\PiSectionUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\CompressionModule.cpp">
-      <Filter>Source Files\Compression</Filter>
-    </ClCompile>
     <ClCompile Include="src\DecompressionModule.cpp">
       <Filter>Source Files\Compression</Filter>
     </ClCompile>
-    <ClCompile Include="src\LZMACompModule.cpp">
-      <Filter>Source Files\Compression\LZMA</Filter>
-    </ClCompile>
     <ClCompile Include="src\LZMADecompModule.cpp">
       <Filter>Source Files\Compression\LZMA</Filter>
-    </ClCompile>
-    <ClCompile Include="src\EdkCompModule.cpp">
-      <Filter>Source Files\Compression\Tiano</Filter>
     </ClCompile>
     <ClCompile Include="src\EdkDecompModule.cpp">
       <Filter>Source Files\Compression\Tiano</Filter>
@@ -93,25 +84,10 @@
     <ClCompile Include="submodules\Compression\Tiano\EdkDecompress.c">
       <Filter>Source Files\Compression\Tiano</Filter>
     </ClCompile>
-    <ClCompile Include="submodules\Compression\Tiano\EdkEfiCompress.c">
-      <Filter>Source Files\Compression\Tiano</Filter>
-    </ClCompile>
-    <ClCompile Include="submodules\Compression\Tiano\EdkTianoCompress.c">
-      <Filter>Source Files\Compression\Tiano</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Edk2CompModule.cpp">
-      <Filter>Source Files\Compression\Tiano</Filter>
-    </ClCompile>
     <ClCompile Include="src\Edk2DecompModule.cpp">
       <Filter>Source Files\Compression\Tiano</Filter>
     </ClCompile>
     <ClCompile Include="submodules\Compression\Tiano\Edk2Decompress.c">
-      <Filter>Source Files\Compression\Tiano</Filter>
-    </ClCompile>
-    <ClCompile Include="submodules\Compression\Tiano\Edk2EfiCompress.c">
-      <Filter>Source Files\Compression\Tiano</Filter>
-    </ClCompile>
-    <ClCompile Include="submodules\Compression\Tiano\Edk2TianoCompress.c">
       <Filter>Source Files\Compression\Tiano</Filter>
     </ClCompile>
     <ClCompile Include="submodules\Compression\LZMA\Bra86.c">
@@ -123,22 +99,13 @@
     <ClCompile Include="submodules\Compression\LZMA\Lzma2Dec.c">
       <Filter>Source Files\Compression\LZMA</Filter>
     </ClCompile>
-    <ClCompile Include="submodules\Compression\LZMA\Lzma2Enc.c">
-      <Filter>Source Files\Compression\LZMA</Filter>
-    </ClCompile>
     <ClCompile Include="submodules\Compression\LZMA\Lzma86Dec.c">
-      <Filter>Source Files\Compression\LZMA</Filter>
-    </ClCompile>
-    <ClCompile Include="submodules\Compression\LZMA\Lzma86Enc.c">
       <Filter>Source Files\Compression\LZMA</Filter>
     </ClCompile>
     <ClCompile Include="submodules\Compression\LZMA\LzmaAlloc.c">
       <Filter>Source Files\Compression\LZMA</Filter>
     </ClCompile>
     <ClCompile Include="submodules\Compression\LZMA\LzmaDec.c">
-      <Filter>Source Files\Compression\LZMA</Filter>
-    </ClCompile>
-    <ClCompile Include="submodules\Compression\LZMA\LzmaEnc.c">
       <Filter>Source Files\Compression\LZMA</Filter>
     </ClCompile>
     <ClCompile Include="submodules\crc32\Edk2Crc32.c">
@@ -186,14 +153,11 @@
     <ClCompile Include="submodules\Crypto\Edk2CryptSha256.c">
       <Filter>Source Files\Crypto</Filter>
     </ClCompile>
+    <ClCompile Include="Src\JsonConverters.cpp">
+      <Filter>Source Files\Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\PiObjectRepresentation.hpp">
-      <Filter>Header Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="include\PiBaseObject.hpp">
-      <Filter>Header Files\Objects</Filter>
-    </ClInclude>
     <ClInclude Include="include\PiFileObject.hpp">
       <Filter>Header Files\Objects</Filter>
     </ClInclude>
@@ -202,12 +166,6 @@
     </ClInclude>
     <ClInclude Include="include\PiVolumeObject.hpp">
       <Filter>Header Files\Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="include\cMemoryView.hpp">
-      <Filter>Header Files\Helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="include\cStructureView.hpp">
-      <Filter>Header Files\Helpers</Filter>
     </ClInclude>
     <ClInclude Include="include\PiViews.hpp">
       <Filter>Header Files\Helpers</Filter>
@@ -242,9 +200,6 @@
     <ClInclude Include="include\DecompressionModule.hpp">
       <Filter>Header Files\Compression</Filter>
     </ClInclude>
-    <ClInclude Include="include\UefiHeaders.h">
-      <Filter>Header Files\Helpers</Filter>
-    </ClInclude>
     <ClInclude Include="include\ProjectExtendedTypes.hpp">
       <Filter>Header Files\General</Filter>
     </ClInclude>
@@ -253,9 +208,6 @@
     </ClInclude>
     <ClInclude Include="include\PiFinders.hpp">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\ProjectGlobalDefines.h">
-      <Filter>Header Files\Helpers</Filter>
     </ClInclude>
     <ClInclude Include="include\GuidDefines.h">
       <Filter>Header Files\Helpers</Filter>
@@ -271,6 +223,33 @@
     </ClInclude>
     <ClInclude Include="include\Rsa2048Sha256Adapter.h">
       <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\StructureView.hpp">
+      <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MemoryView.hpp">
+      <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\JsonConverters.hpp">
+      <Filter>Header Files\Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ProjectGlobalDefines.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UefiHeaders.h">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PiObject.hpp">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PiObjectRepresentation.hpp">
+      <Filter>Header Files\General</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PiSimpleObjects.hpp">
+      <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PiComplexObject.hpp">
+      <Filter>Header Files\Objects</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

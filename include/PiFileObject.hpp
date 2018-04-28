@@ -2,10 +2,8 @@
 #ifndef PI_FILE_OBJECT_HPP__
 #define	PI_FILE_OBJECT_HPP__ "0.0.0@PiFileObject.hpp"
 
-/// STD
-
 /// PROJECT
-#include "PiBaseObject.hpp"
+#include "PiComplexObject.hpp"
 
 namespace Project
 {
@@ -13,7 +11,7 @@ namespace Project
 	namespace PiObject
 	{
 
-		namespace helper
+		namespace Helper
 		{
 
 			struct FileHeader
@@ -33,8 +31,6 @@ namespace Project
 
 			};
 
-			void to_json(nlohmann::json& j, const FileHeader& obj);
-
 		}
 
 		struct File :
@@ -44,7 +40,7 @@ namespace Project
 
 			typedef Pi::File::Header::value_type RepresentedStruct_t;
 
-			File(helper::FileHeader::HeaderType htype, const Pi::File::Header& headerView, 
+			File(Helper::FileHeader::HeaderType htype, const Pi::File::Header& headerView, 
 				 const MemoryView& baseBuffer, const MemoryView& myBuffer) :
 				Base(baseBuffer, myBuffer, InconsistencyState::FileFlag), 
 				header(htype, headerView)
@@ -52,7 +48,7 @@ namespace Project
 				setUid(headerView);
 			}
 
-			File(helper::FileHeader::HeaderType htype, const Pi::File::Header& headerView, 
+			File(Helper::FileHeader::HeaderType htype, const Pi::File::Header& headerView, 
 				 const MemoryView& baseBuffer, MemoryView&& myBuffer) :
 				Base(baseBuffer, std::move(myBuffer), InconsistencyState::FileFlag), 
 				header(htype, headerView)
@@ -72,9 +68,9 @@ namespace Project
 			
 			// Class i-face
 
-			inline const RepresentedStruct_t* operator->() const { return header.header.get(); }
+			inline Pi::File::Header::const_pointer_t operator->() const { return header.header.get(); }
 
-			helper::FileHeader header;
+			Helper::FileHeader header;
 		};
 
 	}

@@ -83,7 +83,7 @@ namespace Project
 			auto volumes = Finders::VolumeFinder(buffer);
 
 			if (volumes.empty()) { // Volumes not found : add as a free space
-				result.emplace_back(new PiObject::FreeSpace(PROJ_DEFAULT_EMPTY, buffer, buffer));
+				result.emplace_back(new PiObject::FreeSpace(PiObject::default_empty, buffer, buffer));
 				// Report parsing stats
 				DEBUG_INFO_MESSAGE
 					DEBUG_PRINT("\tMessage: Free space parsing ended.");
@@ -337,7 +337,7 @@ namespace Project
 		{
 			inline static PiObject::File fileByHeader(const Pi::File::Header& fileView, const MemoryView& buffer, const MemoryView& baseBuffer)
 			{
-				using namespace ::Project::PiObject::helper;
+				using namespace ::Project::PiObject::Helper;
 
 				if (fileView->Attributes & FFS_ATTRIB_LARGE_FILE) {
 					return PiObject::File(FileHeader::Extended, fileView, baseBuffer, buffer);
@@ -429,7 +429,7 @@ namespace Project
 
 			static PiObject::Section sectionByHeader(const Pi::Section::Header& sectionView, const MemoryView& buffer, const MemoryView& baseBuffer)
 			{
-				using namespace PiObject::helper;
+				using namespace PiObject::Helper;
 				PiObject::Section result(sectionView, buffer, baseBuffer);
 				// Set section header type
 				result.header.headerType = Pi::Section::Utils::getSize(sectionView) == PROJ_SECTION_MAX_SIZE ? SectionHeader::Extended : SectionHeader::Simple;
@@ -497,9 +497,11 @@ namespace Project
 						section.getUid()
 					),
 					std::forward_as_tuple(
-						decompType,
-						dstSize,
-						std::move(decomp_data)
+						std::make_unique<PiObject::Section::decomp_data_t>(
+							decompType,
+							dstSize,
+							std::move(decomp_data)
+						)
 					)
 				);
 
@@ -519,7 +521,7 @@ namespace Project
 
 			auto sectionObj = sectionByHeader(sectionView, buffer, baseBuffer);
 			Finders::SectionsVec_t sections;
-			MemoryView sectionBody(sectionView.begin + Pi::Section::Utils::getFullSize(sectionView), buffer.end);
+			MemoryView sectionBody(sectionView.begin + Pi::Section::Utils::getHeaderSize(sectionView), buffer.end);
 			bool saveSectionBodyAsData = true;
 
 			// Handle section based on it's type

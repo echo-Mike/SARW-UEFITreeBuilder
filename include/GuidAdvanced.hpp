@@ -5,18 +5,12 @@
 /// STD
 #include <iostream>
 
-/// JSON
-#include <nlohmann/json.hpp>
-
 /// PROJECT
 #include "GuidDefines.h"
-#include "cMemoryView.hpp"
+#include "MemoryView.hpp"
 
 std::ostream& operator<<(std::ostream& out, const EFI_GUID& guid);
 std::ostream& operator<<(std::ostream& out, const Project::Guid::GuidWithName& guid);
-
-void to_json(nlohmann::json& j, const EFI_GUID& guid);
-void to_json(nlohmann::json& j, const Project::Guid::GuidWithName& guid);
 
 namespace Project
 {

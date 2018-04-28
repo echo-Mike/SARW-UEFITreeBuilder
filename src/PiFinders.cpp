@@ -225,8 +225,7 @@ namespace Project
 							header = ADVANCE_PTR_(header, const EFI_FFS_FILE_HEADER*, toAdvance);
 							// Align it to 8 byte boundary from beginning of buffer
 							header = ALIGN_PTR_T8(buffer.begin, header, const EFI_FFS_FILE_HEADER*);
-						}
-						break;
+						} break;
 					case FileHeaderStatus::NotAHeader :
 						// File not found: advance to 8 bytes
 						header = ADVANCE_PTR8(header, const EFI_FFS_FILE_HEADER*);
@@ -235,7 +234,7 @@ namespace Project
 						{	// Report about repeated GUID
 							DEBUG_INFO_MESSAGE
 								OffsetView ov(buffer.begin, Pi::File::Header(header));
-								DEBUG_PRINT("\tMessage: File found with repeated GUID.");
+								DEBUG_PRINT("\tMessage: File with repeated GUID found.");
 								DEBUG_PRINT("\tFile GUID: ", header->Name);
 								DEBUG_PRINT("\tOffset in inspected buffer: ", ov.offset);
 							DEBUG_END_MESSAGE
@@ -245,8 +244,7 @@ namespace Project
 							header = ADVANCE_PTR_(header, const EFI_FFS_FILE_HEADER*, toAdvance);
 							// Align it to 8 byte boundary from beginning of buffer
 							header = ALIGN_PTR_T8(buffer.begin, header, const EFI_FFS_FILE_HEADER*);
-						}
-						break;
+						} break;
 					default:
 						DEBUG_ERROR_MESSAGE
 							DEBUG_PRINT("\tMessage: Unexpected execution path.");
@@ -277,7 +275,7 @@ namespace Project
 				// 2) Check section size
 				{
 					Types::length_t sectionSize = Pi::Section::Utils::getSizeAuto(h), 
-									struct_size = Pi::Section::Utils::getFullSize(h);
+									struct_size = Pi::Section::Utils::getHeaderSize(h);
 					if (sectionSize < struct_size ||
 						sectionSize > buffer.getLength() - (UnifyPtrCast(h) - buffer.begin))
 					{

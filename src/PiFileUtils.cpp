@@ -225,29 +225,35 @@ namespace Project
 					auto end = GET_END_PTR(FileNames, FileMacroPlusName);
 					auto pos = fileNamePosition(type);
 					if (FileNames + pos != end) {
-						if (FileNames[pos].type != type)
-							DEBUG_WARNING_MESSAGE
-								DEBUG_PRINT("\tMessage: Found type do not correspond to file type.");
-								DEBUG_PRINT("\tFile type: ", type);
-								DEBUG_PRINT("\tType name found: ", FileNames[pos].name);
-							DEBUG_END_MESSAGE
+						if (FileNames[pos].type != type) DEBUG_WARNING_MESSAGE
+							DEBUG_PRINT("\tMessage: Found type do not correspond to file type.");
+							DEBUG_PRINT("\tFile type: ", type);
+							DEBUG_PRINT("\tType name found: ", FileNames[pos].name);
+						DEBUG_END_MESSAGE
 
 						return FileNames[pos].name;
 					} else {
 						std::memset(filenameBuffer, 0, sizeof(filenameBuffer));
-						if (EFI_FV_FILETYPE_OEM_MIN < type && type < EFI_FV_FILETYPE_OEM_MAX) {
+						if (EFI_FV_FILETYPE_OEM_MIN < type && type < EFI_FV_FILETYPE_OEM_MAX) 
+						{
 							pos = fileNamePosition(EFI_FV_FILETYPE_OEM_MIN) + 1;
 							std::snprintf(filenameBuffer, sizeof(filenameBuffer) / sizeof(char), FileNames[pos].name, type - EFI_FV_FILETYPE_OEM_MIN);
 							return filenameBuffer;
-						} else if (EFI_FV_FILETYPE_DEBUG_MIN < type && type < EFI_FV_FILETYPE_DEBUG_MAX) {
+						} 
+						else if (EFI_FV_FILETYPE_DEBUG_MIN < type && type < EFI_FV_FILETYPE_DEBUG_MAX) 
+						{
 							pos = fileNamePosition(EFI_FV_FILETYPE_DEBUG_MIN) + 1;
 							std::snprintf(filenameBuffer, sizeof(filenameBuffer) / sizeof(char), FileNames[pos].name, type - EFI_FV_FILETYPE_DEBUG_MIN);
 							return filenameBuffer;
-						} else if (EFI_FV_FILETYPE_FFS_MIN < type && type < EFI_FV_FILETYPE_FFS_MAX) {
+						} 
+						else if (EFI_FV_FILETYPE_FFS_MIN < type && type < EFI_FV_FILETYPE_FFS_MAX) 
+						{
 							pos = fileNamePosition(EFI_FV_FILETYPE_FFS_MIN) + 1;
 							std::snprintf(filenameBuffer, sizeof(filenameBuffer) / sizeof(char), FileNames[pos].name, type - EFI_FV_FILETYPE_FFS_MIN);
 							return filenameBuffer;
-						} else {
+						} 
+						else 
+						{
 							return FileNames[fileNamePosition(NOT_EFI_FV_FILETYPE)].name;
 						}
 					}

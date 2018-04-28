@@ -145,6 +145,7 @@ namespace Project
 				std::string getAtributeString(Pi::File::Header::const_pointer_t header, bool alternative = false);
 
 				std::string getStateString(Pi::File::Header::const_pointer_t header, bool alternative = false);
+
 			}
 
 		}

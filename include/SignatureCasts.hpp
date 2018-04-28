@@ -11,6 +11,7 @@
 
 namespace Project
 {
+
 	template < std::uint16_t Signature >
 	union signature_cast_16
 	{
@@ -34,6 +35,7 @@ namespace Project
 		Types::memory_t bytes[byte_size];
 		std::uint16_t signature = Signature;
 	};
+
 }
 
 #endif

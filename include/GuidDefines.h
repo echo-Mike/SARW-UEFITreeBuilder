@@ -199,6 +199,12 @@ PROJ_EXTERN_C_END
 #	define UnifyPtrCast(Ptr) (reinterpret_cast<::Project::Types::const_pointer_t>((Ptr)))
 #endif
 
+inline bool operator!=(const EFI_GUID& lhs, const EFI_GUID& rhs) noexcept { return std::memcmp(&lhs, &rhs, sizeof(EFI_GUID)); }
+
+inline bool operator==(const EFI_GUID& lhs, const EFI_GUID& rhs) noexcept { return !operator!=(lhs, rhs); }
+
+inline bool operator< (const EFI_GUID& lhs, const EFI_GUID& rhs) noexcept { return std::lexicographical_compare(UnifyPtrCast(&lhs), UnifyPtrCast(&lhs) + sizeof(EFI_GUID), UnifyPtrCast(&rhs), UnifyPtrCast(&rhs) + sizeof(EFI_GUID)); }
+
 namespace Project
 {
 
@@ -252,7 +258,7 @@ namespace Project
 			inline const GuidWithName& findNamedGuid(const EFI_GUID* ptr)
 			{
 				return *(
-					std::find(
+					std::find_if(
 						begin(), 
 						end(),
 						[ptr](const GuidWithName& gwn) -> bool
@@ -316,12 +322,6 @@ namespace Project
 	}
 
 }
-
-inline bool operator!=(const EFI_GUID& lhs, const EFI_GUID& rhs) noexcept { return std::memcmp(&lhs, &rhs, sizeof(EFI_GUID)); }
-
-inline bool operator==(const EFI_GUID& lhs, const EFI_GUID& rhs) noexcept { return !operator!=(lhs, rhs); }
-
-inline bool operator< (const EFI_GUID& lhs, const EFI_GUID& rhs) noexcept { return std::lexicographical_compare(UnifyPtrCast(&lhs), UnifyPtrCast(&lhs) + sizeof(EFI_GUID), UnifyPtrCast(&rhs), UnifyPtrCast(&rhs) + sizeof(EFI_GUID)); }
 
 #define PROJ_GUID_SIZE (::Project::Guid::struct_size)
 

@@ -6,15 +6,16 @@
 #include <map>
 
 /// PROJECT
-#include "PiBaseObject.hpp"
+#include "PiComplexObject.hpp"
 #include "DecompressionModule.hpp"
 
 namespace Project
 {
+
 	namespace PiObject
 	{
 
-		namespace helper
+		namespace Helper
 		{
 
 			struct SectionHeader
@@ -53,8 +54,6 @@ namespace Project
 
 			};
 
-			void to_json(nlohmann::json& j, const SectionHeader& obj);
-
 			struct SectionDecompressedData
 			{
 				SectionDecompressedData(
@@ -75,8 +74,6 @@ namespace Project
 
 			typedef std::unique_ptr< SectionDecompressedData > unique_section_decomp_buff_t;
 
-			void to_json(nlohmann::json& j, const unique_section_decomp_buff_t& obj);
-
 			typedef std::map<Types::hash_t, unique_section_decomp_buff_t> section_decomp_data_storage_t;
 
 		}
@@ -86,13 +83,13 @@ namespace Project
 		{
 			typedef ComplexObject Base;
 
-			typedef helper::SectionDecompressedData decomp_data_t;
+			typedef Helper::SectionDecompressedData decomp_data_t;
 
-			typedef helper::unique_section_decomp_buff_t unique_section_decomp_buff_t;
+			typedef Helper::unique_section_decomp_buff_t unique_section_decomp_buff_t;
 
-			typedef helper::section_decomp_data_storage_t  decomp_data_storage_t;
+			typedef Helper::section_decomp_data_storage_t  decomp_data_storage_t;
 
-			typedef helper::section_decomp_data_storage_t* decomp_data_storage_ptr_t;
+			typedef Helper::section_decomp_data_storage_t* decomp_data_storage_ptr_t;
 
 			typedef Pi::Section::Header::value_type RepresentedStruct_t;
 
@@ -144,8 +141,8 @@ namespace Project
 			decomp_data_storage_ptr_t getDecomressedDataStorage() const 
 			{
 				decomp_data_storage_ptr_t result = nullptr;
-				if (header.sectionType == helper::SectionHeader::Compression ||
-					header.sectionType == helper::SectionHeader::GuidDefined) {
+				if (header.sectionType == Helper::SectionHeader::Compression ||
+					header.sectionType == Helper::SectionHeader::GuidDefined) {
 					result = &DecompressedSectionData;
 				} else DEBUG_WARNING_MESSAGE
 					DEBUG_PRINT("\tMessage: Can't access decompressed data storage.");
@@ -155,12 +152,13 @@ namespace Project
 				return result;
 			}
 
-			inline const RepresentedStruct_t* operator->() const { return header.header.get(); }
+			inline Pi::Section::Header::const_pointer_t operator->() const { return header.header.get(); }
 
-			helper::SectionHeader header;
+			Helper::SectionHeader header;
 		};
 
 	}
+
 }
 
 #endif

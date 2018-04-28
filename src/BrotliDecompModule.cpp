@@ -1,7 +1,6 @@
-/// BROTLI
-#include <Brotli/BrotliDecompressLibInternal.h>
 /// PROJECT
 #include "DecompressionModule.hpp"
+#include "BrotliAdapter.h"
 
 namespace Project
 {
@@ -16,7 +15,7 @@ namespace Project
 		)
 		{
 			UINT32 DstSize_ = 0, ScratchSize_ = 0, SrcSize_ = SrcSize;
-			auto status = BrotliUefiDecompressGetInfo(
+			auto status = proj_brotli_GetInfo(
 				Source,
 				SrcSize_,
 				&DstSize_,
@@ -40,7 +39,7 @@ namespace Project
 		)
 		{
 			UINT32 DstSize_ = 0, ScratchSize_ = 0, SrcSize_ = SrcSize;
-			auto status = BrotliUefiDecompressGetInfo(
+			auto status = proj_brotli_GetInfo(
 				Source,
 				SrcSize_,
 				&DstSize_,
@@ -54,7 +53,7 @@ namespace Project
 			Destination.reset(new Types::byte_t[DstSize_]);
 			Types::unique_byte_buff_t scratchBuff(new Types::byte_t[ScratchSize_]);
 
-			status = BrotliUefiDecompress(
+			status = proj_brotli_Decompress(
 				Source,
 				SrcSize_,
 				Destination.get(),

@@ -3,9 +3,7 @@
 #define	PI_VOLUME_OBJECT_HPP__ "0.0.0@PiVolumeObject.hpp"
 
 /// PROJECT
-#include "PiBaseObject.hpp"
-
-#define PROJ_DEFAULT_EMPTY (0xFF)
+#include "PiComplexObject.hpp"
 
 namespace Project
 {
@@ -52,7 +50,7 @@ namespace Project
 			
 			// Class i-face
 
-			inline const RepresentedStruct_t* operator->() const { return normalHdr.get(); }
+			inline Pi::Volume::Header::const_pointer_t operator->() const { return normalHdr.get(); }
 
 			Pi::Volume::Header normalHdr;
 			Pi::Volume::Extension::Header extendedHdr;

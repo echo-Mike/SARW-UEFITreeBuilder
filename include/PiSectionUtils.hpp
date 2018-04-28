@@ -82,16 +82,16 @@ namespace Project
 		namespace Section
 		{
 
-			typedef StructureView<POSTCODE_SECTION, SectionTag> Postcode;
-			typedef StructureView<CRC32_SECTION_HEADER, SectionTag> GuidedCrc32;
-			typedef StructureView<RSA_2048_SHA_256_SECTION_HEADER, SectionTag> GuidedSha256;
+			typedef StructureView<POSTCODE_SECTION> Postcode;
+			typedef StructureView<CRC32_SECTION_HEADER> GuidedCrc32;
+			typedef StructureView<RSA_2048_SHA_256_SECTION_HEADER> GuidedSha256;
 
 			namespace Extended
 			{
 
-				typedef StructureView<POSTCODE_SECTION2, SectionExtTag> Postcode;
-				typedef StructureView<CRC32_SECTION2_HEADER, SectionExtTag> GuidedCrc32;
-				typedef StructureView<RSA_2048_SHA_256_SECTION2_HEADER, SectionExtTag> GuidedSha256;
+				typedef StructureView<POSTCODE_SECTION2> Postcode;
+				typedef StructureView<CRC32_SECTION2_HEADER> GuidedCrc32;
+				typedef StructureView<RSA_2048_SHA_256_SECTION2_HEADER> GuidedSha256;
 			}
 
 			namespace Utils
@@ -121,11 +121,6 @@ namespace Project
 					return header->ExtendedSize;
 				}
 
-				inline Types::length_t getSize(const PiObject::Section& sec)
-				{
-					return sec.header.isExtended() ? getSize2(sec.header.header.begin) : getSize(sec.header.header);
-				}
-
 				inline Types::length_t getSize1(Types::const_pointer_t header)
 				{
 					return getSize(reinterpret_cast<Pi::Section::Header::const_pointer_t>(header));
@@ -136,12 +131,17 @@ namespace Project
 					return reinterpret_cast<Pi::Section::Extended::Header::const_pointer_t>(header)->ExtendedSize;
 				}
 
+				inline Types::length_t getSize(const PiObject::Section& sec)
+				{
+					return sec.header.isExtended() ? getSize2(sec.header.header.begin) : getSize(sec.header.header);
+				}
+
 				inline Types::length_t getSizeAuto(Pi::Section::Header::const_pointer_t header)
 				{
 					return getSize(header) == PROJ_SECTION_MAX_SIZE ? getSize2(UnifyPtrCast(header)) : getSize(header);
 				}
 
-				Types::length_t getFullSize(Pi::Section::Header::const_pointer_t header);
+				Types::length_t getHeaderSize(Pi::Section::Header::const_pointer_t header);
 
 				bool isSectionType(Types::memory_t type);
 
