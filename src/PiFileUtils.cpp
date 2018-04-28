@@ -155,6 +155,40 @@ namespace Project
 						}
 					}
 
+					static const char* getFileDataAlignment(Pi::File::Header::const_pointer_t header)
+					{
+						if (header->Attributes & FFS_ATTRIB_DATA_ALIGNMENT2)
+						{
+							switch (header->Attributes & FFS_ATTRIB_DATA_ALIGNMENT)
+							{
+								case FFS_FILE_DATA_ALIGNMENT_128K : return "128K";
+								case FFS_FILE_DATA_ALIGNMENT_256K : return "256K";
+								case FFS_FILE_DATA_ALIGNMENT_512K : return "512K";
+								case FFS_FILE_DATA_ALIGNMENT_1M   : return "1M";
+								case FFS_FILE_DATA_ALIGNMENT_2M   : return "2M";
+								case FFS_FILE_DATA_ALIGNMENT_4M   : return "4M";
+								case FFS_FILE_DATA_ALIGNMENT_8M   : return "8M";
+								case FFS_FILE_DATA_ALIGNMENT_16M  : return "16M";
+								default                           : return "Unknown";
+							}
+						}
+						else
+						{
+							switch (header->Attributes & FFS_ATTRIB_DATA_ALIGNMENT)
+							{
+								case FFS_FILE_DATA_ALIGNMENT_1   : return "1B";
+								case FFS_FILE_DATA_ALIGNMENT_16  : return "16B";
+								case FFS_FILE_DATA_ALIGNMENT_128 : return "128B";
+								case FFS_FILE_DATA_ALIGNMENT_512 : return "512B";
+								case FFS_FILE_DATA_ALIGNMENT_1K  : return "1K";
+								case FFS_FILE_DATA_ALIGNMENT_4K  : return "4K";
+								case FFS_FILE_DATA_ALIGNMENT_32K : return "32K";
+								case FFS_FILE_DATA_ALIGNMENT_64K : return "64K";
+								default                          : return "Unknown";
+							}
+						}
+					}
+
 				}
 
 				FileTypeRanges::FileTypeRange_t whatTypeRange(Types::memory_t type)
@@ -217,6 +251,74 @@ namespace Project
 							return FileNames[fileNamePosition(NOT_EFI_FV_FILETYPE)].name;
 						}
 					}
+				}
+
+				std::string getAtributeString(Pi::File::Header::const_pointer_t header, bool alternative)
+				{
+					char strBuffer[256];
+					std::memset(strBuffer, 0, sizeof(strBuffer));
+					if (alternative)
+					{
+						std::snprintf(strBuffer, sizeof(strBuffer),
+							"LARGE_FILE : %c | ALIGNMENT2 : %c | FIXED : %c | DATA ALIGNMENT : %s | CHECKSUM : %c | SET_TO_ZERO : %c ( %#.2X )",
+							header->Attributes & FFS_ATTRIB_LARGE_FILE      ? 'T' : 'F',
+							header->Attributes & FFS_ATTRIB_DATA_ALIGNMENT2 ? 'T' : 'F',
+							header->Attributes & FFS_ATTRIB_FIXED           ? 'T' : 'F',
+							Helper::getFileDataAlignment(header),
+							header->Attributes & FFS_ATTRIB_CHECKSUM        ? 'T' : 'F',
+							header->Attributes & FFS_ATTRIB_SET_TO_ZERO     ? 'F' : 'T',
+							header->Attributes
+						);
+					}
+					else
+					{
+						std::snprintf(strBuffer, sizeof(strBuffer),
+							"%s%s%s%s%sDATA ALIGNMENT : %s ( %#.2X )",
+							header->Attributes & FFS_ATTRIB_LARGE_FILE      ? "LARGE_FILE | "      : "",
+							header->Attributes & FFS_ATTRIB_DATA_ALIGNMENT2 ? "DATA_ALIGNMENT2 | " : "",
+							header->Attributes & FFS_ATTRIB_FIXED           ? "FIXED | "           : "",
+							header->Attributes & FFS_ATTRIB_CHECKSUM        ? "CHECKSUM | "        : "",
+							header->Attributes & FFS_ATTRIB_SET_TO_ZERO     ? "SET_TO_ONE | "      : "",
+							Helper::getFileDataAlignment(header),
+							header->Attributes
+						);
+					}
+					return std::string(strBuffer);
+				}
+
+				std::string getStateString(Pi::File::Header::const_pointer_t header, bool alternative)
+				{
+					char strBuffer[256];
+					std::memset(strBuffer, 0, sizeof(strBuffer));
+					if (alternative)
+					{
+						std::snprintf(strBuffer, sizeof(strBuffer),
+							"HEADER_CONSTRUCTION : %c | HEADER_VALID : %c | DATA_VALID : %c | MARKED_FOR_UPDATE : %c | DELETED : %c | HEADER_INVALID : %c | SET_TO_ERASE_POLARITY : %c ( %#.2X )",
+							header->State & EFI_FILE_HEADER_CONSTRUCTION ? 'T' : 'F',
+							header->State & EFI_FILE_HEADER_VALID        ? 'T' : 'F',
+							header->State & EFI_FILE_DATA_VALID          ? 'T' : 'F',
+							header->State & EFI_FILE_MARKED_FOR_UPDATE   ? 'T' : 'F',
+							header->State & EFI_FILE_DELETED             ? 'T' : 'F',
+							header->State & EFI_FILE_HEADER_INVALID      ? 'T' : 'F',
+							header->State & EFI_FILE_STATE_MASK          ? '1' : '0',
+							header->State
+						);
+					}
+					else
+					{
+						std::snprintf(strBuffer, sizeof(strBuffer),
+							"%s%s%s%s%s%sSET_TO_ERASE_POLARITY : %c ( %#.2X )",
+							header->State & EFI_FILE_HEADER_CONSTRUCTION ? "HEADER_CONSTRUCTION | " : "",
+							header->State & EFI_FILE_HEADER_VALID        ? "HEADER_VALID | "        : "",
+							header->State & EFI_FILE_DATA_VALID          ? "DATA_VALID | "          : "",
+							header->State & EFI_FILE_MARKED_FOR_UPDATE   ? "MARKED_FOR_UPDATE | "   : "",
+							header->State & EFI_FILE_DELETED             ? "DELETED | "             : "",
+							header->State & EFI_FILE_HEADER_INVALID      ? "HEADER_INVALID | "      : "",
+							header->State & EFI_FILE_STATE_MASK          ? '1'                      : '0',
+							header->State
+						);
+					}
+					return std::string(strBuffer);
 				}
 
 			}

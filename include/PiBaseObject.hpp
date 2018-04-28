@@ -17,6 +17,26 @@
 namespace Project
 {
 
+	namespace Pi
+	{
+
+		namespace Volume
+		{
+			void to_json(nlohmann::json& j, const Header& hdr);
+		}
+
+		namespace File
+		{
+			void to_json(nlohmann::json& j, const Header& hdr);
+		}
+
+		namespace Section
+		{
+			void to_json(nlohmann::json& j, const Header& hdr);
+		}
+
+	}
+
 	namespace PiObject
 	{
 
@@ -36,6 +56,8 @@ namespace Project
 
 				FreeSpaceNormal    = FreeSpaceFlag,
 				FreeSpaceCorrupted = FreeSpaceFlag | 0x00000001,
+				FreeSpaceEmpty     = 0x0000FF00,
+#define PROJ_FREE_SPACE_STATE_EMPTY_START_BIT (8)
 
 				DataNormal         = DataFlag,
 				DataInvalidVolume  = DataFlag | 0x00000001,
@@ -141,6 +163,11 @@ unique_object_ptr_t copy() \
 				}
 				// Hash self representation
 				setSimpleUid(*this);
+				// Save empty
+				std::uint32_t empty_ = empty;
+				empty_ <<= PROJ_FREE_SPACE_STATE_EMPTY_START_BIT;
+				empty_ &= InconsistencyState::FreeSpaceEmpty;
+				state = static_cast<InconsistencyState::InconsistencyState_t>(state | empty_);
 			}
 
 		public:
@@ -182,10 +209,16 @@ unique_object_ptr_t copy() \
 		public:
 
 			Data(const MemoryView& baseBuffer, const MemoryView& myBuffer) :
-				Base(baseBuffer, myBuffer, InconsistencyState::DataFlag) {}
+				Base(baseBuffer, myBuffer, InconsistencyState::DataFlag) 
+			{ 
+				setSimpleUid(*this); 
+			}
 
 			Data(const MemoryView& baseBuffer, MemoryView&& myBuffer) :
-				Base(baseBuffer, std::move(myBuffer), InconsistencyState::DataFlag) {}
+				Base(baseBuffer, std::move(myBuffer), InconsistencyState::DataFlag) 
+			{
+				setSimpleUid(*this);
+			}
 
 			DefaultCopyableAndMovable(Data)
 

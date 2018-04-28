@@ -2,6 +2,9 @@
 #ifndef PI_VOLUME_UTILS_HPP__
 #define PI_VOLUME_UTILS_HPP__ "0.0.0@PiVolumeUtils.hpp"
 
+/// STD
+#include <string>
+
 /// PROJECT
 #include "General.hpp"
 #include "PiViews.hpp"
@@ -34,6 +37,8 @@ namespace Project
 				bool addParsedVolume(const Pi::Volume::Header& header);
 
 				bool isParsedVolume(const Pi::Volume::Header& header);
+
+				std::string getAtributeString(Pi::Volume::Header::const_pointer_t header, bool alternative = false);
 
 			}
 

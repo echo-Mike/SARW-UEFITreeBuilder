@@ -55,8 +55,8 @@ void to_json(nlohmann::json& j, const EFI_GUID& guid)
 
 void to_json(nlohmann::json& j, const Project::Guid::GuidWithName& guid)
 {
-	j["GUID"] = guid.value;
-	j["Name"] = guid.name;
+	j["value"] = guid.value;
+	j["name"] = guid.name;
 }
 
 #undef MAKE_FFS_GUID
