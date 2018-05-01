@@ -17,7 +17,7 @@ namespace Utils {
 
 		static const EFI_FV_BLOCK_MAP_ENTRY lastEntry = { 0, 0 };
 
-		Types::length_t computeBlockMapLength(Pi::Volume::Header::const_pointer_t hdr)
+		Types::length_t computeBlockMapLength(const Pi::Volume::Header::const_pointer_t hdr)
 		{
 
 			Types::length_t result = 0;
@@ -36,7 +36,7 @@ namespace Utils {
 
 		static parsed_volumes_storage_t parsedVolumes;
 
-		static const char* getVolumeAlignment(Pi::Volume::Header::const_pointer_t header)
+		static const char* getVolumeAlignment(const Pi::Volume::Header::const_pointer_t header)
 		{
 			switch (header->Attributes & EFI_FVB2_ALIGNMENT)
 			{
@@ -78,45 +78,21 @@ namespace Utils {
 
 	}
 
-	Types::length_t getSize(Pi::Volume::Header::const_pointer_t header)
+	Types::length_t getSize(const Pi::Volume::Header::const_pointer_t header)
 	{
 		Types::length_t volumeField = header->FvLength;
-		Types::length_t blockMap = 0; 
-		
-		try {
-			blockMap = Helper::computeBlockMapLength(header);
-		}
-		catch (const std::exception& e)
-		{
-			DEBUG_ERROR_MESSAGE
-				DEBUG_PRINT("\tMessage: Error occurred during block map length calculation.");
-				DEBUG_PRINT("\tErr message: ", e.what());
-			DEBUG_END_MESSAGE
-			return 0;
-		}
-		catch (...)
-		{
-			DEBUG_ERROR_MESSAGE
-				DEBUG_PRINT("\tMessage: Error occurred during block map length calculation.");
-			DEBUG_END_MESSAGE
-			return 0;
-		}
-		
-		if ( volumeField != blockMap )
-		{
-			DEBUG_INFO_MESSAGE
+		// There may be out of bound access
+		Types::length_t blockMap = Helper::computeBlockMapLength(header);
+		if ( volumeField != blockMap ) DEBUG_WARNING_MESSAGE
 				DEBUG_PRINT("\tMessage: Volume block map length and value of FvLength do not match.");
 				DEBUG_PRINT("\tGUID: ", header->FileSystemGuid);
 				DEBUG_PRINT("\tFvLength: ", volumeField);
 				DEBUG_PRINT("\tCalculated block map length: ", blockMap);
 			DEBUG_END_MESSAGE
-
-			throw std::length_error("");
-		}
-		return volumeField < blockMap ? blockMap : volumeField;
+		return volumeField;
 	}
 
-	Types::length_t getHeaderSize(Pi::Volume::Header::const_pointer_t header)
+	Types::length_t getHeaderSize(const Pi::Volume::Header::const_pointer_t header)
 	{	// Size of first block map entry is already counted in size of header structure itself
 		using namespace Helper;
 		Types::count_t blockEntryCount = 0;
@@ -140,7 +116,7 @@ namespace Utils {
 		return Helper::parsedVolumes.count(header.get());
 	}
 
-	std::string getAtributeString(Pi::Volume::Header::const_pointer_t header, bool alternative)
+	std::string getAtributeString(const Pi::Volume::Header::const_pointer_t header, bool alternative)
 	{
 		char strBuffer[512];
 		std::memset(strBuffer, 0, sizeof(strBuffer));
@@ -203,6 +179,24 @@ namespace Utils {
 			);
 		}
 		return std::string(strBuffer);
+	}
+
+	extended_header_entries_vec_t findExtendedHeaderEntries(const Extension::Header& hdr, const MemoryView& buffer)
+	{
+		extended_header_entries_vec_t result;
+		if (hdr->ExtHeaderSize > Extension::Header::structure_size)
+		{
+			auto entryPtr = ADVANCE_PTR_(hdr.begin, Extension::Entry::const_pointer_t, Extension::Header::structure_size);
+			while (buffer.isInside(entryPtr))
+			{
+				result.emplace_back(entryPtr);
+				entryPtr = ADVANCE_PTR_(entryPtr, Extension::Entry::const_pointer_t, entryPtr->ExtEntrySize);
+			}
+			if (UnifyPtrCast(entryPtr) > buffer.end) DEBUG_WARNING_MESSAGE
+				DEBUG_PRINT("\tMessage: Last extended volume header entry exceeds provided boundary.");
+			DEBUG_END_MESSAGE
+		}
+		return result;
 	}
 
 } 

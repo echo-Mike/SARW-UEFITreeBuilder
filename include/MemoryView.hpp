@@ -39,9 +39,9 @@ namespace Project
 
 		inline bool checkPointers() const { return begin != Types::const_pointer_t() && end != Types::const_pointer_t(); }
 
-		inline bool isInside(const void* ptr) const { return begin <= reinterpret_cast<Types::const_pointer_t>(ptr) && reinterpret_cast<Types::const_pointer_t>(ptr) < end; }
+		inline bool isInside(const void* const ptr) const { return begin <= reinterpret_cast<Types::const_pointer_t>(ptr) && reinterpret_cast<Types::const_pointer_t>(ptr) < end; }
 
-		inline bool isOutside(const void* ptr) const { return !isInside(ptr); }
+		inline bool isOutside(const void* const ptr) const { return !isInside(ptr); }
 
 		inline Types::length_t getLength() const { return end - begin; }
 

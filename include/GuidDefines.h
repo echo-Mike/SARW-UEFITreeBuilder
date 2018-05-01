@@ -160,6 +160,7 @@ PROJ_EXTERN_C_END
 
 /// EDK2 SOURCE : https://github.com/tianocore/edk2/blob/master/BaseTools/Source/C/Include/Common/UefiMultiPhase.h
 
+#undef EFI_CERT_TYPE_RSA2048_SHA256_GUID
 // A7717414-C616-4977-9420-844712A735BF
 #define EFI_CERT_TYPE_RSA2048_SHA256_GUID \
 	{ 0xa7717414, 0xc616, 0x4977, { 0x94, 0x20, 0x84, 0x47, 0x12, 0xa7, 0x35, 0xbf } }
@@ -189,7 +190,7 @@ PROJ_EXTERN_C_END
 /// STD
 // For std::memcmp
 #include <cstring>
-// For std::lexicographical_compare and std::find
+// For std::lexicographical_compare and std::find_if
 #include <algorithm>
 
 /// PROJECT
@@ -215,9 +216,9 @@ namespace Project
 
 		inline Types::const_pointer_t begin(const type& guid) { return reinterpret_cast<Types::const_pointer_t>(&guid); }
 
-		static const Types::length_t struct_size = sizeof(EFI_GUID);
+		static const Types::length_t structure_size = sizeof(EFI_GUID);
 
-		inline Types::const_pointer_t end(const type& guid) { return reinterpret_cast<Types::const_pointer_t>(&guid) + struct_size; }
+		inline Types::const_pointer_t end(const type& guid) { return reinterpret_cast<Types::const_pointer_t>(&guid) + structure_size; }
 
 		struct GuidWithName
 		{
@@ -269,6 +270,24 @@ namespace Project
 				);
 			}
 			inline const GuidWithName& findNamedGuid(const EFI_GUID& guid) { return findNamedGuid(&guid); }
+			inline const GuidWithName& findNamedGuid(const GuidWithName* const hint, const EFI_GUID* const ptr)
+			{
+				if (!hint || hint < begin() || end() < hint)
+				{
+					return *end();
+				}
+				return *(
+					std::find_if(
+						hint,
+						end(),
+						[ptr](const GuidWithName& gwn) -> bool
+						{
+							return gwn.value == *ptr;
+						}
+					)
+				);
+			}
+			inline const GuidWithName& findNamedGuid(const GuidWithName* const hint, const EFI_GUID& guid) { return findNamedGuid(hint, &guid); }
 
 			inline bool isNamedGuid(const EFI_GUID* ptr)
 			{
@@ -323,7 +342,7 @@ namespace Project
 
 }
 
-#define PROJ_GUID_SIZE (::Project::Guid::struct_size)
+#define PROJ_GUID_SIZE (::Project::Guid::structure_size)
 
 #else
 

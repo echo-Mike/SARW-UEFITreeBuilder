@@ -42,6 +42,8 @@ namespace Project
 
 	void to_json(nlohmann::json& j, const Pi::Section::Header& hdr);
 
+	void to_json(nlohmann::json& j, const Pi::Volume::Extension::Entry& entry);
+
 	namespace PiObject
 	{
 		inline void to_json(nlohmann::json& j, const Object& obj) { (&obj)->toJson(j); }

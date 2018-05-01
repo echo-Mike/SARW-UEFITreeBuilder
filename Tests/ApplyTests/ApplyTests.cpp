@@ -56,13 +56,13 @@ std::ostream& operator<<(std::ostream& out, const EFI_GUID& guid)
 int main(void)
 {
 	char a[256];
-	char b[64];
+	char b[128];
 	std::iota(a, a + 256, 0);
 	for (size_t i = 0; i < 16; ++i)
 	{
 		std::memset(b, 0, sizeof(b));
 		std::snprintf(b, sizeof(b),
-			"\t\t%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX",
+			"%#.2hhX:%#.2hhX:%#.2hhX:%#.2hhX:%#.2hhX:%#.2hhX:%#.2hhX:%#.2hhX:%#.2hhX:%#.2hhX:%#.2hhX:%#.2hhX:%#.2hhX:%#.2hhX:%#.2hhX:%#.2hhX",
 			a[16 * i + 0],
 			a[16 * i + 1],
 			a[16 * i + 2],
