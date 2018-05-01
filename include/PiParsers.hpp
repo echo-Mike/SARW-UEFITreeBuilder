@@ -24,7 +24,7 @@ namespace Project
 			PiObject::ComplexObject& baseObject, 
 			VecT headerVec, 
 			const MemoryView& buffer,
-			Types::memory_t empty,
+			Types::byte_t empty,
 			const char* errMsg,
 			PiObject::InconsistencyState::InconsistencyState_t errorState)
 		{
@@ -64,11 +64,11 @@ namespace Project
 
 		PiObject::object_vec_t FreeSpaceParser(const MemoryView& buffer);
 
-		PiObject::Section SectionParser(const Pi::Section::Header& sectionView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t empty);
+		PiObject::Section SectionParser(const Pi::Section::Header& sectionView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::byte_t empty);
 
-		PiObject::File FileParser(const Pi::File::Header& fileView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t empty);
+		PiObject::File FileParser(const Pi::File::Header& fileView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::byte_t empty);
 
-		PiObject::Volume VolumeParser(const Pi::Volume::Header& volumeView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t = 0x00);
+		PiObject::Volume VolumeParser(const Pi::Volume::Header& volumeView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::byte_t = 0x00);
 
 	}
 

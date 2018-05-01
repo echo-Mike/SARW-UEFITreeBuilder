@@ -34,7 +34,7 @@ namespace Project
 		typedef const void_t* const_void_ptr_t;
 
 		/// Byte
-
+		// Used for manipulating with storages of length of exact count of 8-bit bytes
 		typedef std::uint8_t byte_t;
 
 		typedef byte_t* byte_ptr_t;
@@ -42,8 +42,8 @@ namespace Project
 		typedef const byte_t* const_byte_ptr_t;
 
 		/// Memory
-
-		typedef byte_t memory_t;
+		// Used for safe access to "object representation" ("safe access" is guaranteed from C++ standard)
+		typedef unsigned char memory_t;
 
 		typedef memory_t* pointer_t;
 

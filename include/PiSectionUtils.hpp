@@ -143,18 +143,18 @@ namespace Project
 
 				Types::length_t getHeaderSize(Pi::Section::Header::const_pointer_t header);
 
-				bool isSectionType(Types::memory_t type);
+				bool isSectionType(Types::byte_t type);
 
-				bool isEncapsulationType(Types::memory_t type);
+				bool isEncapsulationType(Types::byte_t type);
 
 				inline bool isExtendedSection(Pi::Section::Header::const_pointer_t header)
 				{
 					return getSize(header) == PROJ_SECTION_MAX_SIZE;
 				}
 
-				const char* sectionTypeToCStr(Types::memory_t type);
+				const char* sectionTypeToCStr(Types::byte_t type);
 
-				inline std::string sectionTypeToStr(Types::memory_t type) { return sectionTypeToCStr(type); }
+				inline std::string sectionTypeToStr(Types::byte_t type) { return sectionTypeToCStr(type); }
 
 				bool checkRsa2048Sha256GuidedSection(const Pi::Section::Header& sectionView, const MemoryView& buffer);
 			}

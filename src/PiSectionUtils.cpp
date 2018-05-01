@@ -21,7 +21,7 @@ namespace Project
 			{
 				namespace Helper
 				{
-					static const Types::memory_t SectionTypes[] =
+					static const Types::byte_t SectionTypes[] =
 					{
 						EFI_SECTION_COMPRESSION,
 						EFI_SECTION_GUID_DEFINED,
@@ -42,7 +42,7 @@ namespace Project
 						INSYDE_SECTION_POSTCODE
 					};
 
-					static const Types::memory_t EncSectionTypes[] =
+					static const Types::byte_t EncSectionTypes[] =
 					{
 						EFI_SECTION_COMPRESSION,
 						EFI_SECTION_GUID_DEFINED,
@@ -51,7 +51,7 @@ namespace Project
 
 					struct SectionMacroPlusName
 					{
-						Types::memory_t type;
+						Types::byte_t type;
 						const char* name;
 					};
 
@@ -77,7 +77,7 @@ namespace Project
 						PROJ_SEC_TYPE_TO_STR(NOT_EFI_SECTION_TYPE)
 					};
 
-					std::size_t secNamePosition(Types::memory_t type)
+					std::size_t secNamePosition(Types::byte_t type)
 					{
 						switch (type)
 						{
@@ -151,21 +151,21 @@ namespace Project
 					}
 				}
 
-				bool isSectionType(Types::memory_t type)
+				bool isSectionType(Types::byte_t type)
 				{
 					using namespace Helper;
-					auto end = GET_END_PTR(SectionTypes, Types::memory_t);
+					auto end = GET_END_PTR(SectionTypes, Types::byte_t);
 					return std::find(SectionTypes, end, type) != end;
 				}
 
-				bool isEncapsulationType(Types::memory_t type)
+				bool isEncapsulationType(Types::byte_t type)
 				{
 					using namespace Helper;
-					auto end = GET_END_PTR(EncSectionTypes, Types::memory_t);
+					auto end = GET_END_PTR(EncSectionTypes, Types::byte_t);
 					return std::find(EncSectionTypes, end, type) != end;
 				}
 
-				const char* sectionTypeToCStr(Types::memory_t type)
+				const char* sectionTypeToCStr(Types::byte_t type)
 				{
 					using namespace Helper;
 					auto end = GET_END_PTR(SecNames, SectionMacroPlusName);

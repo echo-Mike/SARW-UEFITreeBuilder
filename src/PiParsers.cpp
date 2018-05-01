@@ -181,7 +181,7 @@ namespace Project
 #define VOLUME_EXTENDED_HEADER_AFTER_BLOCK_MAP 1
 #define VOLUME_EXTENDED_HEADER_FOUND 2
 
-		PiObject::Volume VolumeParser(const Pi::Volume::Header& volumeView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t)
+		PiObject::Volume VolumeParser(const Pi::Volume::Header& volumeView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::byte_t)
 		{
 			using namespace VolumeParserNs;
 			PiObject::Volume volume(volumeView, baseBuffer, buffer);
@@ -197,7 +197,7 @@ namespace Project
 				return volume;
 			})
 
-			Types::memory_t empty = volume->Attributes & EFI_FVB2_ERASE_POLARITY ? '\xFF' : '\x00';
+			Types::byte_t empty = volume->Attributes & EFI_FVB2_ERASE_POLARITY ? '\xFF' : '\x00';
 
 			// Define memory used by full header: Pi volume header + block map
 			volume.fullNormalHdr.setEnd(volumeBody.begin);
@@ -351,7 +351,7 @@ namespace Project
 			}
 		}
 
-		PiObject::File FileParser(const Pi::File::Header& fileView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t empty)
+		PiObject::File FileParser(const Pi::File::Header& fileView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::byte_t empty)
 		{
 			using namespace FileParserNs;
 
@@ -515,7 +515,7 @@ namespace Project
 			}
 		}
 
-		PiObject::Section SectionParser(const Pi::Section::Header& sectionView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::memory_t empty)
+		PiObject::Section SectionParser(const Pi::Section::Header& sectionView, const MemoryView& buffer, const MemoryView& baseBuffer, Types::byte_t empty)
 		{
 			using namespace SectionParserNs;
 

@@ -8,7 +8,7 @@ namespace Project {
 
 namespace PiObject {
 
-Types::memory_t default_empty = PROJ_DEFAULT_EMPTY;
+Types::byte_t default_empty = PROJ_DEFAULT_EMPTY;
 
 /**
  *    OBJECT
@@ -28,12 +28,12 @@ void Object::setUid(MemoryView&& buffer)
  *    FREE_SPACE
  */
 
-bool FreeSpace::IsCorrupted(Types::memory_t empty, const MemoryView& buffer)
+bool FreeSpace::IsCorrupted(Types::byte_t empty, const MemoryView& buffer)
 {
 	return (buffer.end != std::find_if_not(
 		buffer.begin,
 		buffer.end,
-		[empty](const Types::memory_t v) -> bool
+		[empty](const Types::byte_t v) -> bool
 		{ 
 			return v == empty; 
 		}

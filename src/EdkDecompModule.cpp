@@ -40,7 +40,7 @@ namespace Project
 				return status;
 			}
 			Types::unique_byte_buff_t scratchBuff(new Types::byte_t[ScratchSize]);
-			Destination.reset(new Types::memory_t[DstSize]);
+			Destination.reset(new Types::byte_t[DstSize]);
 			status = TianoDecompress(
 				Source,
 				static_cast<UINT32>(SrcSize),
@@ -86,7 +86,7 @@ namespace Project
 				return status;
 			}
 			Types::unique_byte_buff_t scratchBuff(new Types::byte_t[ScratchSize]);
-			Destination.reset(new Types::memory_t[DstSize]);
+			Destination.reset(new Types::byte_t[DstSize]);
 			status = EfiDecompress(
 				Source,
 				static_cast<UINT32>(SrcSize),

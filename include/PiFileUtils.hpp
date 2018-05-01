@@ -126,7 +126,7 @@ namespace Project
 					};
 				}
 
-				FileTypeRanges::FileTypeRange_t whatTypeRange(Types::memory_t type);
+				FileTypeRanges::FileTypeRange_t whatTypeRange(Types::byte_t type);
 
 				inline bool isZeroLengthFile(Pi::File::Header::const_pointer_t header)
 				{
@@ -134,13 +134,13 @@ namespace Project
 					return length == (header->Attributes & FFS_ATTRIB_LARGE_FILE ? Pi::File::Extended::Header::structure_size : Pi::File::Header::structure_size);
 				}
 
-				bool isFileType(Types::memory_t type) { return whatTypeRange(type) != FileTypeRanges::NotAFileType; }
+				bool isFileType(Types::byte_t type) { return whatTypeRange(type) != FileTypeRanges::NotAFileType; }
 
-				bool isSectionedFileType(Types::memory_t type);
+				bool isSectionedFileType(Types::byte_t type);
 
-				const char* fileTypeToCStr(Types::memory_t type);
+				const char* fileTypeToCStr(Types::byte_t type);
 
-				inline std::string fileTypeToStr(Types::memory_t type) { return fileTypeToCStr(type); }
+				inline std::string fileTypeToStr(Types::byte_t type) { return fileTypeToCStr(type); }
 
 				std::string getAtributeString(Pi::File::Header::const_pointer_t header, bool alternative = false);
 

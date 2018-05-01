@@ -27,7 +27,7 @@ namespace Project
 
 		SectionsVec_t SectionFinder(const MemoryView& buffer);
 
-		FilesVec_t FileFinder(const MemoryView& buffer, Types::memory_t empty);
+		FilesVec_t FileFinder(const MemoryView& buffer, Types::byte_t empty);
 
 		VolumesVec_t VolumeFinder(const MemoryView& buffer);
 

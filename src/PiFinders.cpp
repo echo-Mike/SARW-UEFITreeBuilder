@@ -129,7 +129,7 @@ namespace Project
 			};
 		}
 
-		FilesVec_t FileFinder(const MemoryView& buffer, Types::memory_t empty)
+		FilesVec_t FileFinder(const MemoryView& buffer, Types::byte_t empty)
 		{
 			FilesVec_t result;
 			EFI_FFS_FILE_HEADER tmpHeader;

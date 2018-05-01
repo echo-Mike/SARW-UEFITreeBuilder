@@ -22,7 +22,7 @@ namespace Project
 				namespace Helper
 				{
 
-					static const Types::memory_t NormalFileTypes[] =
+					static const Types::byte_t NormalFileTypes[] =
 					{
 						// EFI_FV_FILETYPE_ALL, // Not used in real files: marker for function calls
 						EFI_FV_FILETYPE_RAW,
@@ -43,7 +43,7 @@ namespace Project
 						// EFI_FV_FILETYPE_FFS_PAD // Must be in FFS file range as EFI_FV_FILETYPE_FFS_MIN
 					};
 
-					static const Types::memory_t SectionedFileTypes[] =
+					static const Types::byte_t SectionedFileTypes[] =
 					{
 						// EFI_FV_FILETYPE_RAW,
 						EFI_FV_FILETYPE_FREEFORM,
@@ -65,7 +65,7 @@ namespace Project
 
 					struct FileMacroPlusName
 					{
-						Types::memory_t type;
+						Types::byte_t type;
 						const char* name;
 					};
 
@@ -101,7 +101,7 @@ namespace Project
 
 					static char filenameBuffer[128];
 
-					std::size_t fileNamePosition(Types::memory_t type)
+					std::size_t fileNamePosition(Types::byte_t type)
 					{
 						switch (type)
 						{
@@ -191,11 +191,11 @@ namespace Project
 
 				}
 
-				FileTypeRanges::FileTypeRange_t whatTypeRange(Types::memory_t type)
+				FileTypeRanges::FileTypeRange_t whatTypeRange(Types::byte_t type)
 				{
 					using namespace Helper;
 
-					auto end = GET_END_PTR(NormalFileTypes, Types::memory_t);
+					auto end = GET_END_PTR(NormalFileTypes, Types::byte_t);
 					if (end != std::find(NormalFileTypes, end, type)) {
 						return FileTypeRanges::Normal;
 					} else if (EFI_FV_FILETYPE_OEM_MIN <= type && type <= EFI_FV_FILETYPE_OEM_MAX) {
@@ -209,14 +209,14 @@ namespace Project
 					return FileTypeRanges::NotAFileType;
 				}
 
-				bool isSectionedFileType(Types::memory_t type)
+				bool isSectionedFileType(Types::byte_t type)
 				{
 					using namespace Helper;
-					auto end = GET_END_PTR(SectionedFileTypes, Types::memory_t);
+					auto end = GET_END_PTR(SectionedFileTypes, Types::byte_t);
 					return end != std::find(SectionedFileTypes, end, type);
 				}
 
-				const char* fileTypeToCStr(Types::memory_t type)
+				const char* fileTypeToCStr(Types::byte_t type)
 				{
 					using namespace Helper;
 					if (type == EFI_FV_FILETYPE_FFS_PAD) {
@@ -237,19 +237,19 @@ namespace Project
 						if (EFI_FV_FILETYPE_OEM_MIN < type && type < EFI_FV_FILETYPE_OEM_MAX) 
 						{
 							pos = fileNamePosition(EFI_FV_FILETYPE_OEM_MIN) + 1;
-							std::snprintf(filenameBuffer, sizeof(filenameBuffer) / sizeof(char), FileNames[pos].name, type - EFI_FV_FILETYPE_OEM_MIN);
+							std::snprintf(filenameBuffer, sizeof(filenameBuffer), FileNames[pos].name, type - EFI_FV_FILETYPE_OEM_MIN);
 							return filenameBuffer;
 						} 
 						else if (EFI_FV_FILETYPE_DEBUG_MIN < type && type < EFI_FV_FILETYPE_DEBUG_MAX) 
 						{
 							pos = fileNamePosition(EFI_FV_FILETYPE_DEBUG_MIN) + 1;
-							std::snprintf(filenameBuffer, sizeof(filenameBuffer) / sizeof(char), FileNames[pos].name, type - EFI_FV_FILETYPE_DEBUG_MIN);
+							std::snprintf(filenameBuffer, sizeof(filenameBuffer), FileNames[pos].name, type - EFI_FV_FILETYPE_DEBUG_MIN);
 							return filenameBuffer;
 						} 
 						else if (EFI_FV_FILETYPE_FFS_MIN < type && type < EFI_FV_FILETYPE_FFS_MAX) 
 						{
 							pos = fileNamePosition(EFI_FV_FILETYPE_FFS_MIN) + 1;
-							std::snprintf(filenameBuffer, sizeof(filenameBuffer) / sizeof(char), FileNames[pos].name, type - EFI_FV_FILETYPE_FFS_MIN);
+							std::snprintf(filenameBuffer, sizeof(filenameBuffer), FileNames[pos].name, type - EFI_FV_FILETYPE_FFS_MIN);
 							return filenameBuffer;
 						} 
 						else 

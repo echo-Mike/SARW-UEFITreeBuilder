@@ -11,7 +11,7 @@ namespace Project
 	namespace PiObject
 	{
 
-		extern Types::memory_t default_empty;
+		extern Types::byte_t default_empty;
 
 		struct Volume :
 			public ComplexObject

@@ -16,11 +16,11 @@ namespace Project
 		{
 			typedef Object Base;
 
-			static bool IsCorrupted(Types::memory_t empty, const MemoryView& buffer);
+			static bool IsCorrupted(Types::byte_t empty, const MemoryView& buffer);
 
 		private:
 
-			inline void initialize(Types::memory_t empty)
+			inline void initialize(Types::byte_t empty)
 			{
 				if (IsCorrupted(empty, memory)) {
 					state |= InconsistencyState::FreeSpaceCorrupted;
@@ -36,13 +36,13 @@ namespace Project
 
 		public:
 
-			FreeSpace(Types::memory_t empty, const MemoryView& baseBuffer, const MemoryView& myBuffer) :
+			FreeSpace(Types::byte_t empty, const MemoryView& baseBuffer, const MemoryView& myBuffer) :
 				Base(baseBuffer, myBuffer, InconsistencyState::FreeSpaceFlag)
 			{
 				initialize(empty);
 			}
 
-			FreeSpace(Types::memory_t empty, const MemoryView& baseBuffer, MemoryView&& myBuffer) :
+			FreeSpace(Types::byte_t empty, const MemoryView& baseBuffer, MemoryView&& myBuffer) :
 				Base(baseBuffer, std::move(myBuffer), InconsistencyState::FreeSpaceFlag)
 			{
 				initialize(empty);
