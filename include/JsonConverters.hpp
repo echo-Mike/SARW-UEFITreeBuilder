@@ -21,6 +21,17 @@ void to_json(nlohmann::json& j, const EFI_GUID& guid);
  *    Namespace-ed converters
  */
 
+namespace nlohmann
+{
+	template <>
+	struct adl_serializer<Project::PiObject::unique_object_ptr_t>
+	{
+		inline static void to_json(json& j, const Project::PiObject::unique_object_ptr_t& obj_ptr) { obj_ptr->toJson(j); }
+
+		inline static void from_json(const json& /*j*/, Project::PiObject::unique_object_ptr_t& /*obj_ptr*/) {}
+	};
+}
+
 namespace Project
 {
 
@@ -48,7 +59,7 @@ namespace Project
 	{
 		inline void to_json(nlohmann::json& j, const Object& obj) { (&obj)->toJson(j); }
 
-		inline void to_json(nlohmann::json& j, const unique_object_ptr_t& obj_ptr) { obj_ptr->toJson(j); }
+		// inline void to_json(nlohmann::json& j, const unique_object_ptr_t& obj_ptr) { obj_ptr->toJson(j); }
 
 		namespace Helper
 		{

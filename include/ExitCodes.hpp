@@ -13,14 +13,17 @@ namespace Project
 		enum ExitCodes_t : int
 		{
 			Normal = 0,
+			NothingFound = 1,
 			NoInputFilePath,
 			CantOpenInputFile,
+			CantOpenOutputFile,
 			InvalidFileSize,
 			FileSizeAndReadCountDontMatch,
+			ParsingError,
 			ParseErrorFreeSpace = 100,
 			ParseErrorVolume = 200,
 			ParseErrorFile = 300,
-			ParseErrorSection = 400
+			ParseErrorSection = 400,
 		};
 	}
 }

@@ -1,5 +1,4 @@
 #include "main.hpp"
-#include "MemoryView.hpp"
 
 #define EXITSTOP std::cin.get();
 
@@ -15,6 +14,17 @@ int main(int argc, char* argv[])
 		DEBUG_END_MESSAGE_AND_EXIT(Project::ExitCodes::NoInputFilePath)
 
 		arguments.inputFilePath = argv[opts[0].data];
+
+		if (opts[1].data == -1) DEBUG_INFO_MESSAGE
+			DEBUG_PRINT("\tMessage: No output file name provided. Using default.");
+			DEBUG_PRINT("\tDefault file name: \"./out.json\"");
+		DEBUG_END_MESSAGE_AND_EVAL({
+			arguments.inputFilePath = "./out.json";
+		}) 
+		else 
+		{
+			arguments.inputFilePath = argv[opts[1].data];
+		}
 	}
 	//</Arguments reading>
 	Project::Types::BufferWithView storage;
@@ -46,6 +56,34 @@ int main(int argc, char* argv[])
 		inputFile.close();
 	}
 	//</Input file reading>
+	Project::PiObject::object_vec_t parseResult;
+	//<Parsing>
+	try {
+		parseResult = Project::Parsers::FreeSpaceParser(storage.memory);
+	}
+	catch (const std::exception& e)
+	{
+		DEBUG_ERROR_MESSAGE
+			DEBUG_PRINT("\tMessage: Error occurred during parsing.");
+			DEBUG_PRINT("\tException message: ", e.what());
+		DEBUG_END_MESSAGE_AND_EXIT(Project::ExitCodes::ParsingError)
+	}
+	if (parseResult.empty()) {
+		std::exit(Project::ExitCodes::NothingFound);
+	}
+	//</Parsing>
+	//<Convert to JSON>
+	nlohmann::json j = parseResult;
+	//</Convert to JSON>
+	//<Output JSON>
+	{
+		std::ofstream outputFile(arguments.outputFilePath);
+		if (!outputFile) {
+			std::exit(Project::ExitCodes::CantOpenOutputFile);
+		}
+		outputFile << j << std::flush;
+	}
+	//</Output JSON>
 	EXITSTOP
 	return 0;
 }
