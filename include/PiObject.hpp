@@ -6,6 +6,7 @@
 #include <memory>
 #include <vector>
 #include <utility>
+#include <type_traits>
 
 /// JSON
 #include <nlohmann/json.hpp>
@@ -106,13 +107,27 @@ namespace Project
 #define PROJ_BaseCopyablePiObject( TypeName ) \
 virtual unique_object_ptr_t copy() \
 { \
-	return unique_object_ptr_t(new TypeName(*this)); \
+	static_assert( \
+		::std::is_base_of<\
+			::Project::PiObject::Object, \
+			TypeName \
+		>::value, \
+		"Type: " #TypeName " must be derived form PiObject::Object" \
+	); \
+	return unique_object_ptr_t(::std::make_unique<TypeName>(*this)); \
 }
 
 #define PROJ_CopyablePiObject( TypeName ) \
 unique_object_ptr_t copy() \
 { \
-	return unique_object_ptr_t(new TypeName(*this)); \
+	static_assert( \
+		::std::is_base_of<\
+			::Project::PiObject::Object, \
+			TypeName \
+		>::value, \
+		"Type: " #TypeName " must be derived form PiObject::Object" \
+	); \
+	return unique_object_ptr_t(::std::make_unique<TypeName>(*this)); \
 }
 
 		inline void setSimpleUid(Object& obj) { obj.setUid(MemoryView(UnifyPtrCast(&obj), UnifyPtrCast(&obj) + sizeof(Object))); }

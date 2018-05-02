@@ -5,6 +5,7 @@
 /// STD
 #include <iostream>
 #include <fstream>
+#include <memory>
 
 /// SNIPPETS
 #include <ArgumentsLib/fArgumentLib.hpp>

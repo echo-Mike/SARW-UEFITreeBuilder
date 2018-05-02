@@ -60,7 +60,7 @@ namespace Project
 			inline typename std::enable_if< std::is_base_of<Object, T>::value >::type 
 				emplace_back(Args&&... args)
 			{
-				objects.emplace_back(new T(std::forward<Args>(args)...));
+				objects.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
 			}
 
 			object_vec_t objects;

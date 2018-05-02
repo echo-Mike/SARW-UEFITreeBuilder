@@ -39,8 +39,8 @@ namespace Project
 			if (status != EFI_SUCCESS) {
 				return status;
 			}
-			Types::unique_byte_buff_t scratchBuff(new Types::byte_t[ScratchSize]);
-			Destination.reset(new Types::byte_t[DstSize]);
+			Types::unique_byte_buff_t scratchBuff = std::make_unique<Types::unique_byte_buff_t::element_type[]>(ScratchSize);
+			Destination = std::make_unique<Types::unique_byte_buff_t::element_type[]>(DstSize);
 			status = TianoDecompress(
 				Source,
 				static_cast<UINT32>(SrcSize),
@@ -85,8 +85,8 @@ namespace Project
 			if (status != EFI_SUCCESS) {
 				return status;
 			}
-			Types::unique_byte_buff_t scratchBuff(new Types::byte_t[ScratchSize]);
-			Destination.reset(new Types::byte_t[DstSize]);
+			Types::unique_byte_buff_t scratchBuff = std::make_unique<Types::unique_byte_buff_t::element_type[]>(ScratchSize);
+			Destination = std::make_unique<Types::unique_byte_buff_t::element_type[]>(DstSize);
 			status = EfiDecompress(
 				Source,
 				static_cast<UINT32>(SrcSize),

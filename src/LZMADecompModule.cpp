@@ -66,7 +66,7 @@ namespace Project
 			auto dataBegin = reinterpret_cast<Types::const_byte_ptr_t>(Source);
 			dataBegin += LZMA_HEADER_SIZE;
 
-			Destination.reset(new Types::byte_t[DecodedBufSize]);
+			Destination = std::make_unique<Types::unique_byte_buff_t::element_type[]>(DecodedBufSize);
 
 			auto status = LzmaDecode(
 				reinterpret_cast<Byte *>(Destination.get()),
@@ -172,7 +172,7 @@ namespace Project
 				return EFI_INVALID_PARAMETER;
 			}
 
-			Destination.reset(new Types::byte_t[DstSize]);
+			Destination = std::make_unique<Types::unique_byte_buff_t::element_type[]>(DstSize);
 
 			status = Lzma86_Decode(
 				reinterpret_cast<Byte *>(Destination.get()),

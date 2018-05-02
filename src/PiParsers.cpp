@@ -37,7 +37,7 @@ namespace Project
 					return;
 				})
 
-				results.emplace_back(new PiObject::Volume( VolumeParser(header, volumeBody, buffer, PiObject::default_empty ) ));
+				results.emplace_back(std::make_unique<PiObject::Volume>( VolumeParser(header, volumeBody, buffer, PiObject::default_empty) ));
 			}
 
 			void parseVolumes(PiObject::object_vec_t& results, const Finders::VolumesVec_t& volumes, const MemoryView& buffer)
@@ -47,7 +47,7 @@ namespace Project
 				for (const auto& header : volumes)
 				{	// Check that previous object fill all space before current
 					if (volumeBody.end < header.begin) {
-						results.emplace_back(new PiObject::FreeSpace(PiObject::default_empty, buffer, MemoryView(volumeBody.end, header.begin)));
+						results.emplace_back(std::make_unique<PiObject::FreeSpace>(PiObject::default_empty, buffer, MemoryView(volumeBody.end, header.begin)));
 					}
 					volumeBody.begin = header.begin;
 					volumeBody.end = header.begin + Pi::Volume::Utils::getSize(header);
@@ -66,11 +66,11 @@ namespace Project
 						continue;
 					})
 
-					results.emplace_back(new PiObject::Volume( VolumeParser(header, volumeBody, buffer, PiObject::default_empty) ));
+					results.emplace_back(std::make_unique<PiObject::Volume>( VolumeParser(header, volumeBody, buffer, PiObject::default_empty) ));
 				}
 				// Check for space after last volume
 				if (volumeBody.end < buffer.end) {
-					results.emplace_back( new PiObject::FreeSpace(PiObject::default_empty, buffer, MemoryView(volumeBody.end, buffer.end)));
+					results.emplace_back(std::make_unique<PiObject::FreeSpace>(PiObject::default_empty, buffer, MemoryView(volumeBody.end, buffer.end)));
 				}
 			}
 		}
@@ -83,7 +83,7 @@ namespace Project
 			auto volumes = Finders::VolumeFinder(buffer);
 
 			if (volumes.empty()) { // Volumes not found : add as a free space
-				result.emplace_back(new PiObject::FreeSpace(PiObject::default_empty, buffer, buffer));
+				result.emplace_back(std::make_unique<PiObject::FreeSpace>(PiObject::default_empty, buffer, buffer));
 				// Report parsing stats
 				DEBUG_INFO_MESSAGE
 					DEBUG_PRINT("\tMessage: Free space parsing ended.");

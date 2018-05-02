@@ -31,6 +31,11 @@ namespace Project
             }
         }
 
+		MemoryView(
+			Types::const_pointer_t begin_,
+			Types::length_t legnth
+		) : begin(begin_), end(begin_ + legnth) {}
+
 		DefaultCopyableAndMovable(MemoryView)
 		
 		~MemoryView() = default;
@@ -47,7 +52,7 @@ namespace Project
 
 		inline Types::unique_memo_buff_t memcpy() const
 		{
-			Types::unique_memo_buff_t result(new Types::memory_t[getLength()]);
+			Types::unique_memo_buff_t result = std::make_unique<Types::unique_memo_buff_t::element_type[]>(getLength());
 			std::memcpy(result.get(), begin, getLength() * sizeof(Types::memory_t));
 			return result;
 		}
@@ -128,6 +133,49 @@ namespace Project
 		Types::length_t length;
 		bool valid;
 	};
+
+	namespace Types
+	{
+
+		struct BufferWithView
+		{
+
+			typedef Types::unique_byte_buff_t::pointer pointer;
+			typedef Types::unique_byte_buff_t::element_type element_type;
+
+			BufferWithView() = default;
+
+			BufferWithView(
+				Types::length_t buffSize, 
+				Types::unique_byte_buff_t&& buff 
+			) : 
+				memory(reinterpret_cast<Types::pointer_t>(buff.get()), buffSize),
+				buffer(std::move(buff)) 
+			{}
+
+			DefaultMovable(BufferWithView)
+
+			~BufferWithView() = default;
+
+			inline void reset(Types::length_t length)
+			{
+				memory.begin = nullptr;
+				memory.end = nullptr;
+				buffer = std::make_unique<element_type[]>(length);
+				std::memset(buffer.get(), 0, length);
+				memory.begin = buffer.get();
+				memory.setLength(length);
+			}
+
+			inline Types::length_t getLength() const { return memory.getLength(); }
+
+			inline pointer get() const { return buffer.get(); }
+
+			MemoryView memory;
+			unique_byte_buff_t buffer;
+		};
+
+	}
 
 }
 #endif

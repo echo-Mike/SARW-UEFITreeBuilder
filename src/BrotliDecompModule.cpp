@@ -50,8 +50,8 @@ namespace Project
 				return EFI_INVALID_PARAMETER;
 			}
 
-			Destination.reset(new Types::byte_t[DstSize_]);
-			Types::unique_byte_buff_t scratchBuff(new Types::byte_t[ScratchSize_]);
+			Types::unique_byte_buff_t scratchBuff = std::make_unique<Types::unique_byte_buff_t::element_type[]>(ScratchSize_);
+			Destination = std::make_unique<Types::unique_byte_buff_t::element_type[]>(DstSize_);
 
 			status = proj_brotli_Decompress(
 				Source,

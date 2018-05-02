@@ -54,21 +54,23 @@ namespace Project
 
 			};
 
-			struct SectionDecompressedData
+			struct SectionDecompressedData :
+				public Types::BufferWithView
 			{
+				typedef Types::BufferWithView Base;
+
 				SectionDecompressedData(
 						Decompression::Decompresser::Decompresser_t decomp,
-						Types::length_t buffSize, 
+						Types::length_t buffSize,
 						Types::unique_byte_buff_t&& buff) :
-					memory(reinterpret_cast<Types::pointer_t>(buff.get())), 
-					buffer(std::move(buff)),
+					Base(buffSize, std::move(buff)),
 					decompresser(decomp)
-				{
-					memory.setLength(buffSize);
-				}
+				{}
 
-				MemoryView memory;
-				Types::unique_byte_buff_t buffer;
+				DefaultMovable(SectionDecompressedData)
+
+				~SectionDecompressedData() = default;
+
 				Decompression::Decompresser::Decompresser_t decompresser;
 			};
 
