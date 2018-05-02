@@ -146,6 +146,8 @@ namespace Project
 
 				std::string getStateString(Pi::File::Header::const_pointer_t header, bool alternative = false);
 
+				std::string findFileName(const PiObject::object_vec_t& vec);
+
 			}
 
 		}

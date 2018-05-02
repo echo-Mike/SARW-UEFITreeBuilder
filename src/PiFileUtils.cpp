@@ -1,8 +1,11 @@
 /// STD
 #include <cstdio>
+#include <codecvt>
 
 /// PROJECT
 #include "PiFileUtils.hpp"
+#include "PiSectionUtils.hpp"
+#include "PiSectionObject.hpp"
 
 #define GET_END_PTR(Array, Type) ( Array + ( sizeof(Array) / sizeof(Type) ) )
 
@@ -325,6 +328,42 @@ namespace Project
 						);
 					}
 					return std::string(strBuffer);
+				}
+
+				std::string findFileName(const PiObject::object_vec_t& vec)
+				{
+					const PiObject::Section* section = nullptr;
+					for (const auto& obj : vec)
+					{
+						if (obj->state & PiObject::InconsistencyState::TypeBits == PiObject::InconsistencyState::SectionFlag)
+						{
+							section = dynamic_cast<const PiObject::Section*>(obj.get());
+							if (section)
+							{
+								switch (section->header.sectionType)
+								{
+									case PiObject::Helper::SectionHeader::Compression:
+									case PiObject::Helper::SectionHeader::Disposable:
+									case PiObject::Helper::SectionHeader::GuidDefined:
+									{
+										auto result = findFileName(section->objects);
+										if (!result.empty()) {
+											return result;
+										}
+									} break;
+									case PiObject::Helper::SectionHeader::UserInterface:
+									{
+										auto* ptr_ = reinterpret_cast<const char16_t*>(reinterpret_cast<Pi::Section::Version::const_pointer_t>(section->header.header.begin)->VersionString);
+										std::u16string u16str(ptr_, (Pi::Section::Utils::getSize(section->header.header) - Pi::Section::Header::structure_size - sizeof(UINT16)) / sizeof(CHAR16));
+										std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
+										return convert.to_bytes(u16str);
+									} break;
+									default: break;
+								}
+							}
+						}
+					}
+					return std::string();
 				}
 
 			}

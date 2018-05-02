@@ -484,20 +484,39 @@ void Project::PiObject::ComplexObject::toJson(nlohmann::json& j) const
 
 void Project::PiObject::Section::toJson(nlohmann::json& j) const
 {
+	j["header"] = header;
+	if (header.sectionType == Helper::SectionHeader::Compression ||
+		header.sectionType == Helper::SectionHeader::GuidDefined)
+	{
+		auto storage = getDecomressedDataStorage();
+		if (storage)
+		{
+			auto iter = storage->find(getUid());
+			if (iter != storage->end())
+			{
+				j["uncompressed data"] = iter->second;
+			} 
+			else if (header.sectionType == Helper::SectionHeader::GuidDefined)
+			{
+				//TODO: add parsing of not compressed GUIDed sections <= Currently implemented in debug log form.
+			}
+		}
+	}
 	Base::toJson(j);
-
 }
 
 void Project::PiObject::File::toJson(nlohmann::json& j) const
 {
+	j["header"] = header.header;
+	auto name = Pi::File::Utils::findFileName(objects);
+	if (!name.empty()) {
+		j["File name"] = std::move(name);
+	}
 	Base::toJson(j);
-
 }
 
 void Project::PiObject::Volume::toJson(nlohmann::json& j) const
 {
-	Base::toJson(j);
-
 	switch (state)
 	{
 		case InconsistencyState::VolumeNormal:
@@ -542,4 +561,5 @@ void Project::PiObject::Volume::toJson(nlohmann::json& j) const
 		default: break;
 	}
 
+	Base::toJson(j);
 }

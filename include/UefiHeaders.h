@@ -5,6 +5,12 @@
 /// PROJECT
 #include "ProjectGlobalDefines.h"
 
+#if defined(_MSC_VER)
+#	pragma warning( push )  
+// For Base.h lines 54-64
+#	pragma warning( disable : 4804 )
+#endif
+
 PROJ_EXTERN_C
 
 /// UEFI HEADERS
@@ -14,5 +20,9 @@ PROJ_EXTERN_C
 #include <Uefi.h>
 
 PROJ_EXTERN_C_END
+
+#if defined(_MSC_VER)
+#	pragma warning( pop )  
+#endif
 
 #endif
