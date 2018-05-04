@@ -1,11 +1,11 @@
 /// STD
 #include <cstdio>
-#include <codecvt>
 
 /// PROJECT
 #include "PiFileUtils.hpp"
 #include "PiSectionUtils.hpp"
 #include "PiSectionObject.hpp"
+#include "MSVCCodecvtFix.hpp"
 
 #define GET_END_PTR(Array, Type) ( Array + ( sizeof(Array) / sizeof(Type) ) )
 
@@ -355,8 +355,7 @@ namespace Project
 									{
 										auto* ptr_ = reinterpret_cast<const char16_t*>(reinterpret_cast<Pi::Section::Version::const_pointer_t>(section->header.header.begin)->VersionString);
 										std::u16string u16str(ptr_, (Pi::Section::Utils::getSize(section->header.header) - Pi::Section::Header::structure_size - sizeof(UINT16)) / sizeof(CHAR16));
-										std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
-										return convert.to_bytes(u16str);
+										return utf16_to_utf8(u16str);
 									} break;
 									default: break;
 								}

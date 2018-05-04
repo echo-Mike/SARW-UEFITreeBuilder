@@ -118,7 +118,6 @@
     <ClCompile Include="src\BrotliDecompModule.cpp" />
     <ClCompile Include="src\DecompressionModule.cpp" />
     <ClCompile Include="src\Edk2DecompModule.cpp" />
-    <ClCompile Include="src\EdkDecompModule.cpp" />
     <ClCompile Include="src\GuidAdvanced.cpp" />
     <ClCompile Include="src\General.cpp" />
     <ClCompile Include="src\GuidDefines.cpp" />
@@ -146,7 +145,6 @@
     <ClCompile Include="submodules\Compression\LZMA\LzmaAlloc.c" />
     <ClCompile Include="submodules\Compression\LZMA\LzmaDec.c" />
     <ClCompile Include="submodules\Compression\Tiano\Edk2Decompress.c" />
-    <ClCompile Include="submodules\Compression\Tiano\EdkDecompress.c" />
     <ClCompile Include="submodules\crc32\Edk2Crc32.c" />
     <ClCompile Include="submodules\Crypto\Edk2CryptRsaBasic.c" />
     <ClCompile Include="submodules\Crypto\Edk2CryptSha256.c" />
@@ -157,6 +155,7 @@
     <ClInclude Include="include\CompressionModule.hpp" />
     <ClInclude Include="include\GuidAdvanced.hpp" />
     <ClInclude Include="include\JsonConverters.hpp" />
+    <ClInclude Include="include\MSVCCodecvtFix.hpp" />
     <ClInclude Include="include\PiComplexObject.hpp" />
     <ClInclude Include="include\PiSimpleObjects.hpp" />
     <ClInclude Include="include\PiVolumeUtils.hpp" />

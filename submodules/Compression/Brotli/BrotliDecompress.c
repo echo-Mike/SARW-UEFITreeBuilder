@@ -155,12 +155,12 @@ BrotliDecompress (
       }else{
         AvailableIn = SourceSize;
       }
-      CopyMem(Input, Source, AvailableIn);
+      memcpy(Input, Source, AvailableIn);
       Source = (VOID *)((UINT8 *)Source + AvailableIn);
       SourceSize -= AvailableIn;
       NextIn = Input;
     } else if (Result == BROTLI_RESULT_NEEDS_MORE_OUTPUT) {
-      CopyMem(Temp, Output, FILE_BUFFER_SIZE);
+      memcpy(Temp, Output, FILE_BUFFER_SIZE);
       AvailableOut = FILE_BUFFER_SIZE;
       Temp = (VOID *)((UINT8 *)Temp +FILE_BUFFER_SIZE);
       NextOut = Output;
@@ -177,7 +177,7 @@ BrotliDecompress (
                           );
   }
   if (NextOut != Output) {
-    CopyMem(Temp, Output, (size_t)(NextOut - Output));
+    memcpy(Temp, Output, (size_t)(NextOut - Output));
   }
 
   DestSize = TotalOut;
@@ -210,7 +210,7 @@ BrGetDecodedSizeOfBuf(
   /* Parse header */
   DecodedSize = 0;
   for (Index = EndOffset - 1; Index >= StartOffset; Index--)
-    DecodedSize = LShiftU64(DecodedSize, 8) + EncodedData[Index];
+    DecodedSize = (DecodedSize << 8) + EncodedData[Index];
 
   return DecodedSize;
 }

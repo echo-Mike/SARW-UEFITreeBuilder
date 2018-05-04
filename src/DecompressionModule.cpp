@@ -11,8 +11,8 @@ namespace Project
 		{
 			switch (type)
 			{
-				case Project::Decompression::Decompresser::TianoEdk		:	return std::make_unique<TianoEdkDecompresser>();
-				case Project::Decompression::Decompresser::TianoEfi		:	return std::make_unique<TianoEfiDecompresser>();
+				//case Project::Decompression::Decompresser::TianoEdk		:	return std::make_unique<TianoEdkDecompresser>();
+				//case Project::Decompression::Decompresser::TianoEfi		:	return std::make_unique<TianoEfiDecompresser>();
 				case Project::Decompression::Decompresser::TianoEdk2	:	return std::make_unique<TianoEdk2Decompresser>();
 				case Project::Decompression::Decompresser::TianoEfi2	:	return std::make_unique<TianoEfi2Decompresser>();
 				case Project::Decompression::Decompresser::Lzma			:	return std::make_unique<LzmaDecompresser>();

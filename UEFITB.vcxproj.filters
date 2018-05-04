@@ -78,12 +78,6 @@
     <ClCompile Include="src\LZMADecompModule.cpp">
       <Filter>Source Files\Compression\LZMA</Filter>
     </ClCompile>
-    <ClCompile Include="src\EdkDecompModule.cpp">
-      <Filter>Source Files\Compression\Tiano</Filter>
-    </ClCompile>
-    <ClCompile Include="submodules\Compression\Tiano\EdkDecompress.c">
-      <Filter>Source Files\Compression\Tiano</Filter>
-    </ClCompile>
     <ClCompile Include="src\Edk2DecompModule.cpp">
       <Filter>Source Files\Compression\Tiano</Filter>
     </ClCompile>
@@ -250,6 +244,9 @@
     </ClInclude>
     <ClInclude Include="include\PiComplexObject.hpp">
       <Filter>Header Files\Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="include\MSVCCodecvtFix.hpp">
+      <Filter>Header Files\Helpers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

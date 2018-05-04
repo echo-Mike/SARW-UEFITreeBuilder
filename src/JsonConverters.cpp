@@ -2,14 +2,15 @@
 #include <cstring>
 #include <cstdio>
 #include <string>
-#include <codecvt>
 #include <vector>
+
 /// PROJECT
 #include "JsonConverters.hpp"
 #include "PiSectionUtils.hpp"
 #include "PiFileUtils.hpp"
 #include "PiVolumeUtils.hpp"
 #include "GuidAdvanced.hpp"
+#include "MSVCCodecvtFix.hpp"
 
 namespace Helper
 {
@@ -367,16 +368,14 @@ void Project::PiObject::Helper::to_json(nlohmann::json& j, const SectionHeader& 
 		{	// It is nearly impossible that this section will have type EFI_USER_INTERFACE_SECTION2
 			auto ptr_ = reinterpret_cast<const char16_t*>(reinterpret_cast<Pi::Section::UserInterface::const_pointer_t>(obj.header.begin)->FileNameString);
 			std::u16string u16str(ptr_, (Pi::Section::Utils::getSize(obj.header) - Pi::Section::Header::structure_size) / sizeof(CHAR16));
-			std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
-			j["FileNameString"] = convert.to_bytes(u16str);
+			j["FileNameString"] = utf16_to_utf8(u16str);
 		} break;
 
 		case SectionHeader::Version:
 		{	// It is nearly impossible that this section will have type EFI_VERSION_SECTION2
 			auto* ptr_ = reinterpret_cast<const char16_t*>(reinterpret_cast<Pi::Section::Version::const_pointer_t>(obj.header.begin)->VersionString);
 			std::u16string u16str(ptr_, (Pi::Section::Utils::getSize(obj.header) - Pi::Section::Header::structure_size - sizeof(UINT16)) / sizeof(CHAR16));
-			std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
-			j["VersionString"] = convert.to_bytes(u16str);
+			j["VersionString"] = utf16_to_utf8(u16str);
 			UINT16 section_build_number = reinterpret_cast<Pi::Section::Version::const_pointer_t>(obj.header.begin)->BuildNumber;
 			std::snprintf(strBuffer, sizeof(strBuffer), "%hd (%#.4hX)", section_build_number, section_build_number);
 			j["BuildNumber"]["string"] = strBuffer;
@@ -408,8 +407,8 @@ void Project::PiObject::Helper::to_json(nlohmann::json& j, const unique_section_
 	j["length"] = obj->memory.getLength();
 	switch (obj->decompresser)
 	{
-		case Decompression::Decompresser::TianoEdk  : j["algorithm"] = "TIANO EDK"; break;
-		case Decompression::Decompresser::TianoEfi  : j["algorithm"] = "EFI1.1 EDK"; break;
+		//case Decompression::Decompresser::TianoEdk  : j["algorithm"] = "TIANO EDK"; break;
+		//case Decompression::Decompresser::TianoEfi  : j["algorithm"] = "EFI1.1 EDK"; break;
 		case Decompression::Decompresser::TianoEdk2 : j["algorithm"] = "TIANO EDK2"; break;
 		case Decompression::Decompresser::TianoEfi2 : j["algorithm"] = "EFI1.1 EDK2"; break;
 		case Decompression::Decompresser::Lzma      : j["algorithm"] = "LZMA"; break;

@@ -40,90 +40,19 @@ bool FreeSpace::IsCorrupted(Types::byte_t empty, const MemoryView& buffer)
 	));
 }
 
-namespace Helper
+Section::decomp_data_storage_ptr_t Section::getDecomressedDataStorage() const
 {
-
-	/*void to_json(nlohmann::json& j, const SectionHeader& obj)
-	{
-		switch (obj.header->Type) {
-		// Encapsulation sections
-		case EFI_SECTION_COMPRESSION :
-		{
-
-		} break;
-
-		case EFI_SECTION_GUID_DEFINED :
-		{
-
-		} break;
-
-		case EFI_SECTION_DISPOSABLE :
-		{
-
-		} break;
-
-		// Leaf sections
-		case EFI_SECTION_SMM_DEPEX :
-		case EFI_SECTION_PEI_DEPEX :
-		case EFI_SECTION_DXE_DEPEX :
-		{
-
-		} break;
-
-		case EFI_SECTION_PE32 :
-		case EFI_SECTION_PIC :
-		{
-
-		} break;
-
-		case SCT_SECTION_POSTCODE :
-		case INSYDE_SECTION_POSTCODE :
-		{
-
-		} break;
-
-		case EFI_SECTION_TE :
-		{
-
-		} break;
-
-		case EFI_SECTION_VERSION :
-		{
-
-		} break;
-
-		case EFI_SECTION_USER_INTERFACE :
-		{
-
-		} break;
-
-		case EFI_SECTION_COMPATIBILITY16 :
-		{
-
-		} break;
-
-		case EFI_SECTION_FIRMWARE_VOLUME_IMAGE :
-		{
-
-		} break;
-
-		case EFI_SECTION_FREEFORM_SUBTYPE_GUID :
-		{
-
-		} break;
-
-		case EFI_SECTION_RAW :
-		{
-
-		} break;
-
-		default :
-		{
-
-		} break;
-
-		}
-	}*/
+	static decomp_data_storage_t DecompressedSectionData;
+	decomp_data_storage_ptr_t result = nullptr;
+	if (header.sectionType == Helper::SectionHeader::Compression ||
+		header.sectionType == Helper::SectionHeader::GuidDefined) {
+		result = &DecompressedSectionData;
+	} else DEBUG_WARNING_MESSAGE
+		DEBUG_PRINT("\tMessage: Can't access decompressed data storage.");
+		DEBUG_PRINT("\tSection UID: ", getUid());
+		DEBUG_PRINT("\tSection type: ", header.sectionType);
+	DEBUG_END_MESSAGE;
+	return result;
 }
 
 }

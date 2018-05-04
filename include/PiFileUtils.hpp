@@ -134,7 +134,7 @@ namespace Project
 					return length == (header->Attributes & FFS_ATTRIB_LARGE_FILE ? Pi::File::Extended::Header::structure_size : Pi::File::Header::structure_size);
 				}
 
-				bool isFileType(Types::byte_t type) { return whatTypeRange(type) != FileTypeRanges::NotAFileType; }
+				inline bool isFileType(Types::byte_t type) { return whatTypeRange(type) != FileTypeRanges::NotAFileType; }
 
 				bool isSectionedFileType(Types::byte_t type);
 

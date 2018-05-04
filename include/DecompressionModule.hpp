@@ -24,8 +24,8 @@ namespace Project
 			enum Decompresser_t
 			{
 				Unknown,
-				TianoEdk,
-				TianoEfi,
+				//TianoEdk,
+				//TianoEfi,
 				TianoEdk2,
 				TianoEfi2,
 				Lzma,
@@ -60,6 +60,7 @@ namespace Project
 			const Decompresser::Decompresser_t type;
 		};
 
+		/*
 		struct TianoEdkDecompresser :
 			public BaseDecompresser
 		{
@@ -111,6 +112,7 @@ namespace Project
 			);
 
 		};
+		//*/
 
 		struct TianoEdk2Decompresser :
 			public BaseDecompresser
