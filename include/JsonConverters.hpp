@@ -35,12 +35,7 @@ namespace nlohmann
 namespace Project
 {
 
-	inline void to_json(nlohmann::json& j, const OffsetView& obj)
-	{
-		j["offset"] = obj.offset;
-		j["length"] = obj.length;
-		j["valid"] = obj.valid;
-	}
+	void to_json(nlohmann::json& j, const OffsetView& obj);
 
 	namespace Guid
 	{
@@ -58,8 +53,6 @@ namespace Project
 	namespace PiObject
 	{
 		inline void to_json(nlohmann::json& j, const Object& obj) { (&obj)->toJson(j); }
-
-		// inline void to_json(nlohmann::json& j, const unique_object_ptr_t& obj_ptr) { obj_ptr->toJson(j); }
 
 		namespace Helper
 		{

@@ -25,7 +25,7 @@ namespace Project
 	{
 		static const std::size_t byte_size = sizeof(std::uint32_t) / sizeof(Types::memory_t);
 		Types::memory_t bytes[byte_size];
-		std::uint16_t signature = Signature;
+		std::uint32_t signature = Signature;
 	};
 
 	template < std::uint64_t Signature >
@@ -33,7 +33,7 @@ namespace Project
 	{
 		static const std::size_t byte_size = sizeof(std::uint64_t) / sizeof(Types::memory_t);
 		Types::memory_t bytes[byte_size];
-		std::uint16_t signature = Signature;
+		std::uint64_t signature = Signature;
 	};
 
 }

@@ -335,7 +335,8 @@ namespace Project
 					const PiObject::Section* section = nullptr;
 					for (const auto& obj : vec)
 					{
-						if (obj->state & PiObject::InconsistencyState::TypeBits == PiObject::InconsistencyState::SectionFlag)
+						if ( static_cast<std::uint32_t>(obj->state & PiObject::InconsistencyState::TypeBits) == 
+							 static_cast<std::uint32_t>(PiObject::InconsistencyState::SectionFlag) )
 						{
 							section = dynamic_cast<const PiObject::Section*>(obj.get());
 							if (section)
@@ -353,7 +354,7 @@ namespace Project
 									} break;
 									case PiObject::Helper::SectionHeader::UserInterface:
 									{
-										auto* ptr_ = reinterpret_cast<const char16_t*>(reinterpret_cast<Pi::Section::Version::const_pointer_t>(section->header.header.begin)->VersionString);
+										auto* ptr_ = reinterpret_cast<const char16_t*>(reinterpret_cast<Pi::Section::UserInterface::const_pointer_t>(section->header.header.begin)->FileNameString);
 										std::u16string u16str(ptr_, (Pi::Section::Utils::getSize(section->header.header) - Pi::Section::Header::structure_size - sizeof(UINT16)) / sizeof(CHAR16));
 										return utf16_to_utf8(u16str);
 									} break;

@@ -25,13 +25,15 @@ namespace Project
 }
 
 Arguments::Option opts[] = {
-	{ "f",     "file",   Arguments::ArgTypes::Value, 0 },
-	{ "o",     "output", Arguments::ArgTypes::Value, 0 },
-	{ nullptr, nullptr,  Arguments::ArgTypes::Null,  0 }
+	{ "f",     "file",         Arguments::ArgTypes::Value, 0 },
+	{ "o",     "output",       Arguments::ArgTypes::Value, 0 },
+	{ "d",     "decompressed", Arguments::ArgTypes::Value, 0 },
+	{ nullptr, nullptr,        Arguments::ArgTypes::Null,  0 }
 };
 
 struct {
 	std::string inputFilePath;
 	std::string outputFilePath;
+	std::string decompDirPath;
 } arguments;
 #endif // !MAIN_HPP__

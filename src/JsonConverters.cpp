@@ -11,9 +11,13 @@
 #include "PiVolumeUtils.hpp"
 #include "GuidAdvanced.hpp"
 #include "MSVCCodecvtFix.hpp"
+#include "OffsetStack.hpp"
+#include "FormatedPrint.hpp"
 
 namespace Helper
 {
+
+	static thread_local Project::OffsetStack offStack;
 
 	static const EFI_FV_BLOCK_MAP_ENTRY lastEntry = { 0, 0 };
 
@@ -55,7 +59,7 @@ void to_json(nlohmann::json& j, const EFI_GUID& guid)
 		proj_get_rev_uint_n(ptr + 10, &last, 6);
 	}
 	std::memset(guidstr, 0, sizeof(guidstr));
-	std::snprintf(guidstr, sizeof(guidstr), "%.8X-%.4hX-%.4hX-%.4hX-%.12llX", first, middle1, middle2, middle3, last);
+	PROJ_SNPRINTF(guidstr, PROJ_GUID_FORMAT, first, middle1, middle2, middle3, last);
 	j = guidstr;
 }
 
@@ -66,6 +70,20 @@ void Project::Guid::to_json(nlohmann::json& j, const Project::Guid::GuidWithName
 }
 
 
+inline void Project::to_json(nlohmann::json& j, const OffsetView& obj)
+{
+	char strBuffer[PROJ_128B];
+	std::memset(strBuffer, 0, sizeof(strBuffer));
+	PROJ_SNPRINTF(strBuffer, PROJ_UINT64_FORMAT, obj.offset);
+	j["offset"]["string"] = strBuffer;
+	j["offset"]["value"] = obj.offset;
+	PROJ_SNPRINTF(strBuffer, PROJ_UINT64_FORMAT, obj.length);
+	j["length"]["string"] = strBuffer;
+	j["length"]["value"] = obj.length;
+	j["valid"] = obj.valid;
+}
+
+
 void Project::to_json(nlohmann::json& j, const Project::Pi::Volume::Header& hdr)
 {
 	char strBuffer[PROJ_256B];
@@ -73,8 +91,7 @@ void Project::to_json(nlohmann::json& j, const Project::Pi::Volume::Header& hdr)
 	// Structure fields
 	// ZeroVector
 	std::memset(strBuffer, 0, sizeof(strBuffer));
-	std::snprintf(strBuffer, sizeof(strBuffer),
-		"%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX",
+	PROJ_SNPRINTF(strBuffer, PROJ_16BYTE_FORMAT, 
 		ptr[ 0], ptr[ 1], ptr[ 2], ptr[ 3],
 		ptr[ 4], ptr[ 5], ptr[ 6], ptr[ 7],
 		ptr[ 8], ptr[ 9], ptr[10], ptr[11],
@@ -88,14 +105,14 @@ void Project::to_json(nlohmann::json& j, const Project::Pi::Volume::Header& hdr)
 	else 
 		j["FileSystemGuid"] = guid_;
 	// FvLength
-	std::snprintf(strBuffer, sizeof(strBuffer), "%lld (%#.16llX)", hdr->FvLength, hdr->FvLength);
+	PROJ_SNPRINTF(strBuffer, PROJ_UINT64_FORMAT, hdr->FvLength);
 	j["FvLength"]["string"] = strBuffer;
 	j["FvLength"]["value"] = hdr->FvLength;
 	// Signature
-	strBuffer[0] = (hdr->Signature & 0xFF000000) >> 24;
-	strBuffer[1] = (hdr->Signature & 0x00FF0000) >> 16;
-	strBuffer[2] = (hdr->Signature & 0x0000FF00) >>  8;
-	strBuffer[3] = (hdr->Signature & 0x000000FF);
+	strBuffer[3] = (hdr->Signature & 0xFF000000) >> 24;
+	strBuffer[2] = (hdr->Signature & 0x00FF0000) >> 16;
+	strBuffer[1] = (hdr->Signature & 0x0000FF00) >>  8;
+	strBuffer[0] = (hdr->Signature & 0x000000FF);
 	strBuffer[4] = '\0';
 	j["Signature"] = strBuffer;
 	// Attributes
@@ -103,15 +120,15 @@ void Project::to_json(nlohmann::json& j, const Project::Pi::Volume::Header& hdr)
 	j["Attributes"]["alternative"] = Pi::Volume::Utils::getAtributeString(hdr, true);
 	j["Attributes"]["value"] = hdr->Attributes;
 	// HeaderLength
-	std::snprintf(strBuffer, sizeof(strBuffer), "%hd (%#.4hX)", hdr->HeaderLength, hdr->HeaderLength);
+	PROJ_SNPRINTF(strBuffer, PROJ_UINT16_FORMAT, hdr->HeaderLength);
 	j["HeaderLength"]["string"] = strBuffer;
 	j["HeaderLength"]["value"] = hdr->HeaderLength;
 	// Checksum
-	std::snprintf(strBuffer, sizeof(strBuffer), "%hd (%#.4hX)", hdr->Checksum, hdr->Checksum);
+	PROJ_SNPRINTF(strBuffer, PROJ_UINT16_FORMAT, hdr->Checksum);
 	j["Checksum"]["string"] = strBuffer;
 	j["Checksum"]["value"] = hdr->Checksum;
 	// ExtHeaderOffset
-	std::snprintf(strBuffer, sizeof(strBuffer), "%hd (%#.4hX)", hdr->ExtHeaderOffset, hdr->ExtHeaderOffset);
+	PROJ_SNPRINTF(strBuffer, PROJ_UINT16_FORMAT, hdr->ExtHeaderOffset);
 	j["ExtHeaderOffset"]["string"] = strBuffer;
 	j["ExtHeaderOffset"]["value"] = hdr->ExtHeaderOffset;
 	// Reserved
@@ -131,13 +148,13 @@ void Project::to_json(nlohmann::json& j, const Project::Pi::File::Header& hdr)
 	else
 		j["Name"] = guid_;
 	// IntegrityCheck
-	std::snprintf(strBuffer, sizeof(strBuffer), "%hd (%#.4hX)", hdr->IntegrityCheck.Checksum16, hdr->IntegrityCheck.Checksum16);
+	PROJ_SNPRINTF(strBuffer, PROJ_UINT16_FORMAT, hdr->IntegrityCheck.Checksum16);
 	j["IntegrityCheck"]["Checksum16"]["string"] = strBuffer;
 	j["IntegrityCheck"]["Checksum16"]["value"] = hdr->IntegrityCheck.Checksum16;
-	std::snprintf(strBuffer, sizeof(strBuffer), "%hhd (%#.2hhX)", hdr->IntegrityCheck.Checksum.Header, hdr->IntegrityCheck.Checksum.Header);
+	PROJ_SNPRINTF(strBuffer, PROJ_UINT8_FORMAT, hdr->IntegrityCheck.Checksum.Header);
 	j["IntegrityCheck"]["Header"]["string"] = strBuffer;
 	j["IntegrityCheck"]["Header"]["value"] = hdr->IntegrityCheck.Checksum.Header;
-	std::snprintf(strBuffer, sizeof(strBuffer), "%hhd (%#.2hhX)", hdr->IntegrityCheck.Checksum.File, hdr->IntegrityCheck.Checksum.File);
+	PROJ_SNPRINTF(strBuffer, PROJ_UINT8_FORMAT, hdr->IntegrityCheck.Checksum.File);
 	j["IntegrityCheck"]["File"]["string"] = strBuffer;
 	j["IntegrityCheck"]["File"]["value"] = hdr->IntegrityCheck.Checksum.File;
 	// Type
@@ -149,7 +166,7 @@ void Project::to_json(nlohmann::json& j, const Project::Pi::File::Header& hdr)
 	j["Attributes"]["value"] = hdr->Attributes;
 	// Size
 	auto simple_size = Pi::File::Utils::getSize(hdr);
-	std::snprintf(strBuffer, sizeof(strBuffer), "%lld (%#.16llX)", simple_size, simple_size);
+	PROJ_SNPRINTF(strBuffer, PROJ_UINT64_FORMAT, simple_size);
 	j["Size"]["string"] = strBuffer;
 	j["Size"]["value"] = simple_size;
 	// State
@@ -160,7 +177,7 @@ void Project::to_json(nlohmann::json& j, const Project::Pi::File::Header& hdr)
 	if (hdr->Attributes & FFS_ATTRIB_LARGE_FILE)
 	{
 		auto extended_size = Pi::File::Utils::getSize2(hdr);
-		std::snprintf(strBuffer, sizeof(strBuffer), "%lld (%#.16llX)", extended_size, extended_size);
+		PROJ_SNPRINTF(strBuffer, PROJ_UINT64_FORMAT, extended_size);
 		j["ExtendedSize"]["string"] = strBuffer;
 		j["ExtendedSize"]["value"] = extended_size;
 	}
@@ -172,7 +189,7 @@ void Project::to_json(nlohmann::json& j, const Project::Pi::Section::Header& hdr
 	// Structure fields
 	// Size
 	auto simple_size = Pi::Section::Utils::getSize(hdr);
-	std::snprintf(strBuffer, sizeof(strBuffer), "%lld (%#.16llX)", simple_size, simple_size);
+	PROJ_SNPRINTF(strBuffer, PROJ_UINT64_FORMAT, simple_size);
 	j["Size"]["string"] = strBuffer;
 	j["Size"]["value"] = simple_size;
 	// Type
@@ -182,7 +199,7 @@ void Project::to_json(nlohmann::json& j, const Project::Pi::Section::Header& hdr
 	if (Pi::Section::Utils::isExtendedSection(hdr))
 	{
 		auto extended_size = Pi::Section::Utils::getSize2(hdr);
-		std::snprintf(strBuffer, sizeof(strBuffer), "%lld (%#.16llX)", extended_size, extended_size);
+		PROJ_SNPRINTF(strBuffer, PROJ_UINT64_FORMAT, extended_size);
 		j["ExtendedSize"]["string"] = strBuffer;
 		j["ExtendedSize"]["value"] = extended_size;
 	}
@@ -191,7 +208,7 @@ void Project::to_json(nlohmann::json& j, const Project::Pi::Section::Header& hdr
 void Project::to_json(nlohmann::json& j, const Pi::Volume::Extension::Entry& entry)
 {
 	char strBuffer[PROJ_256B];
-	std::snprintf(strBuffer, sizeof(strBuffer), "%hd (%#.4hX)", entry->ExtEntryType, entry->ExtEntryType);
+	PROJ_SNPRINTF(strBuffer, PROJ_UINT16_FORMAT, entry->ExtEntryType);
 	j["ExtEntryType"]["value"] = entry->ExtEntryType;
 	switch (entry->ExtEntryType)
 	{
@@ -260,7 +277,7 @@ void Project::to_json(nlohmann::json& j, const Pi::Volume::Extension::Entry& ent
 		case EFI_FV_EXT_TYPE_USED_SIZE_TYPE:
 		{
 			Pi::Volume::Extension::EntryUsedSize fullEntry(entry.begin);
-			std::snprintf(strBuffer, sizeof(strBuffer), "%hd (%#.8X)", fullEntry->UsedSize, fullEntry->UsedSize);
+			PROJ_SNPRINTF(strBuffer, PROJ_UINT32_FORMAT, fullEntry->UsedSize);
 			j["UsedSize"] = strBuffer;
 			std::memcpy(strBuffer, "EFI_FV_EXT_TYPE_USED_SIZE_TYPE", sizeof("EFI_FV_EXT_TYPE_USED_SIZE_TYPE"));
 		} break;
@@ -293,10 +310,10 @@ void Project::PiObject::Helper::to_json(nlohmann::json& j, const SectionHeader& 
 				section_uncompressedLength = sv->UncompressedLength;
 				section_compressionType = sv->CompressionType;
 			}
-			std::snprintf(strBuffer, sizeof(strBuffer), "%d (%#.8X)", section_uncompressedLength, section_uncompressedLength);
+			PROJ_SNPRINTF(strBuffer, PROJ_UINT32_FORMAT, section_uncompressedLength);
 			j["UncompressedLength"]["string"] = strBuffer;
 			j["UncompressedLength"]["value"] = section_uncompressedLength;
-			std::snprintf(strBuffer, sizeof(strBuffer), "%hhd (%#.2hhX)", section_compressionType, section_compressionType);
+			PROJ_SNPRINTF(strBuffer, PROJ_UINT8_FORMAT, section_compressionType);
 			switch (section_compressionType)
 			{
 				case EFI_NOT_COMPRESSED       : j["CompressionType"]["string"] = "EFI_NOT_COMPRESSED"; break;
@@ -351,10 +368,10 @@ void Project::PiObject::Helper::to_json(nlohmann::json& j, const SectionHeader& 
 				j["SectionDefinitionGuid"]["value"] = section_guid;
 			else
 				j["SectionDefinitionGuid"] = guid_;
-			std::snprintf(strBuffer, sizeof(strBuffer), "%hd (%#.4hX)", section_data_offset, section_data_offset);
+			PROJ_SNPRINTF(strBuffer, PROJ_UINT16_FORMAT, section_data_offset);
 			j["DataOffset"]["string"] = strBuffer;
 			j["DataOffset"]["value"] = section_data_offset;
-			std::snprintf(strBuffer, sizeof(strBuffer), "%hd (%#.4hX)", section_attributes, section_attributes);
+			PROJ_SNPRINTF(strBuffer, PROJ_UINT16_FORMAT, section_attributes);
 			switch (section_attributes)
 			{
 				case EFI_GUIDED_SECTION_PROCESSING_REQUIRED : j["Attributes"]["string"] = "EFI_GUIDED_SECTION_PROCESSING_REQUIRED"; break;
@@ -377,7 +394,7 @@ void Project::PiObject::Helper::to_json(nlohmann::json& j, const SectionHeader& 
 			std::u16string u16str(ptr_, (Pi::Section::Utils::getSize(obj.header) - Pi::Section::Header::structure_size - sizeof(UINT16)) / sizeof(CHAR16));
 			j["VersionString"] = utf16_to_utf8(u16str);
 			UINT16 section_build_number = reinterpret_cast<Pi::Section::Version::const_pointer_t>(obj.header.begin)->BuildNumber;
-			std::snprintf(strBuffer, sizeof(strBuffer), "%hd (%#.4hX)", section_build_number, section_build_number);
+			PROJ_SNPRINTF(strBuffer, PROJ_UINT16_FORMAT, section_build_number);
 			j["BuildNumber"]["string"] = strBuffer;
 			j["BuildNumber"]["value"] = section_build_number;
 		} break;
@@ -386,7 +403,7 @@ void Project::PiObject::Helper::to_json(nlohmann::json& j, const SectionHeader& 
 		case SectionHeader::PostcodeInsyde:
 		{	// It is nearly impossible that this section will have type POSTCODE_SECTION2
 			UINT32 section_postcode = reinterpret_cast<Pi::Section::Postcode::const_pointer_t>(obj.header.begin)->Postcode;
-			std::snprintf(strBuffer, sizeof(strBuffer), "%d (%#.8X)", section_postcode, section_postcode);
+			PROJ_SNPRINTF(strBuffer, PROJ_UINT32_FORMAT, section_postcode);
 			j["Postcode"]["string"] = strBuffer;
 			j["Postcode"]["value"] = section_postcode;
 		} break;
@@ -425,8 +442,13 @@ void Project::PiObject::Object::toJson(nlohmann::json& j) const
 	char strBuffer[PROJ_32B];
 	std::memset(strBuffer, 0, sizeof(strBuffer));
 	j["UID"] = uid;
-	j["position"] = OffsetView(baseBegin, memory);
-	std::snprintf(strBuffer, sizeof(strBuffer), "%d (%#.8X)", static_cast<std::uint32_t>(state), static_cast<std::uint32_t>(state));
+	OffsetView ov(baseBegin, memory);
+	j["position"] = ov;
+	::Helper::offStack.push(ov.offset);
+	PROJ_SNPRINTF(strBuffer, PROJ_UINT64_FORMAT, ::Helper::offStack.get());
+	j["position"]["absolute"]["string"] = strBuffer;
+	j["position"]["absolute"]["value"] = ::Helper::offStack.get();
+	PROJ_SNPRINTF(strBuffer, PROJ_UINT32_FORMAT, static_cast<std::uint32_t>(state));
 	j["state"]["string"] = strBuffer;
 	j["state"]["value"] = static_cast<std::uint32_t>(state);
 	j["Object Type"] = ::Helper::getObjectName(*this);
@@ -436,6 +458,7 @@ void Project::PiObject::Object::toJson(nlohmann::json& j) const
 void Project::PiObject::FreeSpace::toJson(nlohmann::json& j) const
 {
 	Base::toJson(j);
+	::Helper::offStack.pop();
 	j["corrupted"] = isCorrupted();
 	// Restore empty
 	j["empty"] = ((state & InconsistencyState::FreeSpaceEmpty) >> PROJ_FREE_SPACE_STATE_EMPTY_START_BIT);
@@ -444,6 +467,7 @@ void Project::PiObject::FreeSpace::toJson(nlohmann::json& j) const
 void Project::PiObject::Data::toJson(nlohmann::json& j) const
 {
 	Base::toJson(j);
+	::Helper::offStack.pop();
 	const char* data_type = nullptr;
 	switch (state)
 	{
@@ -478,8 +502,19 @@ void Project::PiObject::ComplexObject::toJson(nlohmann::json& j) const
 	if (!objects.empty()) {
 		j["children"] = objects;
 	}
+	::Helper::offStack.pop();
 }
 
+void Project::PiObject::ComplexObject::toJson(nlohmann::json& j, bool) const
+{
+	Base::toJson(j);
+	::Helper::offStack.pop();
+	::Helper::offStack.pushBase();
+	if (!objects.empty()) {
+		j["children"] = objects;
+	}
+	::Helper::offStack.popBase();
+}
 
 void Project::PiObject::Section::toJson(nlohmann::json& j) const
 {
@@ -494,14 +529,16 @@ void Project::PiObject::Section::toJson(nlohmann::json& j) const
 			if (iter != storage->end())
 			{
 				j["uncompressed data"] = iter->second;
+				Base::toJson(j, true);
 			} 
 			else if (header.sectionType == Helper::SectionHeader::GuidDefined)
 			{
 				//TODO: add parsing of not compressed GUIDed sections <= Currently implemented in debug log form.
 			}
 		}
+	} else {
+		Base::toJson(j);
 	}
-	Base::toJson(j);
 }
 
 void Project::PiObject::File::toJson(nlohmann::json& j) const
@@ -519,8 +556,7 @@ void Project::PiObject::Volume::toJson(nlohmann::json& j) const
 	switch (state)
 	{
 		case InconsistencyState::VolumeNormal:
-		{   // Basic header fields
-			j["header"] = normalHdr;
+		{   
 			{   // Volume name
 				auto& guid_ = Guid::NamedGuids::findNamedGuid(extendedHdr->FvName);
 				if (&guid_ == Guid::NamedGuids::end())
@@ -534,6 +570,10 @@ void Project::PiObject::Volume::toJson(nlohmann::json& j) const
 			{
 				j["Extended header entries"] = entryVec;
 			}
+		} // Other data in next case:
+		case InconsistencyState::VolumeNoExtendedHeader:
+		{	// Basic header fields
+			j["header"] = normalHdr;
 			// Block map
 			if (normalHdr.getLength() != fullNormalHdr.getLength())
 			{

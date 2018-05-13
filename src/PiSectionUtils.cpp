@@ -200,31 +200,19 @@ namespace Project
 						certBlock = &reinterpret_cast<const RSA_2048_SHA_256_SECTION_HEADER*>(sectionView.begin)->CertBlockRsa2048Sha256;
 					}
 					auto keyBytes = reinterpret_cast<Types::const_byte_ptr_t>(certBlock->PublicKey);
-					char strBuffer[64];
 					DEBUG_INFO_MESSAGE
 						DEBUG_PRINT("\tMessage: checkRsa2048Sha256GuidedSection is not implemented yet.");
 						DEBUG_PRINT("\tPublic key:");
+						char strBuffer[64];
 						for (std::size_t i = 0; i < 16; ++i)
 						{
 							std::memset(strBuffer, 0, sizeof(strBuffer));
 							std::snprintf(strBuffer, sizeof(strBuffer),
 								"\t\t%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX:%.2hhX",
-								keyBytes[16 * i +  0],
-								keyBytes[16 * i +  1],
-								keyBytes[16 * i +  2],
-								keyBytes[16 * i +  3],
-								keyBytes[16 * i +  4],
-								keyBytes[16 * i +  5],
-								keyBytes[16 * i +  6],
-								keyBytes[16 * i +  7],
-								keyBytes[16 * i +  8],
-								keyBytes[16 * i +  9],
-								keyBytes[16 * i + 10],
-								keyBytes[16 * i + 11],
-								keyBytes[16 * i + 12],
-								keyBytes[16 * i + 13],
-								keyBytes[16 * i + 14],
-								keyBytes[16 * i + 15]
+								keyBytes[16 * i +  0], keyBytes[16 * i +  1], keyBytes[16 * i +  2], keyBytes[16 * i +  3],
+								keyBytes[16 * i +  4], keyBytes[16 * i +  5], keyBytes[16 * i +  6], keyBytes[16 * i +  7],
+								keyBytes[16 * i +  8], keyBytes[16 * i +  9], keyBytes[16 * i + 10], keyBytes[16 * i + 11],
+								keyBytes[16 * i + 12], keyBytes[16 * i + 13], keyBytes[16 * i + 14], keyBytes[16 * i + 15]
 							);
 							DEBUG_PRINT(strBuffer);
 						}

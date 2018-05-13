@@ -101,14 +101,14 @@ namespace Project
 
 	struct OffsetView
 	{
-		OffsetView(Types::const_pointer_t dataPtr, const MemoryView& mv) :
+		OffsetView(Types::const_pointer_t basePtr, const MemoryView& mv) :
 			offset(0), length(0), valid(false)
 		{	// Check that pointers are valid
-			if (dataPtr == Types::const_pointer_t() || !mv.checkPointers())
+			if (basePtr == Types::const_pointer_t() || !mv.checkPointers())
 				return; 
-			if (dataPtr < mv.begin)
+			if (mv.begin < basePtr)
 				return;
-			offset = mv.begin - dataPtr;
+			offset = mv.begin - basePtr;
 			length = mv.getLength();
 			valid = true;
 		}
@@ -117,7 +117,7 @@ namespace Project
 		
 		~OffsetView() = default;
 
-		static MemoryView transform(Types::const_pointer_t dataPtr, const OffsetView& ov)
+		inline static MemoryView transform(Types::const_pointer_t dataPtr, const OffsetView& ov)
 		{
 			MemoryView result;
 			if (!ov.valid || dataPtr == Types::const_pointer_t())
@@ -127,7 +127,7 @@ namespace Project
 			return result;
 		}
 
-		MemoryView transform(Types::const_pointer_t dataPtr) { return transform(dataPtr, *this); }
+		inline MemoryView transform(Types::const_pointer_t dataPtr) { return transform(dataPtr, *this); }
 
 		Types::length_t offset;
 		Types::length_t length;

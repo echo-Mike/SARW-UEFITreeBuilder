@@ -59,6 +59,7 @@ namespace Project
 			ELzmaStatus LzmaStatus;
 			SizeT       DecodedBufSize;
 			SizeT       EncodedDataSize;
+			SRes        status;
 
 			DecodedBufSize = LzmaGetDecodedSizeOfBuf(reinterpret_cast<Types::byte_ptr_t>(Source));
 			EncodedDataSize = static_cast<SizeT>(SrcSize - LZMA_HEADER_SIZE);
@@ -68,7 +69,7 @@ namespace Project
 
 			Destination = std::make_unique<Types::unique_byte_buff_t::element_type[]>(DecodedBufSize);
 
-			auto status = LzmaDecode(
+			status = LzmaDecode(
 				reinterpret_cast<Byte *>(Destination.get()),
 				&DecodedBufSize,
 				dataBegin,
@@ -79,7 +80,7 @@ namespace Project
 				&LzmaStatus,
 				&SzAllocForLzma
 			);
-
+			
 			if (status == SZ_OK) {
 				DEBUG_INFO_MESSAGE
 					DEBUG_PRINT("\tMessage: LzmaDecode returned status.");

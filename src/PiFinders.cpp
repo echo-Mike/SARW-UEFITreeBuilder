@@ -102,7 +102,7 @@ namespace Project
 				result.emplace_back(data.second);
 			}
 
-			DEBUG_INFO_MESSAGE
+			if(!result.empty()) DEBUG_INFO_MESSAGE
 				DEBUG_PRINT("\tMessage: ", result.size() ," firmware volumes found.");
 				int counter = 0;
 				for (const auto& header : result) 
@@ -199,7 +199,7 @@ namespace Project
 				}
 
 				{	// 6) Check repeated GUID
-					if (h->Type != EFI_FV_FILETYPE_FFS_PAD && !guidCollection.count(h->Name)) {
+					if (h->Type != EFI_FV_FILETYPE_FFS_PAD && guidCollection.count(h->Name)) {
 						return FileHeaderStatus::Repeated;
 					}
 				}

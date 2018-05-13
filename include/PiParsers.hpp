@@ -22,8 +22,9 @@ namespace Project
 		void processHeaders(
 			ParserFuncT parser,
 			PiObject::ComplexObject& baseObject, 
-			VecT headerVec, 
+			VecT&& headerVec, 
 			const MemoryView& buffer,
+			const MemoryView& baseBuffer,
 			Types::byte_t empty,
 			const char* errMsg,
 			PiObject::InconsistencyState::InconsistencyState_t errorState)
@@ -34,14 +35,14 @@ namespace Project
 			for (const auto& hdr : headerVec)
 			{	// Check that previous object fill all space before current
 				if (subObjMemory.end < hdr.begin) {
-					baseObject.emplace_back<PiObject::FreeSpace>(empty, baseObject.memory, MemoryView(subObjMemory.end, hdr.begin));
+					baseObject.emplace_back<PiObject::FreeSpace>(empty, baseBuffer, MemoryView(subObjMemory.end, hdr.begin));
 				}
 
 				subObjMemory.begin = hdr.begin;
 				subObjMemory.end = hdr.begin + calcLen(hdr);
 
 				if (buffer.isOutside(subObjMemory.end - 1)) DEBUG_ERROR_MESSAGE
-					OffsetView ov(baseObject.memory.begin, subObjMemory);
+					OffsetView ov(baseBuffer.begin, subObjMemory);
 					DEBUG_PRINT(errMsg);
 					DEBUG_PRINT("\tSub-object offset: ", ov.offset);
 					DEBUG_PRINT("\tSub-object length: ", ov.length);
@@ -53,12 +54,12 @@ namespace Project
 					baseObject.objects.emplace_back(std::move(ptr));
 					continue;
 				})
-				baseObject.emplace_back<SubObjT>( parser(hdr, subObjMemory, baseObject.memory, empty) );
+				baseObject.emplace_back<SubObjT>( parser(hdr, subObjMemory, baseBuffer, empty) );
 			}
 
 			// Check for space after last object
 			if (subObjMemory.end < buffer.end) {
-				baseObject.emplace_back<PiObject::FreeSpace>(empty, baseObject.memory, MemoryView(subObjMemory.end, buffer.end));
+				baseObject.emplace_back<PiObject::FreeSpace>(empty, baseBuffer, MemoryView(subObjMemory.end, buffer.end));
 			}
 		}
 

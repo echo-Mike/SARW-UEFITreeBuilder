@@ -153,9 +153,11 @@
     <ClInclude Include="include\BrotliAdapter.h" />
     <ClInclude Include="include\DecompressionModule.hpp" />
     <ClInclude Include="include\CompressionModule.hpp" />
+    <ClInclude Include="include\FormatedPrint.hpp" />
     <ClInclude Include="include\GuidAdvanced.hpp" />
     <ClInclude Include="include\JsonConverters.hpp" />
     <ClInclude Include="include\MSVCCodecvtFix.hpp" />
+    <ClInclude Include="include\OffsetStack.hpp" />
     <ClInclude Include="include\PiComplexObject.hpp" />
     <ClInclude Include="include\PiSimpleObjects.hpp" />
     <ClInclude Include="include\PiVolumeUtils.hpp" />

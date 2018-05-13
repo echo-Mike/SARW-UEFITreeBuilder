@@ -40,9 +40,11 @@ bool FreeSpace::IsCorrupted(Types::byte_t empty, const MemoryView& buffer)
 	));
 }
 
-Section::decomp_data_storage_ptr_t Section::getDecomressedDataStorage() const
+Section::decomp_data_storage_ptr_t Section::getDecomressedDataStorage()
 {
 	static decomp_data_storage_t DecompressedSectionData;
+	return &DecompressedSectionData;
+	/*
 	decomp_data_storage_ptr_t result = nullptr;
 	if (header.sectionType == Helper::SectionHeader::Compression ||
 		header.sectionType == Helper::SectionHeader::GuidDefined) {
@@ -53,6 +55,7 @@ Section::decomp_data_storage_ptr_t Section::getDecomressedDataStorage() const
 		DEBUG_PRINT("\tSection type: ", header.sectionType);
 	DEBUG_END_MESSAGE;
 	return result;
+	*/
 }
 
 }

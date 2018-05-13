@@ -55,6 +55,10 @@ namespace Project
 			virtual void toJson(nlohmann::json& j) const;
 
 			PROJ_BaseCopyablePiObject(ComplexObject)
+			
+			// Class i-face
+
+			void toJson(nlohmann::json& j, bool) const;
 
 			template< typename T, typename... Args>
 			inline typename std::enable_if< std::is_base_of<Object, T>::value >::type 

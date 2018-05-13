@@ -52,7 +52,8 @@ namespace Project
 				VolumeAlreadyParsed         = VolumeFlag | 0x00000001,
 				VolumeBlockMapCollision     = VolumeFlag | 0x00000002,
 				VolumeInvalidExtendedHeader = VolumeFlag | 0x00000004,
-				VolumeUnknownFileSystem     = VolumeFlag | 0x00000008
+				VolumeUnknownFileSystem     = VolumeFlag | 0x00000008,
+				VolumeNoExtendedHeader      = VolumeFlag | 0x00000010
 			};
 		}
 
@@ -99,7 +100,7 @@ namespace Project
 			Types::const_pointer_t baseBegin;
 			Types::hash_t uid;
 		public:
-			MemoryView memory;
+			MemoryView memory; //!< Memory that contains header and data of object (if it is present)
 			InconsistencyState::InconsistencyState_t state;
 		};
 

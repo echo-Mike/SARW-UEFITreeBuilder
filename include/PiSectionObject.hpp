@@ -138,7 +138,7 @@ namespace Project
 
 			// Class i-face
 
-			decomp_data_storage_ptr_t getDecomressedDataStorage() const;
+			static decomp_data_storage_ptr_t getDecomressedDataStorage();
 
 			inline Pi::Section::Header::const_pointer_t operator->() const { return header.header.get(); }
 

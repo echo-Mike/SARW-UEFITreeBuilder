@@ -118,7 +118,7 @@ namespace Utils {
 
 	std::string getAtributeString(const Pi::Volume::Header::const_pointer_t header, bool alternative)
 	{
-		char strBuffer[512];
+		char strBuffer[PROJ_1KB];
 		std::memset(strBuffer, 0, sizeof(strBuffer));
 		if (alternative)
 		{

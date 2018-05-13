@@ -615,6 +615,7 @@ Returns: (VOID)
   UINT16  BytesRemain;
   UINT32  DataIdx;
   UINT16  CharC;
+  UINT8*  oldmDstBase;
 
   BytesRemain = (UINT16) (-1);
 
@@ -643,10 +644,20 @@ Returns: (VOID)
 
       BytesRemain = CharC;
 
+	  oldmDstBase = Sd->mDstBase;
       DataIdx     = Sd->mOutBuf - DecodeP (Sd) - 1;
+	  if (Sd->mDstBase != oldmDstBase)
+	  {
+		  Sd->mBadTableFlag |= 1;
+		  return;
+	  }
 
       BytesRemain--;
       while ((INT16) (BytesRemain) >= 0) {
+		if (DataIdx >= Sd->mOrigSize ) {
+			Sd->mBadTableFlag |= 2;
+			return ;
+		}
         Sd->mDstBase[Sd->mOutBuf++] = Sd->mDstBase[DataIdx++];
         if (Sd->mOutBuf >= Sd->mOrigSize) {
           return ;

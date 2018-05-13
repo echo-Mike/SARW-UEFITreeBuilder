@@ -82,16 +82,8 @@ namespace Project
 			PiObject::object_vec_t result;
 			auto volumes = Finders::VolumeFinder(buffer);
 
-			if (volumes.empty()) { // Volumes not found : add as a free space
-				result.emplace_back(std::make_unique<PiObject::FreeSpace>(PiObject::default_empty, buffer, buffer));
-				// Report parsing stats
-				DEBUG_INFO_MESSAGE
-					DEBUG_PRINT("\tMessage: Free space parsing ended.");
-					DEBUG_PRINT("\tNothing found.");
-				DEBUG_END_MESSAGE
-			} 
-			else 
-			{ // Something is found
+			if (!volumes.empty())
+			{   // Something is found
 				Finders::VolumesVec_t toProcess;
 				Finders::VolumesVec_t deferred;
 				{	// Check intersections
@@ -112,6 +104,9 @@ namespace Project
 							if (!thisBody.isInside(iter2->begin))
 							{	// This skips previous volume in outer loop
 								iter = std::prev(iter2);
+								if (iter2 == last) { // Outer loop can never add last to toProcess list
+									toProcess.emplace_back(*iter2);
+								}
 								// At min: iter2 = std::next(iter)
 								// Outer loop continues from current "other" volume
 								break;
@@ -159,7 +154,7 @@ namespace Project
 					DEBUG_PRINT("\tMessage: Free space parsing ended.");
 					DEBUG_PRINT("\tTotal volumes found: ", volumes.size());
 					DEBUG_PRINT("\tPrimal volumes: ", toProcess.size());
-					DEBUG_PRINT("\tDeferred volumes: ", toProcess.size());
+					DEBUG_PRINT("\tDeferred volumes: ", deferred.size());
 					DEBUG_PRINT("\tDeferred volumes processed: ", deferedProc);
 					DEBUG_PRINT("\tTotal objects: ", result.size());
 				DEBUG_END_MESSAGE
@@ -248,9 +243,13 @@ namespace Project
 					// No legitimate file can be created in that space
 					if (searchAreaCount == VOLUME_EXTENDED_HEADER_FOUND && volume.extendedHdr.begin - volume.fullNormalHdr.end < Pi::File::Header::structure_size)
 					{	// Create new free space instance
-						volume.emplace_back<PiObject::FreeSpace>(empty, volume.memory, MemoryView(volume.fullNormalHdr.end, volume.extendedHdr.begin));
+						volume.emplace_back<PiObject::FreeSpace>(empty, buffer, MemoryView(volume.fullNormalHdr.end, volume.extendedHdr.begin));
 						searchAreaCount = VOLUME_EXTENDED_HEADER_AFTER_BLOCK_MAP;
 					}
+				}
+				else
+				{
+					volume.state |= PiObject::InconsistencyState::VolumeNoExtendedHeader;
 				}
 
 				// Find Pi file headers for all areas of interests based on their count
@@ -261,11 +260,13 @@ namespace Project
 						volumeBody.begin = ALIGN_PTR8(volume.fullNormalHdr.begin, volume.fullNormalHdr.end);
 						fileViews = Finders::FileFinder(volumeBody, empty);
 					} break;
+
 					case VOLUME_EXTENDED_HEADER_AFTER_BLOCK_MAP :
 					{	// Extended header is right after block map or space between is insignificant
 						volumeBody.begin = ALIGN_PTR8(volume.fullNormalHdr.begin, volume.fullExtendedHdr.end);
 						fileViews = Finders::FileFinder(volumeBody, empty);
 					} break;
+
 					case VOLUME_EXTENDED_HEADER_FOUND :
 					{	// Both areas: between block map and extended header and after extended header are significant
 						volumeBody.begin = ALIGN_PTR8(volume.fullNormalHdr.begin, volume.fullNormalHdr.end);
@@ -274,17 +275,16 @@ namespace Project
 						// Find all files in first area
 						fileViews = Finders::FileFinder(volumeBody, empty);
 						if (fileViews.empty()) { // No files found: add area to empty space
-							volume.emplace_back<PiObject::FreeSpace>(empty, volume.memory, MemoryView(volume.fullNormalHdr.end, volume.extendedHdr.begin));
+							volume.emplace_back<PiObject::FreeSpace>(empty, buffer, MemoryView(volume.fullNormalHdr.end, volume.extendedHdr.begin));
 						} 
 						else
-						{ // Some files found: process them to file objects and free space
+						{   // Some files found: process them to file objects and free space
 							processHeaders< PiObject::File, calcFileLen >(
 								FileParser,
-								volume, fileViews, volumeBody, empty, 
+								volume, fileViews, volumeBody, buffer, empty,
 								"\tMessage: File exceeds volume boundary.", 
 								PiObject::InconsistencyState::DataInvalidFile
 							);
-							// processFileHeaders(volume, fileViews, volumeBody);
 							fileViews.clear();
 						}
 
@@ -293,6 +293,7 @@ namespace Project
 						// Find files in second area
 						fileViews = Finders::FileFinder(volumeBody, empty);
 					} break;
+
 					default:
 					{
 						DEBUG_ERROR_MESSAGE
@@ -305,7 +306,7 @@ namespace Project
 				if (!fileViews.empty()) {
 					processHeaders< PiObject::File, calcFileLen >(
 						FileParser,
-						volume, fileViews, volumeBody, empty, 
+						volume, fileViews, volumeBody, buffer, empty,
 						"\tMessage: File exceeds volume boundary.", 
 						PiObject::InconsistencyState::DataInvalidFile
 					);
@@ -391,7 +392,7 @@ namespace Project
 				} else { // Run section parsing routine
 					processHeaders< PiObject::Section, calcSecLen >(
 						SectionParser,
-						file, sections, fileBody, empty,
+						file, sections, fileBody, buffer, empty,
 						"\tMessage: Section exceeds file boundary.", 
 						PiObject::InconsistencyState::DataInvalidSection
 					);
@@ -402,7 +403,7 @@ namespace Project
 			{	// Raw file types may contain other volumes
 				auto parseResult = FreeSpaceParser(fileBody);
 				if (!parseResult.empty())
-				{	// Move found objects
+				{   // Move found objects
 					file.objects.insert(
 						file.objects.end(),
 						std::make_move_iterator(parseResult.begin()),
@@ -430,7 +431,7 @@ namespace Project
 			static PiObject::Section sectionByHeader(const Pi::Section::Header& sectionView, const MemoryView& buffer, const MemoryView& baseBuffer)
 			{
 				using namespace PiObject::Helper;
-				PiObject::Section result(sectionView, buffer, baseBuffer);
+				PiObject::Section result(sectionView, baseBuffer, buffer);
 				// Set section header type
 				result.header.headerType = Pi::Section::Utils::getSize(sectionView) == PROJ_SECTION_MAX_SIZE ? SectionHeader::Extended : SectionHeader::Simple;
 				// Set section type
@@ -474,7 +475,7 @@ namespace Project
 				auto decomp = Decompression::AllocDecompresser(decompType);
 				Types::length_t dstSize = 0;
 				auto err = decomp->GetInfo(source.get(), length, dstSize);
-				if (err != EFI_SUCCESS) DEBUG_WARNING_MESSAGE
+				if (err != EFI_SUCCESS) DEBUG_INFO_MESSAGE
 					DEBUG_PRINT("\tMessage: Error during request for compressed data information.");
 					DEBUG_PRINT("\tCompression type: ", compressionTypeName);
 					DEBUG_PRINT("\tSection UID: ", section.getUid());
@@ -484,7 +485,7 @@ namespace Project
 				Types::unique_byte_buff_t decomp_data;
 
 				err = decomp->Decompress(source.get(), length, decomp_data);
-				if (EFI_SUCCESS != err) DEBUG_WARNING_MESSAGE
+				if (err != EFI_SUCCESS) DEBUG_INFO_MESSAGE
 					DEBUG_PRINT("\tMessage: Error occurred during decompression.");
 					DEBUG_PRINT("\tCompression type: ", compressionTypeName);
 					DEBUG_PRINT("\tSection UID: ", section.getUid());
@@ -534,6 +535,7 @@ namespace Project
 						UINT32 section_uncompressedLength = 0;
 						UINT8 section_compressionType = 0;
 						MemoryView toProcess(sectionBody);
+						MemoryView toProcessBase(buffer);
 						// "sectionBody" was set up correctly
 
 						if (Pi::Section::Utils::isExtendedSection(sectionView)) {
@@ -560,7 +562,7 @@ namespace Project
 								message = "\tMessage: Section exceeds section boundary.";
 							}
 							else 
-							{	// If decompressed data storage in not available break
+							{	// If decompressed data storage is not available break
 								if (!decomp_data_storage) break;
 								// Decompresser works with non constant memory
 								auto tmp = sectionBody.memcpy();
@@ -591,6 +593,7 @@ namespace Project
 
 									if (err == EFI_SUCCESS) {
 										message = "\tMessage: Section exceeds decompressed section boundary.";
+										toProcessBase = toProcess;
 									} else {
 										break;
 									}
@@ -662,6 +665,7 @@ namespace Project
 
 									if (err == EFI_SUCCESS) {
 										message = "\tMessage: Section exceeds decompressed section boundary.";
+										toProcessBase = toProcess;
 									} else {
 										break;
 									}
@@ -673,7 +677,7 @@ namespace Project
 							if (!sections.empty()) {
 								processHeaders< PiObject::Section, FileParserNs::calcSecLen >(
 									SectionParser,
-									sectionObj, sections, toProcess, empty,
+									sectionObj, sections, toProcess, toProcessBase, empty,
 									message,
 									PiObject::InconsistencyState::DataInvalidSection
 								);
@@ -718,6 +722,7 @@ namespace Project
 							{	// EFI_GUID SOME_GUID_NAME works on C++11 braced initialization
 								// Preset toProcess to offseted data
 								MemoryView toProcess(sectionView.begin + section_data_offset, buffer.end);
+								MemoryView toProcessBase(buffer);
 								auto offsetedDataLength = toProcess.getLength();
 								// Obtain pointer to global decompressed data storage
 								auto decomp_data_storage = sectionObj.getDecomressedDataStorage();
@@ -742,6 +747,7 @@ namespace Project
 									if (err == EFI_SUCCESS)
 									{
 										message = "\tMessage: Section exceeds decompressed section boundary.";
+										toProcessBase = toProcess;
 										processBody = true;
 									}
 								}
@@ -763,6 +769,7 @@ namespace Project
 									if (err == EFI_SUCCESS)
 									{
 										message = "\tMessage: Section exceeds decompressed section boundary.";
+										toProcessBase = toProcess;
 										processBody = true;
 									}
 								} 
@@ -784,6 +791,7 @@ namespace Project
 									if (err == EFI_SUCCESS)
 									{
 										message = "\tMessage: Section exceeds decompressed section boundary.";
+										toProcessBase = toProcess;
 										processBody = true;
 									}
 								} 
@@ -818,6 +826,7 @@ namespace Project
 									if (err == EFI_SUCCESS)
 									{
 										message = "\tMessage: Section exceeds decompressed section boundary.";
+										toProcessBase = toProcess;
 										processBody = true;
 									}
 								} 
@@ -907,8 +916,8 @@ namespace Project
 									if (!sections.empty()) {
 										processHeaders< PiObject::Section, FileParserNs::calcSecLen >(
 											SectionParser,
-											sectionObj, sections, toProcess, empty,
-											message, 
+											sectionObj, sections, toProcess, toProcessBase,
+											empty, message, 
 											PiObject::InconsistencyState::DataInvalidSection
 										);
 										// If it is then save do not save body as data, otherwise do
@@ -929,7 +938,7 @@ namespace Project
 						if (!sections.empty()) {
 							processHeaders< PiObject::Section, FileParserNs::calcSecLen >(
 								SectionParser,
-								sectionObj, sections, sectionBody, empty,
+								sectionObj, sections, sectionBody, buffer, empty,
 								"\tMessage: Section exceeds section boundary.", 
 								PiObject::InconsistencyState::DataInvalidSection
 							);
@@ -957,7 +966,7 @@ namespace Project
 				} else {
 					processHeaders< PiObject::Volume, calcVolLen >(
 						VolumeParser,
-						sectionObj, volumeVec, sectionBody, empty,
+						sectionObj, volumeVec, sectionBody, buffer, empty,
 						"\tMessage: Volume exceeds section boundary.", 
 						PiObject::InconsistencyState::DataInvalidVolume
 					);
@@ -967,7 +976,7 @@ namespace Project
 			else if (sectionView->Type == EFI_SECTION_RAW) 
 			{	// Parse as if it is a new image
 				auto foundEntries = FreeSpaceParser(sectionBody);
-				if (foundEntries.empty()) 
+				if (!foundEntries.empty()) 
 				{	// Move found entries to child array
 					sectionObj.objects.insert(
 						sectionObj.objects.end(),
