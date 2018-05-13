@@ -84,11 +84,11 @@ namespace Utils {
 		// There may be out of bound access
 		Types::length_t blockMap = Helper::computeBlockMapLength(header);
 		if ( volumeField != blockMap ) DEBUG_WARNING_MESSAGE
-				DEBUG_PRINT("\tMessage: Volume block map length and value of FvLength do not match.");
-				DEBUG_PRINT("\tGUID: ", header->FileSystemGuid);
-				DEBUG_PRINT("\tFvLength: ", volumeField);
-				DEBUG_PRINT("\tCalculated block map length: ", blockMap);
-			DEBUG_END_MESSAGE
+			DEBUG_PRINT("\tMessage: Volume block map length and value of FvLength do not match.");
+			DEBUG_PRINT("\tGUID: ", header->FileSystemGuid);
+			DEBUG_PRINT("\tFvLength: ", volumeField);
+			DEBUG_PRINT("\tCalculated block map length: ", blockMap);
+		DEBUG_END_MESSAGE
 		return volumeField;
 	}
 
@@ -198,6 +198,17 @@ namespace Utils {
 		}
 		return result;
 	}
+
+	bool hasSizeConflict(const Pi::Volume::Header::const_pointer_t header)
+	{
+		return header->FvLength != Helper::computeBlockMapLength(header);
+	}
+
+	Types::length_t getSizeBM(const Pi::Volume::Header::const_pointer_t header)
+	{
+		return Helper::computeBlockMapLength(header);
+	}
+
 
 } 
 } 

@@ -91,6 +91,22 @@ namespace Project
 					auto last = volumes.begin();
 					std::advance(last, std::distance(volumes.begin(), volumes.end()) - 1);
 					MemoryView thisBody;
+					auto printIntersectionError = [&](decltype(volumes)::iterator& iter, decltype(volumes)::iterator& iter2) -> bool
+					{
+						OffsetView thisOV(buffer.begin, thisBody);
+						OffsetView otherOV(buffer.begin, MemoryView(iter2->begin, iter2->begin + Pi::Volume::Utils::getSize(iter2->get()) - 1));
+						DEBUG_ERROR_MESSAGE
+							DEBUG_PRINT("\tMessage: Intersected volumes found.");
+							DEBUG_PRINT("\tThis position: ", std::distance(volumes.begin(), iter));
+							DEBUG_PRINT("\tThis offset: ", thisOV.offset);
+							DEBUG_PRINT("\tThis length: ", thisOV.length);
+							DEBUG_PRINT("\tOther position: ", std::distance(volumes.begin(), iter2));
+							DEBUG_PRINT("\tOther offset: ", otherOV.offset);
+							DEBUG_PRINT("\tOther length: ", otherOV.length);
+						DEBUG_END_MESSAGE
+						return true;
+					};
+
 					// "volumes" array is sorted by header address, so only previous volume may contain next one
 					for (auto iter = volumes.begin(); iter != last; iter = std::next(iter))
 					{	// Add "this" volume to processing list
@@ -115,17 +131,40 @@ namespace Project
 							if (thisBody.isInside(iter2->begin + Pi::Volume::Utils::getSize(iter2->get()) - 1))
 							{	// "other" volume is fully contained in "this" one
 								deferred.emplace_back(*iter2);
-							} else { // This is deadly intersection report an error
-								DEBUG_ERROR_MESSAGE
-									OffsetView thisOV(buffer.begin, thisBody);
-									OffsetView otherOV(buffer.begin, MemoryView(iter2->begin, iter2->begin + Pi::Volume::Utils::getSize(iter2->get()) - 1));
-									DEBUG_PRINT("\tMessage: Intersected volumes found.");
-									DEBUG_PRINT("\tThis position: ", std::distance(volumes.begin(), iter) + 1);
-									DEBUG_PRINT("\tThis offset: ", thisOV.offset);
-									DEBUG_PRINT("\tOther position: ", std::distance(volumes.begin(), iter2) + 1);
-									DEBUG_PRINT("\tOther offset: ", otherOV.offset);
-								DEBUG_END_MESSAGE
-								error = true;
+							} 
+							else if (Pi::Volume::Utils::hasSizeConflict(iter->get()))
+							{   // If there is a size conflict for "this" volume try to use other size
+								auto oldEnd = thisBody.end;
+								thisBody.setEnd(iter->begin + Pi::Volume::Utils::getSizeBM(iter->get()));
+								if (thisBody.end < oldEnd)
+								{	// Repeating code above
+									if (!thisBody.isInside(iter2->begin))
+									{
+										iter = std::prev(iter2);
+										if (iter2 == last) {
+											toProcess.emplace_back(*iter2);
+										}
+										break;
+									}
+									if (thisBody.isInside(iter2->begin + Pi::Volume::Utils::getSize(iter2->get()) - 1))
+									{
+										deferred.emplace_back(*iter2);
+									}
+									else
+									{	// Situation is unsolvable
+										error = printIntersectionError(iter, iter2);
+										break;
+									}
+								}
+								else
+								{	// Can't do anything in this situation
+									error = printIntersectionError(iter, iter2);
+									break;
+								}
+							}
+							else
+							{   // This is deadly intersection report an error
+								error = printIntersectionError(iter, iter2);
 								break;
 							}
 						}

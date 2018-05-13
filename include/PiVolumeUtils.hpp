@@ -70,6 +70,18 @@ namespace Project
 
 				extended_header_entries_vec_t findExtendedHeaderEntries(const Extension::Header& hdr, const MemoryView& buffer);
 
+				bool hasSizeConflict(const Pi::Volume::Header::const_pointer_t header);
+
+				inline bool hasSizeConflict(const Pi::Volume::Header& header) { return hasSizeConflict(header.get()); }
+
+				inline bool hasSizeConflict(const PiObject::Volume& volume) { return hasSizeConflict(volume.normalHdr.get()); }
+
+				Types::length_t getSizeBM(const Pi::Volume::Header::const_pointer_t header);
+
+				inline bool getSizeBM(const Pi::Volume::Header& header) { return getSizeBM(header.get()); }
+
+				inline bool getSizeBM(const PiObject::Volume& volume) { return getSizeBM(volume.normalHdr.get()); }
+
 			}
 
 		}
