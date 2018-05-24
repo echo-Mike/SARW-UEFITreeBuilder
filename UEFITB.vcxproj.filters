@@ -188,9 +188,6 @@
     <ClInclude Include="include\PiSectionUtils.hpp">
       <Filter>Header Files\Helpers</Filter>
     </ClInclude>
-    <ClInclude Include="include\CompressionModule.hpp">
-      <Filter>Header Files\Compression</Filter>
-    </ClInclude>
     <ClInclude Include="include\DecompressionModule.hpp">
       <Filter>Header Files\Compression</Filter>
     </ClInclude>

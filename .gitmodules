@@ -8,6 +8,3 @@
 [submodule "submodules/json"]
 	path = submodules/json
 	url = https://github.com/nlohmann/json.git
-[submodule "submodules/openssl"]
-	path = submodules/openssl
-	url = https://github.com/openssl/openssl.git

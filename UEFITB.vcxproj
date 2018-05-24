@@ -152,7 +152,6 @@
   <ItemGroup>
     <ClInclude Include="include\BrotliAdapter.h" />
     <ClInclude Include="include\DecompressionModule.hpp" />
-    <ClInclude Include="include\CompressionModule.hpp" />
     <ClInclude Include="include\FormatedPrint.hpp" />
     <ClInclude Include="include\GuidAdvanced.hpp" />
     <ClInclude Include="include\JsonConverters.hpp" />

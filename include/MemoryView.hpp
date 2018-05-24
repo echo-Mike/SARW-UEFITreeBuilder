@@ -15,21 +15,21 @@
 namespace Project 
 {
 
-    struct MemoryView 
+	struct MemoryView 
 	{
 
-        explicit MemoryView(
+		explicit MemoryView(
 			Types::const_pointer_t begin_ = nullptr, 
 			Types::const_pointer_t end_ = nullptr
 		) : begin(begin_), end(end_)
-        {
-            if ( begin_ != Types::const_pointer_t() && end_ != Types::const_pointer_t() ) 
+		{
+			if ( begin_ != Types::const_pointer_t() && end_ != Types::const_pointer_t() ) 
 			{
-                if (begin_ > end_) {
-                    std::swap(begin, end);
-                }
-            }
-        }
+				if (begin_ > end_) {
+					std::swap(begin, end);
+				}
+			}
+		}
 
 		MemoryView(
 			Types::const_pointer_t begin_,
